@@ -78,6 +78,21 @@ void main() {
       expect(cautious.shouldBid, isFalse);
     });
 
+    test('rival round records decisions and raises a competing bid', () {
+      final state = createDemoAuction();
+      final result = engine.runRivalRound(
+        state: state,
+        rivals: const [
+          RivalProfile(teamId: 'roy', style: RivalStyle.aggressive, aggression: 1),
+          RivalProfile(teamId: 'tit', style: RivalStyle.budgetGuardian, aggression: 0.3),
+          RivalProfile(teamId: 'fal', style: RivalStyle.youthFirst, aggression: 0.7),
+        ],
+      );
+      expect(result.phase, AuctionPhase.bidding);
+      expect(result.leadingTeamId, isNotNull);
+      expect(result.bidHistory, isNotEmpty);
+    });
+
     test('rival bid depends on its style and has a reason', () {
       final state = createDemoAuction();
       final player = state.players.first;
