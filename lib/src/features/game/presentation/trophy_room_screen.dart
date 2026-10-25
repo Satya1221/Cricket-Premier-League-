@@ -57,7 +57,7 @@ class TrophyRoomScreen extends ConsumerWidget {
           contentPadding: EdgeInsets.zero,
           leading: CircleAvatar(backgroundColor: GamePalette.gold.withValues(alpha: .15), child: Text('${i + 1}', style: const TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900))),
           title: Text(players[i].name, style: const TextStyle(fontWeight: FontWeight.w800)),
-          subtitle: Text(players[i].role, style: const TextStyle(color: Colors.white54)),
+          subtitle: Text(batting ? '${players[i].role} · HS ${players[i].highScore} · 50s ${players[i].fifties} · 100s ${players[i].hundreds}' : '${players[i].role} · Best ${players[i].bestBowlingWickets}/${players[i].bestBowlingRuns} · Econ ${players[i].ballsBowled == 0 ? '—' : (players[i].runsConceded * 6 / players[i].ballsBowled).toStringAsFixed(2)}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
           trailing: Text('${batting ? players[i].runs : players[i].wickets}', style: const TextStyle(color: GamePalette.gold, fontSize: 20, fontWeight: FontWeight.w900)),
         ),
     ]),
