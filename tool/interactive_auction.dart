@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import '../lib/src/features/auction/domain/dynamic_auction_engine.dart';
+import 'package:cricket_premier_league/src/features/auction/domain/dynamic_auction_engine.dart';
 
 /// Terminal adapter for the shared auction models.
 /// Run with: dart run tool/interactive_auction.dart
@@ -52,15 +52,15 @@ class InteractiveAuctionRoom {
           : currentBid + engine.incrementFor(currentBid);
 
       if (team.purse < nextBid) {
-        stdout.writeln('${team.name} cannot afford $$nextBid and drops out.');
+        stdout.writeln('${team.name} cannot afford \$nextBid and drops out.');
         active.removeAt(cursor);
         continue;
       }
 
       if (team.isHuman) {
-        stdout.writeln('\nCurrent bid: $$currentBid (${leader?.name ?? 'No bids yet'})');
+        stdout.writeln('\nCurrent bid: \$currentBid (${leader?.name ?? 'No bids yet'})');
         stdout.writeln('Your purse: ${team.purse}');
-        stdout.write('Bid $$nextBid? (y/n): ');
+        stdout.write('Bid \$nextBid? (y/n): ');
         final input = stdin.readLineSync()?.trim().toLowerCase();
 
         if (input == 'y' || input == 'yes') {
@@ -71,7 +71,7 @@ class InteractiveAuctionRoom {
             franchiseName: team.name,
             amount: currentBid,
           ));
-          stdout.writeln('YOU bid $$currentBid!');
+          stdout.writeln('YOU bid \$currentBid!');
           cursor = 0;
           continue;
         }
@@ -91,7 +91,7 @@ class InteractiveAuctionRoom {
           franchiseName: team.name,
           amount: currentBid,
         ));
-        stdout.writeln('${team.name} bids $$currentBid');
+        stdout.writeln('${team.name} bids \$currentBid');
         cursor = 0;
       } else {
         stdout.writeln('${team.name} drops out.');
@@ -105,7 +105,7 @@ class InteractiveAuctionRoom {
     }
 
     leader.purse -= currentBid;
-    stdout.writeln('\nSOLD: ${player.name} to ${leader.name} for $$currentBid.');
+    stdout.writeln('\nSOLD: ${player.name} to ${leader.name} for \$currentBid.');
     stdout.writeln('Remaining purses:');
     for (final team in franchises) {
       stdout.writeln('  ${team.name}: ${team.purse}');
