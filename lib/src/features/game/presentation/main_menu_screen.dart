@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../application/game_controller.dart';
 import '../../../../state/user_preferences_provider.dart';
-
 import '../../../theme/game_theme.dart';
-import 'startup_screen.dart';
+import '../application/game_controller.dart';
 import 'home_screen.dart';
+import 'startup_screen.dart';
 
 /// First entry point. Keep campaign setup separate from the active franchise
 /// dashboard so launching the app does not silently start a new career.
@@ -18,7 +17,6 @@ class MainMenuScreen extends ConsumerWidget {
       MaterialPageRoute<void>(builder: (_) => const StartupScreen()),
     );
   }
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
