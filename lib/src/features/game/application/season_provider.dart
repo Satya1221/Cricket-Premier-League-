@@ -8,7 +8,6 @@ import '../domain/career_simulation_engine.dart';
 import 'game_controller.dart';
 import '../../auction/data/real_ipl_2026_player_pool.dart';
 import '../../auction/domain/auction_state.dart';
-import '../../auction/domain/player.dart';
 
 final careerSaveRepositoryProvider = Provider<CareerSaveRepository>((ref) => CareerSaveRepository());
 final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) {
