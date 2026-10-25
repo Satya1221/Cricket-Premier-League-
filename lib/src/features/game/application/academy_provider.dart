@@ -9,10 +9,14 @@ class AcademyNotifier extends StateNotifier<AcademyState> {
   AcademyNotifier() : super(const AcademyState());
   void upgrade({required bool youthAcademy}) {
     final result = purchaseUpgrade(budget: state.budget, facilities: state.facilities, youthAcademy: youthAcademy);
-    if (result.success) state = state.copyWith(budget: result.remainingBudget, facilities: result.facilities);
+    if (result.success) {
+      state = state.copyWith(budget: result.remainingBudget, facilities: result.facilities);
+    }
   }
   void hireCoach(CoachingStaff coach) {
-    if (state.staff.any((s) => s.specialty == coach.specialty) || state.budget < coach.salaryPerSeason) return;
+    if (state.staff.any((s) => s.specialty == coach.specialty) || state.budget < coach.salaryPerSeason) {
+      return;
+    }
     state = state.copyWith(budget: state.budget - coach.salaryPerSeason, staff: [...state.staff, coach]);
   }
   int potentialCap(int baseCap) => state.facilities.adjustedPotentialCap(baseCap: baseCap, staff: state.staff);
