@@ -1,0 +1,112 @@
+import '../domain/player.dart';
+
+/// Real player identities and 2026 IPL franchise affiliations are compiled from
+/// the published 2026 squad lists. Ability, potential, form and reserve prices
+/// are game-balancing estimates, not official BCCI ratings or auction prices.
+class IplFranchise {
+  const IplFranchise(this.id, this.name, this.shortName);
+  final String id, name, shortName;
+}
+
+const currentIplFranchises = <IplFranchise>[
+  IplFranchise('cpl', 'Mumbai Indians', 'MI'),
+  IplFranchise('roy', 'Royal Challengers Bengaluru', 'RCB'),
+  IplFranchise('tit', 'Chennai Super Kings', 'CSK'),
+  IplFranchise('fal', 'Kolkata Knight Riders', 'KKR'),
+  IplFranchise('gt', 'Gujarat Titans', 'GT'),
+  IplFranchise('rr', 'Rajasthan Royals', 'RR'),
+  IplFranchise('pbks', 'Punjab Kings', 'PBKS'),
+  IplFranchise('srh', 'Sunrisers Hyderabad', 'SRH'),
+  IplFranchise('lsg', 'Lucknow Super Giants', 'LSG'),
+  IplFranchise('dc', 'Delhi Capitals', 'DC'),
+];
+
+AuctionPlayer _p(
+  String id, String name, String nation, PlayerRole role, int age,
+  int overall, int potential, int batting, int bowling, int fielding,
+  {double price = 0.5, bool overseas = false, int form = 72}
+) => AuctionPlayer(
+  id: id, name: name, nation: nation, role: role, age: age,
+  overall: overall, potential: potential, batting: batting, bowling: bowling,
+  fielding: fielding, form: form, basePriceCr: price, isOverseas: overseas,
+);
+
+/// Opening auction pool based on the published 2026 IPL squad rosters.
+/// Every player is a real cricketer; ratings are estimates for gameplay.
+final realIpl2026PlayerPool = <AuctionPlayer>[
+  _p('mi-rohit-sharma','Rohit Sharma','India',PlayerRole.batter,39,91,91,94,24,82,price:2,form:78),
+  _p('mi-suryakumar-yadav','Suryakumar Yadav','India',PlayerRole.batter,36,95,95,98,18,84,price:2,form:86),
+  _p('mi-jasprit-bumrah','Jasprit Bumrah','India',PlayerRole.bowler,32,98,98,20,99,88,price:2,form:90),
+  _p('mi-hardik-pandya','Hardik Pandya','India',PlayerRole.allRounder,33,91,92,88,86,82,price:2,form:79),
+  _p('mi-tilak-varma','Tilak Varma','India',PlayerRole.batter,23,87,94,90,22,80,price:1,form:82),
+  _p('mi-trent-boult','Trent Boult','New Zealand',PlayerRole.bowler,37,89,89,20,91,79,price:2,overseas:true,form:76),
+  _p('mi-ryan-rickelton','Ryan Rickelton','South Africa',PlayerRole.wicketKeeper,30,85,88,88,12,82,price:1,overseas:true,form:77),
+  _p('mi-will-jacks','Will Jacks','England',PlayerRole.allRounder,28,86,91,88,76,78,price:1,overseas:true,form:80),
+  _p('rcb-virat-kohli','Virat Kohli','India',PlayerRole.batter,38,96,96,98,18,88,price:2,form:88),
+  _p('rcb-rajat-patidar','Rajat Patidar','India',PlayerRole.batter,33,88,90,91,20,78,price:1,form:82),
+  _p('rcb-phil-salt','Phil Salt','England',PlayerRole.wicketKeeper,30,90,93,94,10,80,price:2,overseas:true,form:87),
+  _p('rcb-josh-hazlewood','Josh Hazlewood','Australia',PlayerRole.bowler,35,91,91,18,94,84,price:2,overseas:true,form:82),
+  _p('rcb-bhuvneshwar-kumar','Bhuvneshwar Kumar','India',PlayerRole.bowler,36,89,89,24,91,82,price:1,form:85),
+  _p('rcb-tim-david','Tim David','Australia',PlayerRole.batter,30,87,89,84,10,74,price:1,overseas:true,form:78),
+  _p('rcb-krunal-pandya','Krunal Pandya','India',PlayerRole.allRounder,35,85,85,79,80,83,price:1,form:76),
+  _p('csk-ruturaj-gaikwad','Ruturaj Gaikwad','India',PlayerRole.batter,29,91,94,94,18,84,price:2,form:86),
+  _p('csk-sanju-samson','Sanju Samson','India',PlayerRole.wicketKeeper,31,91,93,94,12,85,price:2,form:84),
+  _p('csk-ms-dhoni','MS Dhoni','India',PlayerRole.wicketKeeper,45,83,83,78,8,95,price:0.5,form:70),
+  _p('csk-shivam-dube','Shivam Dube','India',PlayerRole.allRounder,33,87,89,92,48,74,price:1,form:82),
+  _p('csk-noor-ahmad','Noor Ahmad','Afghanistan',PlayerRole.bowler,21,88,95,15,91,75,price:1,overseas:true,form:82),
+  _p('csk-dewald-brevis','Dewald Brevis','South Africa',PlayerRole.batter,23,84,94,88,35,75,price:1,overseas:true,form:78),
+  _p('csk-rahul-chahar','Rahul Chahar','India',PlayerRole.bowler,27,82,87,20,84,77,price:0.5,form:75),
+  _p('kkr-rinku-singh','Rinku Singh','India',PlayerRole.batter,29,90,93,92,18,84,price:2,form:87),
+  _p('kkr-sunil-narine','Sunil Narine','West Indies',PlayerRole.allRounder,38,91,91,82,94,85,price:2,overseas:true,form:83),
+  _p('kkr-varun-chakaravarthy','Varun Chakaravarthy','India',PlayerRole.bowler,34,91,92,10,94,77,price:2,form:86),
+  _p('kkr-cameron-green','Cameron Green','Australia',PlayerRole.allRounder,27,91,96,90,87,84,price:2,overseas:true,form:83),
+  _p('kkr-ajinkya-rahane','Ajinkya Rahane','India',PlayerRole.batter,38,82,82,84,20,78,price:0.5,form:70),
+  _p('kkr-matheesha-pathirana','Matheesha Pathirana','Sri Lanka',PlayerRole.bowler,23,88,96,12,94,76,price:2,overseas:true,form:81),
+  _p('gt-shubman-gill','Shubman Gill','India',PlayerRole.batter,27,94,97,96,20,86,price:2,form:88),
+  _p('gt-sai-sudharsan','Sai Sudharsan','India',PlayerRole.batter,24,91,97,94,18,84,price:2,form:88),
+  _p('gt-rashid-khan','Rashid Khan','Afghanistan',PlayerRole.bowler,28,96,97,72,98,92,price:2,overseas:true,form:89),
+  _p('gt-jos-buttler','Jos Buttler','England',PlayerRole.wicketKeeper,36,94,94,97,10,83,price:2,overseas:true,form:84),
+  _p('gt-kagiso-rabada','Kagiso Rabada','South Africa',PlayerRole.bowler,31,93,94,18,96,83,price:2,overseas:true,form:88),
+  _p('gt-mohammed-siraj','Mohammed Siraj','India',PlayerRole.bowler,32,88,90,18,91,79,price:1,form:80),
+  _p('gt-washington-sundar','Washington Sundar','India',PlayerRole.allRounder,27,85,91,77,84,84,price:1,form:78),
+  _p('rr-yashasvi-jaiswal','Yashasvi Jaiswal','India',PlayerRole.batter,24,94,98,97,15,81,price:2,form:91),
+  _p('rr-vaibhav-sooryavanshi','Vaibhav Sooryavanshi','India',PlayerRole.batter,15,86,99,91,12,73,price:0.5,form:92),
+  _p('rr-ravindra-jadeja','Ravindra Jadeja','India',PlayerRole.allRounder,37,91,91,82,92,96,price:2,form:80),
+  _p('rr-jofra-archer','Jofra Archer','England',PlayerRole.bowler,31,91,95,40,96,86,price:2,overseas:true,form:82),
+  _p('rr-riyan-parag','Riyan Parag','India',PlayerRole.allRounder,25,87,93,88,76,81,price:1,form:81),
+  _p('rr-dhruv-jurel','Dhruv Jurel','India',PlayerRole.wicketKeeper,25,86,93,88,10,84,price:1,form:80),
+  _p('pbks-shreyas-iyer','Shreyas Iyer','India',PlayerRole.batter,31,91,92,93,15,81,price:2,form:84),
+  _p('pbks-arshdeep-singh','Arshdeep Singh','India',PlayerRole.bowler,27,91,95,20,94,82,price:2,form:88),
+  _p('pbks-yuzvendra-chahal','Yuzvendra Chahal','India',PlayerRole.bowler,36,89,89,10,93,76,price:1,form:80),
+  _p('pbks-priyansh-arya','Priyansh Arya','India',PlayerRole.batter,25,84,94,89,12,75,price:0.5,form:80),
+  _p('pbks-marco-jansen','Marco Jansen','South Africa',PlayerRole.allRounder,26,89,95,80,91,83,price:2,overseas:true,form:83),
+  _p('pbks-marcus-stoinis','Marcus Stoinis','Australia',PlayerRole.allRounder,37,88,88,89,74,79,price:1,overseas:true,form:78),
+  _p('srh-travis-head','Travis Head','Australia',PlayerRole.batter,32,94,95,97,22,78,price:2,overseas:true,form:87),
+  _p('srh-abhishek-sharma','Abhishek Sharma','India',PlayerRole.allRounder,26,92,97,96,74,81,price:2,form:88),
+  _p('srh-heinrich-klaasen','Heinrich Klaasen','South Africa',PlayerRole.wicketKeeper,35,95,95,97,12,84,price:2,overseas:true,form:89),
+  _p('srh-pat-cummins','Pat Cummins','Australia',PlayerRole.allRounder,33,91,92,72,93,85,price:2,overseas:true,form:83),
+  _p('srh-isha kishan','Ishan Kishan','India',PlayerRole.wicketKeeper,28,88,92,91,10,79,price:1,form:80),
+  _p('srh-nitish-kumar-reddy','Nitish Kumar Reddy','India',PlayerRole.allRounder,23,87,95,86,80,78,price:1,form:82),
+  _p('lsg-rishabh-pant','Rishabh Pant','India',PlayerRole.wicketKeeper,29,92,95,94,12,81,price:2,form:83),
+  _p('lsg-nicholas-pooran','Nicholas Pooran','West Indies',PlayerRole.wicketKeeper,31,94,95,97,8,80,price:2,overseas:true,form:87),
+  _p('lsg-mitchell-marsh','Mitchell Marsh','Australia',PlayerRole.allRounder,35,89,89,90,82,78,price:1,overseas:true,form:80),
+  _p('lsg-mohammed-shami','Mohammed Shami','India',PlayerRole.bowler,36,89,89,20,92,80,price:1,form:77),
+  _p('lsg-mayank-yadav','Mayank Yadav','India',PlayerRole.bowler,23,87,97,14,94,75,price:1,form:78),
+  _p('lsg-awanesh-khan','Avesh Khan','India',PlayerRole.bowler,29,85,89,18,88,76,price:1,form:77),
+  _p('dc-kl-rahul','KL Rahul','India',PlayerRole.wicketKeeper,34,91,91,94,12,83,price:2,form:81),
+  _p('dc-axar-patel','Axar Patel','India',PlayerRole.allRounder,32,91,93,81,91,89,price:2,form:84),
+  _p('dc-kuldeep-yadav','Kuldeep Yadav','India',PlayerRole.bowler,31,92,94,15,95,83,price:2,form:87),
+  _p('dc-tristan-stubbs','Tristan Stubbs','South Africa',PlayerRole.wicketKeeper,26,90,96,92,18,82,price:2,overseas:true,form:85),
+  _p('dc-mitchell-starc','Mitchell Starc','Australia',PlayerRole.bowler,36,92,92,25,96,80,price:2,overseas:true,form:82),
+  _p('dc-nitish-rana','Nitish Rana','India',PlayerRole.batter,32,84,85,86,25,76,price:1,form:75),
+  _p('mi-deepak-chahar','Deepak Chahar','India',PlayerRole.bowler,34,84,86,26,87,79,price:1,form:75),
+  _p('rcb-devdutt-padikkal','Devdutt Padikkal','India',PlayerRole.batter,26,84,91,88,12,76,price:1,form:77),
+  _p('csk-ayush-mhatre','Ayush Mhatre','India',PlayerRole.batter,19,82,96,86,20,77,price:0.5,form:81),
+  _p('kkr-rachin-ravindra','Rachin Ravindra','New Zealand',PlayerRole.allRounder,27,87,93,88,82,80,price:1,overseas:true,form:80),
+  _p('gt-prasidh-krishna','Prasidh Krishna','India',PlayerRole.bowler,30,88,90,16,92,78,price:1,form:82),
+  _p('rr-sandeep-sharma','Sandeep Sharma','India',PlayerRole.bowler,33,86,86,16,89,80,price:1,form:81),
+  _p('pbks-xavier-bartlett','Xavier Bartlett','Australia',PlayerRole.bowler,27,84,91,22,88,79,price:1,overseas:true,form:80),
+  _p('srh-harshal-patel','Harshal Patel','India',PlayerRole.bowler,36,87,87,25,90,75,price:1,form:79),
+  _p('lsg-awanesh-shami','Mohammed Shami','India',PlayerRole.bowler,36,89,89,20,92,80,price:1,form:77),
+  _p('dc-pathum-nissanka','Pathum Nissanka','Sri Lanka',PlayerRole.batter,28,86,91,89,12,79,price:1,overseas:true,form:82),
+];
