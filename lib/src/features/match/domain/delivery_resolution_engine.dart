@@ -19,7 +19,7 @@ class ResolutionBowler {
     this.condition,
   }) : assert(baseAccuracy >= 1 && baseAccuracy <= 100),
        assert(baseMovement >= 1 && baseMovement <= 100),
-       assert(stamina >= 0.5 && stamina <= 1.0);
+       assert(stamina >= 0.0 && stamina <= 1.0);
 
   final String name;
   final double baseAccuracy;
