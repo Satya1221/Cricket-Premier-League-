@@ -13,7 +13,6 @@ class InboxScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final inbox = ref.watch(globalCalendarProvider);
     final controller = ref.read(globalCalendarProvider.notifier);
-    final date = _formatLongDate(inbox.currentDate);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
