@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'src/core/game_feel.dart';
+import 'src/features/game/data/campaign_store.dart';
 import 'src/features/game/presentation/main_menu_screen.dart';
 import 'src/theme/game_theme.dart';
 
@@ -11,6 +12,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox<dynamic>('career_saves');
   await Hive.openBox<dynamic>('game_state');
+  await CampaignStore.initialize();
   GameFeel.init();
   runApp(const ProviderScope(child: CricketPremierLeagueApp()));
 }
