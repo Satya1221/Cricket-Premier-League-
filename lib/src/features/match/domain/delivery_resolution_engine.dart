@@ -30,8 +30,11 @@ class ResolutionBowler {
   double stamina;
 
   void recoverOrTireAfterBall() {
-    stamina = max(0.5, stamina - 0.005);
+    stamina = max(0.0, stamina - 0.005);
   }
+
+  /// Additional over-end workload drain; a 0.08 drop is applied per completed over.
+  void settleOver() { stamina = max(0.0, stamina - 0.08); }
 }
 
 class ResolutionBatter {
