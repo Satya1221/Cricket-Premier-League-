@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/game_controller.dart';
+import '../../../state/user_preferences_provider.dart';
 
 import '../../../theme/game_theme.dart';
 import 'startup_screen.dart';
@@ -107,7 +108,36 @@ class MainMenuScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
-                    onPressed: () => _showUnavailable(context, 'Settings'),
+                    onPressed: () => showDialog<void>(
+                      context: context,
+                      builder: (dialogContext) => Consumer(
+                        builder: (context, dialogRef, _) {
+                          final preferences = dialogRef.watch(userPreferencesProvider);
+                          final actions = dialogRef.read(userPreferencesProvider.notifier);
+                          return AlertDialog(
+                            title: const Text('GAME SETTINGS'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                DropdownButtonFormField<String>(
+                                  value: preferences.difficulty,
+                                  decoration: const InputDecoration(labelText: 'Difficulty'),
+                                  items: const ['Easy', 'Normal', 'Hard'].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
+                                  onChanged: (value) { if (value != null) actions.setDifficulty(value); },
+                                ),
+                                SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: const Text('Sound effects'),
+                                  value: preferences.soundEnabled,
+                                  onChanged: actions.setSoundEnabled,
+                                ),
+                              ],
+                            ),
+                            actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('DONE'))],
+                          );
+                        },
+                      ),
+                    ),
                     icon: const Icon(Icons.tune_rounded),
                     label: const Text('SETTINGS'),
                     style: OutlinedButton.styleFrom(
