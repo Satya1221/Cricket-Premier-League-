@@ -62,6 +62,9 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
  void selectNewBowler(String bowlerId){
   if(bowlerId.trim().isEmpty)throw ArgumentError('Select a bowler.');
   if(!state.pendingBowlerChange && state.bowlerId!=null)throw StateError('A new bowler is only needed at the start of an over.');
+  if(state.bowlerId==bowlerId && state.legalBalls>0)throw StateError('IPL rules do not allow the same bowler to bowl consecutive overs.');
+  final bowlerBalls=state.deliveries.where((d)=>d.bowlerId==bowlerId&&d.legalDelivery).length;
+  if(bowlerBalls>=24)throw StateError('An IPL bowler may bowl a maximum of four overs.');
   state=state.copyWith(bowlerId:bowlerId,pendingBowlerChange:false,message:'Bowler ready.');
  }
  void swapBatters(){state=state.copyWith(strikerId:state.nonStrikerId,nonStrikerId:state.strikerId);}
