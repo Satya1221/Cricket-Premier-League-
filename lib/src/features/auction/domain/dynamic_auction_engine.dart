@@ -26,6 +26,7 @@ class AuctionFranchise {
     required this.purse,
     required this.neededRoles,
     required this.aggression,
+    this.isHuman = false,
   }) : assert(purse >= 0), assert(aggression >= 0.1 && aggression <= 2.0);
 
   final String id;
@@ -33,6 +34,8 @@ class AuctionFranchise {
   int purse;
   final List<String> neededRoles;
   final double aggression;
+  /// True for the user-controlled franchise in terminal or interactive UI flows.
+  final bool isHuman;
 }
 
 enum AuctionLotStatus { sold, unsold }
@@ -76,6 +79,8 @@ class DynamicAuctionEngine {
 
   int calculateMaxBid(AuctionPlayerProfile player, AuctionFranchise team) {
     if (team.purse < player.basePrice) return 0;
+    // Human franchises are limited by their purse, not a hidden CPU valuation.
+    if (team.isHuman) return team.purse;
     var ratingMultiplier = player.overallRating / 80.0;
     if (player.overallRating >= 90) ratingMultiplier *= 1.8;
     final roleMultiplier = team.neededRoles.contains(player.role) ? 1.6 : 0.6;
