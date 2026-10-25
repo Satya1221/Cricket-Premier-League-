@@ -21,8 +21,11 @@ jobs:
           channel: stable
       - name: Generate Android platform project
         run: flutter create --platforms=android --project-name cricket_premier_league --org com.satya1221 .
-      - name: Remove generated sample test
-        run: rm -f test/widget_test.dart
+      - name: Remove generated sample test if present
+        run: |
+          if [ -f test/widget_test.dart ] && grep -q "MyApp" test/widget_test.dart; then
+            rm -f test/widget_test.dart
+          fi
       - name: Resolve dependencies
         run: flutter pub get
       - name: Format Dart
