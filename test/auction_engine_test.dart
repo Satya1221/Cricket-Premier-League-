@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cricket_premier_league/src/features/auction/data/demo_auction.dart';
 import 'package:cricket_premier_league/src/features/auction/domain/auction_engine.dart';
 import 'package:cricket_premier_league/src/features/auction/domain/auction_state.dart';
-import 'package:cricket_premier_league/src/features/auction/domain/player.dart';
 
 void main() {
   const engine = AuctionEngine();
