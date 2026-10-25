@@ -3,6 +3,8 @@ import 'dart:math';
 import 'living_pitch.dart';
 
 enum DeliveryOutcomeType { wicket, dot, one, two, four, six }
+enum BatterIntent { defend, rotate, slog }
+enum BowlerTactic { attack, contain, balanced }
 
 class ResolutionBowler {
   ResolutionBowler({
@@ -55,6 +57,9 @@ class DeliveryResolution {
     required this.advantage,
     required this.roll,
     required this.pitchModifiers,
+    required this.intent,
+    required this.tactic,
+    required this.thresholds,
   });
 
   final DeliveryOutcomeType outcome;
@@ -64,6 +69,9 @@ class DeliveryResolution {
   final double advantage;
   final double roll;
   final Map<String, double> pitchModifiers;
+  final BatterIntent intent;
+  final BowlerTactic tactic;
+  final Map<String, double> thresholds;
 }
 
 /// Resolves a delivery using environment-adjusted bowler threat versus
@@ -85,6 +93,8 @@ class DeliveryResolutionEngine {
     double captaincyBonus = 0,
     double pressureMultiplier = 1,
     bool batterSurvived = true,
+    BatterIntent intent = BatterIntent.rotate,
+    BowlerTactic tactic = BowlerTactic.balanced,
   }) {
     assert(pressureMultiplier >= 0 && pressureMultiplier <= 1.5);
     final modifiers = environment.getDeliveryModifiers();
@@ -101,18 +111,54 @@ class DeliveryResolutionEngine {
     final advantage = batterControl - deliveryThreat;
     final roll = _random.nextDouble() * 100 + advantage * rollShiftScale;
 
-    // Thresholds are intentionally centralized for balance tuning.
-    final outcome = roll < 10
+    // Tactics reshape the outcome bands, not the players' underlying skills.
+    // Clamp thresholds into a monotonic sequence to avoid impossible bands.
+    var wicketChance = 10.0;
+    var dotChance = 35.0;
+    var oneTwoChance = 75.0;
+    var fourChance = 90.0;
+    switch (intent) {
+      case BatterIntent.defend:
+        wicketChance -= 6;
+        dotChance += 30;
+        fourChance += 10;
+      case BatterIntent.rotate:
+        dotChance -= 10;
+      case BatterIntent.slog:
+        wicketChance += 15;
+        dotChance -= 15;
+        fourChance -= 20;
+    }
+    switch (tactic) {
+      case BowlerTactic.attack:
+        wicketChance += 5;
+        fourChance -= 10;
+      case BowlerTactic.contain:
+        wicketChance -= 5;
+        fourChance += 15;
+        dotChance += 10;
+      case BowlerTactic.balanced:
+        break;
+    }
+    wicketChance = wicketChance.clamp(0.0, 35.0);
+    dotChance = dotChance.clamp(wicketChance, 70.0);
+    oneTwoChance = oneTwoChance.clamp(dotChance, 85.0);
+    fourChance = fourChance.clamp(oneTwoChance, 99.0);
+    final thresholds = <String, double>{
+      'wicket': wicketChance,
+      'dot': dotChance,
+      'oneTwo': oneTwoChance,
+      'four': fourChance,
+    };
+    final outcome = roll <= wicketChance
         ? DeliveryOutcomeType.wicket
-        : roll < 35
+        : roll <= dotChance
             ? DeliveryOutcomeType.dot
-            : roll < 60
-                ? DeliveryOutcomeType.one
-                : roll < 75
-                    ? DeliveryOutcomeType.two
-                    : roll < 90
-                        ? DeliveryOutcomeType.four
-                        : DeliveryOutcomeType.six;
+            : roll <= oneTwoChance
+                ? (_random.nextBool() ? DeliveryOutcomeType.one : DeliveryOutcomeType.two)
+                : roll <= fourChance
+                    ? DeliveryOutcomeType.four
+                    : DeliveryOutcomeType.six;
     final commentary = switch (outcome) {
       DeliveryOutcomeType.wicket => 'WICKET! Edged and taken.',
       DeliveryOutcomeType.dot => 'Dot ball. Beaten by the movement.',
@@ -135,6 +181,9 @@ class DeliveryResolutionEngine {
       advantage: advantage,
       roll: roll,
       pitchModifiers: Map.unmodifiable(modifiers),
+      intent: intent,
+      tactic: tactic,
+      thresholds: Map.unmodifiable(thresholds),
     );
   }
 }
