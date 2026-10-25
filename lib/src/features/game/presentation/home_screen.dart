@@ -39,8 +39,7 @@ class HomeScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
           ],
         ),
-      ),
-      actions: [
+        actions: [
         IconButton(
           tooltip: 'Manager inbox',
           onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
@@ -71,7 +70,8 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ],
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(18),
