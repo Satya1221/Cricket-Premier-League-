@@ -46,11 +46,9 @@ class AuctionEngine {
     final youthBonus = (30 - player.age).clamp(0, 12) / 100;
     final formFactor = 0.88 + (player.form.clamp(0, 100) / 100) * 0.24;
     final rolePremium = player.role == PlayerRole.allRounder ? 1.12 : 1.0;
-    final calculated = (player.basePriceCr +
-            player.basePriceCr * 2.2 * skill +
-            player.basePriceCr * potential * youthBonus * 2.5) *
-        formFactor *
-        rolePremium;
+    final tierValue = player.overall >= 85 ? 10.0 : player.overall >= 75 ? 2.0 : player.basePriceCr;
+    final calculated = (tierValue + tierValue * 1.1 * skill +
+            player.basePriceCr * potential * youthBonus * 2.5) * formFactor * rolePremium;
     return math.max(player.basePriceCr, calculated);
   }
 
@@ -80,7 +78,8 @@ class AuctionEngine {
     // temporarily push a manager beyond its normal valuation ceiling.
     final aggressionFactor = 0.82 + rival.aggression.clamp(0.0, 1.0) * 0.36;
     final pressureFactor = 1 + rival.managerPressure.clamp(-0.2, 0.2);
-    final reserve = valuationCr(player) * styleFactor * aggressionFactor * pressureFactor;
+    final paceNeedFactor = team.squad.where((p) => p.role == PlayerRole.bowler && p.bowling >= 65).length < 2 && player.role == PlayerRole.bowler && player.bowling >= 65 ? 1.30 : 1.0;
+    final reserve = valuationCr(player) * styleFactor * aggressionFactor * pressureFactor * paceNeedFactor;
     final nextBid = currentBidCr == 0
         ? player.basePriceCr
         : currentBidCr + incrementFor(currentBidCr);
