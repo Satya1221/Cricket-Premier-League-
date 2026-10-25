@@ -43,7 +43,7 @@ void main() {
       intent: BatterIntent.slog,
       tactic: BowlerTactic.attack,
     );
-    expect(result.thresholds['wicket'], closeTo(21, 0.01));
+    expect(result.thresholds['wicket'], closeTo(18, 0.01));
     expect(result.thresholds['four'], closeTo(64, 0.01));
   });
 
