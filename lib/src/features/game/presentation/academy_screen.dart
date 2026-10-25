@@ -190,3 +190,15 @@ String _coachEffect(CoachSpecialty s) => switch (s) {
       CoachSpecialty.fitness => '-15% workload fatigue accumulated per over.',
       CoachSpecialty.youthDevelopment => '+2 youth potential cap while employed.',
     };
+
+void _showResult(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+}
