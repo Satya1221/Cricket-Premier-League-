@@ -73,7 +73,11 @@ class AuctionTeam {
   final int maxOverseas;
   final int maxOverseasPlayingXi;
 
-  double get spentCr => squad.fold<double>(0, (sum, p) => sum + p.basePriceCr);
+  /// Auction expenditure uses the winning hammer price, not the player's base price.
+  double get spentCr => squad.fold<double>(
+        0,
+        (sum, player) => sum + (player.contract?.currentSalaryCrores ?? player.basePriceCr),
+      );
   int get overseasCount => squad.where((p) => p.isOverseas).length;
   int get remainingSlots => maxSquadSize - squad.length;
 
