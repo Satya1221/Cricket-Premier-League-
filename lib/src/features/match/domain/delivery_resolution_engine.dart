@@ -121,6 +121,7 @@ class DeliveryResolutionEngine {
       case BatterIntent.defend:
         wicketChance -= 6;
         dotChance += 30;
+        oneTwoChance += 5;
         fourChance += 10;
         break;
       case BatterIntent.rotate:
@@ -129,6 +130,7 @@ class DeliveryResolutionEngine {
       case BatterIntent.slog:
         wicketChance += 15;
         dotChance -= 15;
+        oneTwoChance -= 15;
         fourChance -= 20;
         break;
     }
