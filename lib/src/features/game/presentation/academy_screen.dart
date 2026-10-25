@@ -96,7 +96,7 @@ class AcademyScreen extends ConsumerWidget {
                 subtitle: Text(
                   s.staff.any((x) => x.specialty == specialty)
                       ? 'Hired \u00b7 ${_coachEffect(specialty)}'
-                      : '${_coachEffect(specialty)}\nHire cost: 100 credits/season',
+                      : '${_coachEffect(specialty)}\nHire cost: ₹25,00,000/season',
                   style: const TextStyle(color: Colors.white60),
                 ),
                 isThreeLine: true,
@@ -118,7 +118,7 @@ class AcademyScreen extends ConsumerWidget {
             ),
           const SizedBox(height: 8),
           const Text(
-            'Upgrades and staff currently live in Riverpod memory for this session; permanent save support is not connected.',
+            'Facility levels and operating treasury are saved locally. Staff hiring costs are recorded in the transaction ledger.',
             style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
           ),
         ],
