@@ -48,18 +48,13 @@ class AcademyNotifier extends StateNotifier<AcademyState> {
     return '${youthAcademy?'Youth Academy':'Training Facilities'} upgraded to Level $nextLevel for ₹$cost.';
   }
 
-  String hireCoach(CoachingStaff coach) {
-    if (state.staff.any((s) => s.specialty == coach.specialty)) {
-      return 'A coach for this specialty is already hired.';
-    }
-    if (state.budget < coach.salaryPerSeason) {
-      return 'Insufficient credits to hire this coach.';
-    }
-    state = state.copyWith(
-      budget: state.budget - coach.salaryPerSeason,
-      staff: [...state.staff, coach],
-    );
-    return '${coach.name} hired for ${coach.salaryPerSeason} credits per season.';
+  Future<String> hireCoach(CoachingStaff coach) async {
+    if(state.staff.any((s)=>s.specialty==coach.specialty))return 'A coach for this specialty is already hired.';
+    const salaryRupees=2500000;
+    final ok=await _treasury.spend(rupees:salaryRupees,description:'Hire ${coach.name} for one season',category:'Staff');
+    if(!ok)return 'Insufficient operating treasury to hire this coach.';
+    state=state.copyWith(staff:[...state.staff,coach]);
+    return '${coach.name} hired for ₹$salaryRupees this season.';
   }
 
   int potentialCap(int baseCap) => state.facilities.adjustedPotentialCap(
