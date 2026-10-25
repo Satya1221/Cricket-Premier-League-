@@ -1,6 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/fixture_model.dart';
-import '../services/medical_workload_service.dart';
 import '../src/features/game/application/season_provider.dart';
 import 'season_schedule_repository.dart';
 
