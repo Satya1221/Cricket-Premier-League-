@@ -19,14 +19,6 @@ class MainMenuScreen extends ConsumerWidget {
     );
   }
 
-  void _showUnavailable(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature is not available yet. Campaign save/load is not connected.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
