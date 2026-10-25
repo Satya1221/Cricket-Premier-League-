@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'living_pitch.dart';
+import 'granular_player_profile.dart';
 
 enum DeliveryOutcomeType { wicket, dot, one, two, four, six }
 enum BatterIntent { defend, rotate, slog }
@@ -13,6 +14,8 @@ class ResolutionBowler {
     required this.baseMovement,
     required this.isSpinner,
     this.stamina = 1.0,
+    this.attributes,
+    this.condition,
   }) : assert(baseAccuracy >= 1 && baseAccuracy <= 100),
        assert(baseMovement >= 1 && baseMovement <= 100),
        assert(stamina >= 0.5 && stamina <= 1.0);
@@ -34,6 +37,9 @@ class ResolutionBatter {
     required this.baseTiming,
     required this.baseDefense,
     this.concentration = 0.4,
+    this.attributes,
+    this.condition,
+    this.traits,
   }) : assert(baseTiming >= 1 && baseTiming <= 100),
        assert(baseDefense >= 1 && baseDefense <= 100),
        assert(concentration >= 0.4 && concentration <= 1.0);
