@@ -72,9 +72,6 @@ class StadiumScreen extends ConsumerWidget {
               },
               icon: const Icon(Icons.stadium_rounded), label: const Text('UPGRADE STADIUM'))),
             const SizedBox(height: 6),
-            SizedBox(width: double.infinity, child: OutlinedButton.icon(
-              onPressed: () => actions.recordHomeMatch(), icon: const Icon(Icons.payments_rounded), label: const Text('RECORD HOME MATCH REVENUE'))),
-            const SizedBox(height: 8),
             SizedBox(width:double.infinity,child:OutlinedButton.icon(onPressed:()=>Navigator.of(context).push(MaterialPageRoute<void>(builder:(_)=>const IncomeStatementScreen())),icon:const Icon(Icons.receipt_long_rounded),label:const Text('VIEW INCOME STATEMENT'))),
             const SizedBox(height: 8),
             Text(state.lastAction, style: const TextStyle(color: Colors.white54, fontSize: 12)),
