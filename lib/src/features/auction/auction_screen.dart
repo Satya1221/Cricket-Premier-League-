@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/game_feel.dart';
+import '../../core/cricket_currency.dart';
 import '../match/matchday_screen.dart';
 
 import '../../theme/game_theme.dart';
@@ -219,9 +220,9 @@ class _PlayerLot extends StatelessWidget {
       ]),
       const Divider(height: 28, color: GamePalette.line),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        _Price(label: 'BASE PRICE', value: '₹${player.basePriceCr.toStringAsFixed(2)} Cr'),
-        _Price(label: 'CURRENT BID', value: currentBid == 0 ? '—' : '₹${currentBid.toStringAsFixed(2)} Cr', highlight: true),
-        _Price(label: 'EST. VALUE', value: '₹${valuation.toStringAsFixed(2)} Cr'),
+        _Price(label: 'BASE PRICE', value: CricketCurrency.format(player.basePriceCr)),
+        _Price(label: 'CURRENT BID', value: currentBid == 0 ? '—' : CricketCurrency.format(currentBid), highlight: true),
+        _Price(label: 'EST. VALUE', value: CricketCurrency.format(valuation)),
       ]),
       if (phase == AuctionPhase.sold) ...[
         const SizedBox(height: 12),
@@ -319,7 +320,7 @@ class _TeamRow extends StatelessWidget {
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(team.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
         const SizedBox(height: 3),
-        Text('Purse ₹${team.purseCr.toStringAsFixed(2)} Cr • Squad ${team.squad.length}', style: const TextStyle(color: GamePalette.muted, fontSize: 10)),
+        Text('Purse ${CricketCurrency.format(team.purseCr)} • Squad ${team.squad.length}', style: const TextStyle(color: GamePalette.muted, fontSize: 10)),
       ])),
       Icon(leading ? Icons.local_fire_department : Icons.add_circle_outline, color: leading ? GamePalette.gold : GamePalette.emerald),
     ])),
@@ -350,13 +351,13 @@ class _ManagerDeck extends StatelessWidget {
       const SizedBox(height: 12),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('Your franchise • CPL', style: TextStyle(color: GamePalette.muted, fontSize: 12)),
-        Text('₹${(team?.purseCr ?? 0).toStringAsFixed(2)} Cr',
+        Text(CricketCurrency.format(team?.purseCr ?? 0),
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: GamePalette.gold)),
       ]),
       const SizedBox(height: 5),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('Next bid', style: TextStyle(color: GamePalette.muted, fontSize: 12)),
-        Text('₹${nextBid.toStringAsFixed(2)} Cr', style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(CricketCurrency.format(nextBid), style: const TextStyle(fontWeight: FontWeight.w800)),
       ]),
       const SizedBox(height: 14),
       SizedBox(
@@ -372,7 +373,7 @@ class _ManagerDeck extends StatelessWidget {
             team != null && team.remainingSlots <= 0 ? 'SQUAD FULL' :
             player != null && player.isOverseas && team != null && team.overseasCount >= team.maxOverseas
                 ? 'OVERSEAS LIMIT REACHED'
-                : 'PLACE BID • ₹${nextBid.toStringAsFixed(2)} CR',
+                : 'PLACE BID • ${CricketCurrency.format(nextBid).toUpperCase()}',
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: .3),
           ),
         ),
