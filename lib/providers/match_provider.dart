@@ -78,6 +78,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   final isWide=normalized=='wide';
   final isNoBall=normalized=='noball'||normalized=='no ball';
   final isLegBye=normalized=='legbye'||normalized=='leg bye';
+  if(isWicket){final type=dismissalType??'Caught';final allowed=isNoBall?const {'RunOut','HitWicket','ObstructingTheField','HitTheBallTwice'}:isWide?const {'Stumped','RunOut','HitWicket','ObstructingTheField'}:isLegBye?const {'RunOut','ObstructingTheField'}:const {'Bowled','Caught','LBW','Stumped','RunOut','HitWicket','ObstructingTheField','HitTheBallTwice','TimedOut','RetiredOut'};if(!allowed.contains(type))throw ArgumentError('That dismissal is not valid for this extra under cricket rules.');}
   final legal=!isWide&&!isNoBall;
   final batterRuns=(isWide||isLegBye)?0:runs;
   final extraRuns=(isWide||isNoBall)?1:0;
