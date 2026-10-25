@@ -123,6 +123,48 @@ class AuctionController extends Notifier<AuctionState> {
     unawaited(CampaignStore.saveAuction(state));
   }
 
+
+  /// Completes the remaining lots with rival strategy plus a roster-fill fallback.
+  /// This makes a full season playable without requiring 180 manual lot advances.
+  void simulateRemainingAuction() {
+    stopLiveBidding();
+    var processed = 0;
+    while (state.currentPlayer != null &&
+        state.phase != AuctionPhase.completed &&
+        processed <= state.players.length) {
+      processed++;
+      if (state.phase == AuctionPhase.ready ||
+          state.phase == AuctionPhase.bidding) {
+        state = _engine.runRivalRound(state: state, rivals: _rivals);
+        if (state.leadingTeamId == null) {
+          final player = state.currentPlayer!;
+          final candidates = [...state.teams]
+            ..sort((a, b) {
+              final size = a.squad.length.compareTo(b.squad.length);
+              if (size != 0) return size;
+              return a.purseCr.compareTo(b.purseCr);
+            });
+          for (final team in candidates) {
+            try {
+              state = _engine.placeBid(state: state, teamId: team.id);
+              break;
+            } on StateError {
+              continue;
+            } on ArgumentError {
+              continue;
+            }
+          }
+        }
+        state = _engine.closeLot(state);
+      }
+      if (state.phase == AuctionPhase.sold ||
+          state.phase == AuctionPhase.unsold) {
+        state = _engine.nextLot(state);
+      }
+    }
+    unawaited(CampaignStore.saveAuction(state));
+  }
+
   void reset() {
     state = createDemoAuction();
     unawaited(CampaignStore.saveAuction(state));
