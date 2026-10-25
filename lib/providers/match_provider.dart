@@ -68,7 +68,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   state=state.copyWith(bowlerId:bowlerId,pendingBowlerChange:false,message:'Bowler ready.');
  }
  void swapBatters(){state=state.copyWith(strikerId:state.nonStrikerId,nonStrikerId:state.strikerId);}
- void resolveDelivery(int runs,bool isWicket,String extra,{String? dismissedPlayerId}) {
+ void resolveDelivery(int runs,bool isWicket,String extra,{String? dismissedPlayerId,String? dismissalType}) {
   if(runs<0)throw ArgumentError.value(runs,'runs','Runs cannot be negative.');
   if(state.status==IplMatchStatus.completed||state.status==IplMatchStatus.superOverRequired||(state.status==IplMatchStatus.needsOpeningBatters||state.status==IplMatchStatus.needsIncomingBatter))throw StateError('The innings is not ready for a delivery.');
   if(state.strikerId==null||state.nonStrikerId==null||state.bowlerId==null)throw StateError('Select two batters and a bowler before the next delivery.');
@@ -85,7 +85,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   final totalRuns=extraRuns+(isWide||isLegBye?runs:batterRuns);
   final extraName=isWide?'Wide':isNoBall?'NoBall':isLegBye?'LegBye':'None';
   final striker=state.strikerId!,nonStriker=state.nonStrikerId!;
-  final ball=DeliveryModel(innings:state.innings,ballNumber:state.deliveries.length+1,runsScored:batterRuns,isWicket:isWicket,extraType:extraName,strikerId:striker,nonStrikerId:nonStriker,bowlerId:state.bowlerId!,totalRuns:totalRuns,legalDelivery:legal,dismissedPlayerId:dismissedPlayerId??(isWicket?striker:null));
+  final ball=DeliveryModel(innings:state.innings,ballNumber:state.deliveries.length+1,runsScored:batterRuns,isWicket:isWicket,extraType:extraName,strikerId:striker,nonStrikerId:nonStriker,bowlerId:state.bowlerId!,totalRuns:totalRuns,legalDelivery:legal,dismissedPlayerId:dismissedPlayerId??(isWicket?striker:null),dismissalType:isWicket?(dismissalType??'Caught'):null);
   final nextBalls=state.legalBalls+(legal?1:0);
   var next=state.copyWith(runs:state.runs+totalRuns,wickets:state.wickets+(isWicket?1:0),legalBalls:nextBalls,deliveries:[...state.deliveries,ball],message:isWicket?'Wicket!': '${totalRuns} run(s).');
   // Record who was dismissed before applying end-of-delivery strike rotation.
