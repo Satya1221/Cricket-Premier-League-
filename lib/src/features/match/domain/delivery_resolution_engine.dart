@@ -110,6 +110,8 @@ class DeliveryResolutionEngine {
     BatterIntent intent = BatterIntent.rotate,
     BowlerTactic tactic = BowlerTactic.balanced,
     Map<String, double> tacticalModifiers = const {},
+    Map<int, int> fieldersByZone = const {},
+    Map<int, int>? fieldingForm,
   }) {
     assert(pressureMultiplier >= 0 && pressureMultiplier <= 1.5);
     final modifiers = environment.getDeliveryModifiers();
@@ -138,85 +140,68 @@ class DeliveryResolutionEngine {
 
     // Tactics reshape the outcome bands, not the players' underlying skills.
     // Clamp thresholds into a monotonic sequence to avoid impossible bands.
-    // Rebalanced bands. A per-ball wicket risk low enough that a 120-ball
-    // innings produces a realistic 5-9 wickets. Intent multiplies the base
-    // risk: DEFEND 0.2x, ROTATE 0.5x, SLOG 2.5x.
-    var wicketChance = 6.0;
-    var dotChance = 34.0;
-    var oneTwoChance = 72.0;
-    var fourChance = 90.0;
-    switch (intent) {
-      case BatterIntent.defend:
-        wicketChance *= 0.2;
-        dotChance += 26;
-        oneTwoChance += 4;
-        fourChance += 8;
-        break;
-      case BatterIntent.rotate:
-        wicketChance *= 0.5;
-        dotChance -= 6;
-        oneTwoChance += 6;
-        break;
-      case BatterIntent.slog:
-        wicketChance *= 2.5;
-        dotChance -= 12;
-        oneTwoChance -= 10;
-        fourChance -= 18;
-        break;
-    }
+    // Intent-specific outcome weights. Wicket risk is a multiplier of the
+    // 6% base; remaining outcomes are sampled from intent-specific weights.
+    final wicketMultiplier = switch (intent) {
+      BatterIntent.defend => 0.15,
+      BatterIntent.rotate => 0.40,
+      BatterIntent.slog => 2.50,
+    };
+    var wicketChance = 6.0 * wicketMultiplier;
+    var dotWeight = switch (intent) {
+      BatterIntent.defend => 75.0,
+      BatterIntent.rotate => 30.0,
+      BatterIntent.slog => 25.0,
+    };
+    var boundaryWeight = switch (intent) {
+      BatterIntent.defend => 2.0,
+      BatterIntent.rotate => 8.0,
+      BatterIntent.slog => 45.0,
+    };
+    var singleDoubleWeight = switch (intent) {
+      BatterIntent.defend => 23.0,
+      BatterIntent.rotate => 62.0,
+      BatterIntent.slog => 30.0,
+    };
     final boundaryFactor = (modifiers['boundary'] ?? 1.0).clamp(0.75, 1.25);
-    fourChance = fourChance / boundaryFactor;
+    boundaryWeight *= boundaryFactor;
     wicketChance += (modifiers['irregularBounceRisk'] ?? 0.0) * 12;
-    // Avoid multiplying unrelated dismissal modifiers together (which would
-    // inflate every wicket chance). Use their bounded average for the generic
-    // wicket band, then use each modifier as a relative weight when choosing
-    // the dismissal subtype below.
-    final wicketModifier = (
-      (tacticalModifiers['lbwMultiplier'] ?? 1.0) +
+    final wicketModifier = ((tacticalModifiers['lbwMultiplier'] ?? 1.0) +
       (tacticalModifiers['stumpingMultiplier'] ?? 1.0) +
-      (tacticalModifiers['edgeProbability'] ?? 1.0)
-    ) / 3;
+      (tacticalModifiers['edgeProbability'] ?? 1.0)) / 3;
     wicketChance *= wicketModifier.clamp(0.5, 2.0);
-    dotChance *= (tacticalModifiers['dotBallMultiplier'] ?? 1.0);
-    fourChance *= (tacticalModifiers['boundaryMultiplier'] ?? 1.0);
     switch (tactic) {
       case BowlerTactic.attack:
         wicketChance *= 1.4;
-        fourChance -= 8;
+        boundaryWeight *= 0.9;
         break;
       case BowlerTactic.contain:
         wicketChance *= 0.8;
-        fourChance += 12;
-        dotChance += 8;
+        dotWeight += 8;
+        boundaryWeight *= 0.8;
         break;
       case BowlerTactic.balanced:
         break;
     }
-    // A tired bowler (below 40% stamina) leaks more bad deliveries, which
-    // lifts the boundary band.
-    if (bowler.stamina < 0.4) {
-      fourChance -= 6;
-    }
-    // Hard per-intent ceiling: environmental and tactical bonuses must never
-    // turn a defensive/rotating batter into a near-certain wicket. The old
-    // generic 30% ceiling allowed extreme modifiers to produce collapses.
-    final intentWicketCeiling = switch (intent) {
-      BatterIntent.defend => 1.8,
-      BatterIntent.rotate => 4.0,
-      BatterIntent.slog => 18.0,
-    };
-    wicketChance = wicketChance.clamp(0.0, intentWicketCeiling);
+    // Below 40% stamina, bad deliveries become 1.5x more likely to leak
+    // boundaries. The same effect is applied to the boundary weight.
+    if (bowler.stamina < 0.4) boundaryWeight *= 1.5;
+    wicketChance = wicketChance.clamp(0.0, intent == BatterIntent.slog ? 18.0 : 8.0);
+    dotWeight *= (tacticalModifiers['dotBallMultiplier'] ?? 1.0);
+    boundaryWeight *= (tacticalModifiers['boundaryMultiplier'] ?? 1.0);
+    final weightTotal = dotWeight + singleDoubleWeight + boundaryWeight;
+    final available = 100.0 - wicketChance;
+    final dotChance = wicketChance + available * dotWeight / weightTotal;
+    final oneTwoChance = dotChance + available * singleDoubleWeight / weightTotal;
+    final fourChance = 100.0;
 
-    dotChance = dotChance.clamp(wicketChance, 70.0);
-    oneTwoChance = oneTwoChance.clamp(dotChance, 85.0);
-    fourChance = fourChance.clamp(oneTwoChance, 99.0);
     final thresholds = <String, double>{
       'wicket': wicketChance,
       'dot': dotChance,
       'oneTwo': oneTwoChance,
       'four': fourChance,
     };
-    final outcome = roll <= wicketChance
+    var outcome = roll <= wicketChance
         ? DeliveryOutcomeType.wicket
         : roll <= dotChance
             ? DeliveryOutcomeType.dot
@@ -226,7 +211,23 @@ class DeliveryResolutionEngine {
                     ? DeliveryOutcomeType.four
                     : DeliveryOutcomeType.six;
     DismissalType? dismissal;
-    if (outcome == DeliveryOutcomeType.wicket) {
+    if (intent == BatterIntent.slog &&
+        (outcome == DeliveryOutcomeType.four || outcome == DeliveryOutcomeType.six)) {
+      // Lofted shots select one of eight directional zones. A stationed fielder
+      // can turn the boundary into a caught wicket; a drop penalizes their form.
+      final zone = _random.nextInt(8) + 1;
+      final fielderSkill = fieldersByZone[zone];
+      if (fielderSkill != null) {
+        final catchChance = 0.15 + fielderSkill.clamp(0, 100) / 100 * 0.55;
+        if (_random.nextDouble() < catchChance) {
+          outcome = DeliveryOutcomeType.wicket;
+          dismissal = DismissalType.caught;
+        } else if (fieldingForm != null) {
+          fieldingForm[zone] = (fieldingForm[zone] ?? 100) - 1;
+        }
+      }
+    }
+    if (outcome == DeliveryOutcomeType.wicket && dismissal == null) {
       // The current match engine does not model a full ball trajectory. Select a
       // plausible dismissal subtype using the tactical profile as a weighted cue.
       final lbwWeight = (tacticalModifiers['lbwMultiplier'] ?? 1.0).clamp(0.1, 2.2);
