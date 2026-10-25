@@ -6,6 +6,7 @@ import '../../auction/auction_screen.dart';
 import '../../match/matchday_screen.dart';
 import '../../match/presentation/field_editor_screen.dart';
 import '../../squad/presentation/medical_screen.dart';
+import '../../squad/presentation/squad_selection_screen.dart';
 import 'academy_screen.dart';
 import 'press_conference_dialog.dart';
 import 'stadium_screen.dart';
@@ -228,6 +229,13 @@ class HomeScreen extends ConsumerWidget {
               title: 'TROPHY ROOM & CAREER RECORDS',
               subtitle: 'All-time run scorers, wicket takers and match run-rate analytics.',
               onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TrophyRoomScreen())),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.groups_rounded,
+              title: 'SQUAD & PLAYING XI',
+              subtitle: 'Select and validate 11 owned players before matchday.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SquadSelectionScreen())),
             ),
             const SizedBox(height: 10),
             _ActionTile(
