@@ -7,7 +7,7 @@ class FastSimEngine {
   int battingOverall(CareerTeam team) {
     if (team.players.isEmpty) return 65;
     final players = [...team.players]..sort((a,b)=>b.overall.compareTo(a.overall));
-    final top = players.take(min(7,players.length)).toList();
+    final top = players.take(players.length < 7 ? players.length : 7).toList();
     return top.fold<int>(0,(sum,p)=>sum+p.overall)~/top.length;
   }
   int bowlingOverall(CareerTeam team) {
@@ -18,7 +18,7 @@ class FastSimEngine {
   }
   MatchResultData simulate(CareerTeam home,CareerTeam away,{Random? random}) {
     final rng=random??Random();
-    int score(CareerTeam bat,CareerTeam bowl) => max(55,150+battingOverall(bat)-bowlingOverall(bowl)+rng.nextInt(51)-25);
+    int score(CareerTeam bat,CareerTeam bowl) => max(55,150+battingOverall(bat)-bowlingOverall(bowl)+rng.nextInt(51)-25).toInt();
     final hr=score(home,away); var ar=score(away,home);
     if(hr==ar) ar+=rng.nextBool()?1:-1;
     return MatchResultData(homeRuns:hr,homeWickets:2+rng.nextInt(7),homeBalls:120,awayRuns:ar,awayWickets:2+rng.nextInt(7),awayBalls:120);
