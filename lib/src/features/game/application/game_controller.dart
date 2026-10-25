@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/local_storage_service.dart';
+import '../../../../data/local_storage_service.dart';
 
 /// High-level lifecycle of a franchise save.
 enum GamePhase { preSeason, auction, season, postSeason }
