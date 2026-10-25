@@ -18,7 +18,7 @@ class PurseRules {
   final double minimumReservePerMissingPlayerCr;
 
   double minimumSquadReserveCr(AuctionTeam team) =>
-      (minimumSquadSize - team.squad.length).clamp(0, maximumSquadSize) * minimumReservePerMissingPlayerCr;
+      (minimumSquadSize - team.squad.length).clamp(0, maximumSquadSize).toDouble() * minimumReservePerMissingPlayerCr;
 
   double get maximumBidForNewSquadMemberCr => initialPurseCr;
 
