@@ -63,7 +63,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   if(bowlerId.trim().isEmpty)throw ArgumentError('Select a bowler.');
   if(!state.pendingBowlerChange && state.bowlerId!=null)throw StateError('A new bowler is only needed at the start of an over.');
   if(state.bowlerId==bowlerId && state.legalBalls>0)throw StateError('IPL rules do not allow the same bowler to bowl consecutive overs.');
-  final bowlerBalls=state.deliveries.where((d)=>d.bowlerId==bowlerId&&d.legalDelivery).length;
+  final bowlerBalls=state.deliveries.where((d)=>d.innings==state.innings&&d.bowlerId==bowlerId&&d.legalDelivery).length;
   if(bowlerBalls>=24)throw StateError('An IPL bowler may bowl a maximum of four overs.');
   state=state.copyWith(bowlerId:bowlerId,pendingBowlerChange:false,message:'Bowler ready.');
  }
@@ -85,7 +85,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   final totalRuns=extraRuns+(isWide||isLegBye?runs:batterRuns);
   final extraName=isWide?'Wide':isNoBall?'NoBall':isLegBye?'LegBye':'None';
   final striker=state.strikerId!,nonStriker=state.nonStrikerId!;
-  final ball=DeliveryModel(ballNumber:state.deliveries.length+1,runsScored:batterRuns,isWicket:isWicket,extraType:extraName,strikerId:striker,nonStrikerId:nonStriker,bowlerId:state.bowlerId!,totalRuns:totalRuns,legalDelivery:legal,dismissedPlayerId:dismissedPlayerId??(isWicket?striker:null));
+  final ball=DeliveryModel(innings:state.innings,ballNumber:state.deliveries.length+1,runsScored:batterRuns,isWicket:isWicket,extraType:extraName,strikerId:striker,nonStrikerId:nonStriker,bowlerId:state.bowlerId!,totalRuns:totalRuns,legalDelivery:legal,dismissedPlayerId:dismissedPlayerId??(isWicket?striker:null));
   final nextBalls=state.legalBalls+(legal?1:0);
   var next=state.copyWith(runs:state.runs+totalRuns,wickets:state.wickets+(isWicket?1:0),legalBalls:nextBalls,deliveries:[...state.deliveries,ball],message:isWicket?'Wicket!': '${totalRuns} run(s).');
   // Record who was dismissed before applying end-of-delivery strike rotation.
