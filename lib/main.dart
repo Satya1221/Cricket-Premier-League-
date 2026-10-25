@@ -12,6 +12,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox<dynamic>('career_saves');
   await Hive.openBox<dynamic>('game_state');
+  await Hive.openBox<dynamic>('history_records');
   await CampaignStore.initialize();
   GameFeel.init();
   runApp(const ProviderScope(child: CricketPremierLeagueApp()));
