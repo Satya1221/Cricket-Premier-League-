@@ -19,6 +19,11 @@ import 'standings_screen.dart';
 import 'trophy_room_screen.dart';
 import 'first_match_tutorial_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../models/franchise_model.dart';
+import '../../../../models/game_state_model.dart';
+import '../../../../services/off_season_service.dart';
+import '../../../../state/league_standings_provider.dart';
+import '../../../../providers/game_state_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -303,14 +308,14 @@ class HomeScreen extends ConsumerWidget {
                 icon: Icons.flag_rounded,
                 title: 'END SEASON',
                 subtitle: 'Move the game into the off-season.',
-                onTap: () => _runAction(context, game.endSeason),
+                onTap: () => _runOffSeason(context, ref, game),
               ),
             if (session.phase == GamePhase.postSeason)
               _ActionTile(
                 icon: Icons.autorenew_rounded,
                 title: 'START NEXT SEASON',
                 subtitle: 'Advance the season counter and reset match count.',
-                onTap: game.beginNextSeason,
+                onTap: () async { game.beginNextSeason(); await ref.read(gameStateProvider.notifier).startNextSeason(); },
               ),
             if (session.phase == GamePhase.season)
               _ActionTile(
@@ -328,6 +333,33 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  static Future<void> _runOffSeason(BuildContext context, WidgetRef ref, GameController game) async {
+    try {
+      final franchiseBox = Hive.box<FranchiseModel>('franchises');
+      final franchise = franchiseBox.get('cpl') ?? const FranchiseModel(id: 'cpl');
+      final standings = ref.read(leagueStandingsProvider);
+      final positionIndex = standings.indexWhere((row) => row.teamId == 'cpl');
+      final position = positionIndex < 0 ? 4 : positionIndex + 1;
+      await const OffSeasonService().process(
+        franchise: franchise,
+        leaguePosition: position,
+        youthCoachLevel: franchise.youthCoachLevel,
+        youthAcademyLevel: franchise.youthAcademyLevel,
+      );
+      game.endSeason();
+      final stateBox = Hive.box<GameStateModel>('gameState');
+      final gameState = stateBox.get('active') ?? const GameStateModel();
+      await stateBox.put('active', gameState.copyWith(gamePhase: 'OffSeason'));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Off-season complete: prize money, player progression, history and 20 youth prospects saved.')),
+        );
+      }
+    } on StateError catch (error) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+    }
   }
 
   static Future<void> _recordMatchAndSimulateWeek(
