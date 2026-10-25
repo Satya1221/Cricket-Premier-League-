@@ -30,7 +30,11 @@ class AcademyFinanceResult {
 }
 AcademyFinanceResult purchaseUpgrade({required int budget, required AcademyFacilities facilities, required bool youthAcademy}) {
   final cost = youthAcademy ? facilities.upgradeCostAcademy : facilities.upgradeCostTraining;
-  if (cost == 0) return AcademyFinanceResult(remainingBudget: budget, facilities: facilities, success: false, message: 'Facility already at maximum level.');
-  if (budget < cost) return AcademyFinanceResult(remainingBudget: budget, facilities: facilities, success: false, message: 'Insufficient franchise funds.');
+  if (cost == 0) {
+    return AcademyFinanceResult(remainingBudget: budget, facilities: facilities, success: false, message: 'Facility already at maximum level.');
+  }
+  if (budget < cost) {
+    return AcademyFinanceResult(remainingBudget: budget, facilities: facilities, success: false, message: 'Insufficient franchise funds.');
+  }
   return AcademyFinanceResult(remainingBudget: budget - cost, facilities: youthAcademy ? facilities.upgradeAcademy() : facilities.upgradeTraining(), success: true, message: 'Upgrade purchased.');
 }
