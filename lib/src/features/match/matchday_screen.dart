@@ -8,6 +8,8 @@ import '../../theme/game_theme.dart';
 import 'domain/delivery_resolution_engine.dart';
 import 'domain/format_config.dart';
 import 'domain/living_pitch.dart' as pitch;
+import 'domain/stadium_pitch_engine.dart';
+import '../game/application/stadium_provider.dart';
 
 @immutable
 class MatchdayState {
@@ -44,12 +46,20 @@ class MatchdayState {
       commentary: commentary ?? this.commentary, complete: complete ?? this.complete, format: format ?? this.format);
 }
 
-final matchProvider = StateNotifierProvider<MatchdayController, MatchdayState>((ref) => MatchdayController());
+final matchProvider = StateNotifierProvider<MatchdayController, MatchdayState>((ref) {
+  final stadium = ref.watch(stadiumProvider.select((state) => state.selectedStadium));
+  return MatchdayController(stadium: stadium);
+});
 
 class MatchdayController extends StateNotifier<MatchdayState> {
-  MatchdayController() : super(const MatchdayState());
+  MatchdayController({required StadiumAsset stadium})
+      : _stadiumPitch = StadiumPitch(stadiumName: stadium.name, city: stadium.city, basePitchType: stadium.pitchType),
+        super(const MatchdayState()) {
+    _environment = _stadiumPitch.createMatchEnvironment();
+  }
   final _random = Random();
-  final _environment = pitch.MatchEnvironment(pitchType: pitch.PitchType.dusty, weather: pitch.Weather.sunny);
+  final StadiumPitch _stadiumPitch;
+  late final pitch.MatchEnvironment _environment;
   late final _batter = ResolutionBatter(name: 'A. Mehta', baseTiming: 76, baseDefense: 71, concentration: .72);
   late final _bowler = ResolutionBowler(name: 'R. Khan', baseAccuracy: 79, baseMovement: 82, isSpinner: true, stamina: .84);
 
@@ -63,9 +73,7 @@ class MatchdayController extends StateNotifier<MatchdayState> {
   }
   void playNextBall() {
     if (state.complete) return;
-    final env = MatchEnvironment(
-      pitchType: _environment.pitchType == pitch.PitchType.dusty ? PitchType.dusty : _environment.pitchType == pitch.PitchType.flat ? PitchType.flat : PitchType.green,
-      weather: _environment.weather == pitch.Weather.overcast ? Weather.overcast : Weather.sunny);
+    final env = _environment;
     final result = DeliveryResolutionEngine(random: _random).resolve(
       environment: env, bowler: _bowler, batter: _batter, intent: state.intent);
     final wicket = result.outcome == DeliveryOutcomeType.wicket;
