@@ -1,19 +1,22 @@
 # Implementation Status
 
 ## Implemented in this branch
-- New Flutter app entry point with a premium dark, gold and emerald theme.
-- Auction screen with player dossier, valuation display, franchise purse cards, bidding feed and auction controls.
+- Clean Flutter + Riverpod application entry point with a reusable dark, gold and emerald theme.
+- Responsive auction screen with player dossier, valuation display, purse metrics, franchise war room, bid feed, hammer close and next-lot flow.
 - Auction state machine for ready, bidding, sold, unsold and completed states.
-- Player and team domain models, player valuation baseline, bid increment ladder and rival decision rules.
-- Guardrails for purse, squad size and overseas roster count.
-- Demo data and initial domain/widget tests.
-- GitHub Actions checks for formatting, analysis and tests.
+- Player/team models, dynamic valuation baseline and bid increment ladder.
+- Rival archetypes (aggressive, budget guardian, youth-first and role specialist), with role fit, aggression and manager-pressure modifiers.
+- Manual rival AI round control that records bids and passes in the auction feed.
+- Guardrails for purse, squad capacity, overseas roster count, closed lots and preventing a franchise from bidding against itself.
+- Domain regression tests and a widget smoke test.
+- GitHub Actions workflows for formatting, static analysis, unit/widget tests and debug APK generation.
+- 3D integration notes defining a code-first rendering boundary, asset pipeline and device performance gates.
 
-## Known limitations that must be addressed next
-- The roster is synthetic demo data and must be replaced with a curated, licensed, accurate player database.
-- Current UI exposes manual franchise selection; rival profiles are defined in the engine but timed automated bidding has not yet been integrated into the UI.
-- No persistent multi-season career/save migration yet.
-- No ball-by-ball match simulation or tactical matchday experience yet.
-- No 3D renderer/assets are included yet. A proper hardware test is required to select and validate a code-first 3D route.
-- Build, analyzer, and automated test status must be read from GitHub Actions; never infer success merely from code being committed.
-- IPL rule configuration (for example roster size and overseas caps) should be versioned per competition rather than hard-coded globally.
+## Known limitations
+- The roster is synthetic demo data, not official player data. Replace it with a curated dataset whose licensing and data sources are verified.
+- The auction prototype currently allows manual franchise selection. The next product step is to define one human-controlled franchise and have AI control the others automatically.
+- Multi-season career persistence and save migration are not implemented.
+- Ball-by-ball simulation, tactical matchday management, scouting progression, youth generation, contracts and finances are not implemented.
+- No 3D renderer or model assets are integrated yet. The renderer must be selected and profiled on the target Android device before calling this complete.
+- APK build, analyzer and test results must be read from GitHub Actions; never infer success from commits alone.
+- Competition rules (squad size, overseas limits, purse and retention rules) should be versioned per competition instead of remaining global constants.
