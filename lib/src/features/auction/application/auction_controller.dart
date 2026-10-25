@@ -137,7 +137,6 @@ class AuctionController extends Notifier<AuctionState> {
           state.phase == AuctionPhase.bidding) {
         state = _engine.runRivalRound(state: state, rivals: _rivals);
         if (state.leadingTeamId == null) {
-          final player = state.currentPlayer!;
           final candidates = [...state.teams]
             ..sort((a, b) {
               final size = a.squad.length.compareTo(b.squad.length);
