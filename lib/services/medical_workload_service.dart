@@ -4,7 +4,7 @@ enum WorkloadRole { paceBowler, spinBowler, batter, other }
 class PlayerWorkloadState {
   const PlayerWorkloadState({required this.playerId,this.fatigue=0,this.injuryWeeksRemaining=0,this.injuryType});
   final String playerId;
-  final int fatigue,inuryWeeksRemaining;
+  final int fatigue,injuryWeeksRemaining;
   final String? injuryType;
   bool get unavailable=>injuryWeeksRemaining>0;
   PlayerWorkloadState copyWith({int? fatigue,int? injuryWeeksRemaining,String? injuryType,bool clearInjury=false})=>PlayerWorkloadState(playerId:playerId,fatigue:(fatigue??this.fatigue).clamp(0,100),injuryWeeksRemaining:injuryWeeksRemaining??this.injuryWeeksRemaining,injuryType:clearInjury?null:(injuryType??this.injuryType));
