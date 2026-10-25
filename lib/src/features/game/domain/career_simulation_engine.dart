@@ -66,7 +66,13 @@ class CareerSimulationEngine {
       rotating.insert(0,rotating.removeLast());
       slots..clear()..add(fixed)..addAll(rotating);
     }
-    return fixtures;
+    final secondLeg = fixtures.map((f) => CareerFixture(
+      id: 'S${season}-R${f.round + n - 1}-${f.awayTeamId}-${f.homeTeamId}',
+      homeTeamId: f.awayTeamId,
+      awayTeamId: f.homeTeamId,
+      round: f.round + n - 1,
+    ));
+    return [...fixtures, ...secondLeg];
   }
 
   Map<String,int> simulateInnings({required int battingRating,required int bowlingRating,Random? random}) {
