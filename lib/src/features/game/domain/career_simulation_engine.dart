@@ -1,13 +1,13 @@
 import 'dart:math';
 
 class CareerPlayer {
-  const CareerPlayer({required this.id, required this.name, required this.age, required this.overall, required this.potential, required this.role, this.runs = 0, this.wickets = 0, this.retired = false});
+  const CareerPlayer({required this.id, required this.name, required this.age, required this.overall, required this.potential, required this.role, this.runs = 0, this.wickets = 0, this.highScore = 0, this.fifties = 0, this.hundreds = 0, this.ballsFaced = 0, this.runsConceded = 0, this.ballsBowled = 0, this.bestBowlingRuns = 0, this.bestBowlingWickets = 0, this.retired = false});
   final String id, name, role;
-  final int age, overall, potential, runs, wickets;
+  final int age, overall, potential, runs, wickets, highScore, fifties, hundreds, ballsFaced, runsConceded, ballsBowled, bestBowlingRuns, bestBowlingWickets;
   final bool retired;
-  CareerPlayer copyWith({int? age, int? runs, int? wickets, bool? retired}) => CareerPlayer(id:id,name:name,age:age??this.age,overall:overall,potential:potential,role:role,runs:runs??this.runs,wickets:wickets??this.wickets,retired:retired??this.retired);
-  Map<String,Object?> toJson()=>{'id':id,'name':name,'age':age,'overall':overall,'potential':potential,'role':role,'runs':runs,'wickets':wickets,'retired':retired};
-  factory CareerPlayer.fromJson(Map<String,Object?> j)=>CareerPlayer(id:j['id']! as String,name:j['name']! as String,age:j['age']! as int,overall:j['overall']! as int,potential:j['potential']! as int,role:j['role']! as String,runs:j['runs'] as int? ?? 0,wickets:j['wickets'] as int? ?? 0,retired:j['retired'] as bool? ?? false);
+  CareerPlayer copyWith({int? age, int? runs, int? wickets, int? highScore, int? fifties, int? hundreds, int? ballsFaced, int? runsConceded, int? ballsBowled, int? bestBowlingRuns, int? bestBowlingWickets, bool? retired}) => CareerPlayer(id:id,name:name,age:age??this.age,overall:overall,potential:potential,role:role,runs:runs??this.runs,wickets:wickets??this.wickets,highScore:highScore??this.highScore,fifties:fifties??this.fifties,hundreds:hundreds??this.hundreds,ballsFaced:ballsFaced??this.ballsFaced,runsConceded:runsConceded??this.runsConceded,ballsBowled:ballsBowled??this.ballsBowled,bestBowlingRuns:bestBowlingRuns??this.bestBowlingRuns,bestBowlingWickets:bestBowlingWickets??this.bestBowlingWickets,retired:retired??this.retired);
+  Map<String,Object?> toJson()=>{'id':id,'name':name,'age':age,'overall':overall,'potential':potential,'role':role,'runs':runs,'wickets':wickets,'highScore':highScore,'fifties':fifties,'hundreds':hundreds,'ballsFaced':ballsFaced,'runsConceded':runsConceded,'ballsBowled':ballsBowled,'bestBowlingRuns':bestBowlingRuns,'bestBowlingWickets':bestBowlingWickets,'retired':retired};
+  factory CareerPlayer.fromJson(Map<String,Object?> j)=>CareerPlayer(id:j['id']! as String,name:j['name']! as String,age:j['age']! as int,overall:j['overall']! as int,potential:j['potential']! as int,role:j['role']! as String,runs:j['runs'] as int? ?? 0,wickets:j['wickets'] as int? ?? 0,highScore:j['highScore'] as int? ?? 0,fifties:j['fifties'] as int? ?? 0,hundreds:j['hundreds'] as int? ?? 0,ballsFaced:j['ballsFaced'] as int? ?? 0,runsConceded:j['runsConceded'] as int? ?? 0,ballsBowled:j['ballsBowled'] as int? ?? 0,bestBowlingRuns:j['bestBowlingRuns'] as int? ?? 0,bestBowlingWickets:j['bestBowlingWickets'] as int? ?? 0,retired:j['retired'] as bool? ?? false);
 }
 
 class CareerTeam {
@@ -98,6 +98,14 @@ class CareerSimulationEngine {
     ts[hi]=h.copyWith(played:h.played+1,won:h.won+(hw?1:0),lost:h.lost+(hw?0:1),points:h.points+(hw?2:0),runsFor:h.runsFor+hs['runs']!,ballsFaced:h.ballsFaced+hs['balls']!,runsAgainst:h.runsAgainst+ascore['runs']!,ballsBowled:h.ballsBowled+ascore['balls']!);
     ts[ai]=a.copyWith(played:a.played+1,won:a.won+(hw?0:1),lost:a.lost+(hw?1:0),points:a.points+(hw?0:2),runsFor:a.runsFor+ascore['runs']!,ballsFaced:a.ballsFaced+ascore['balls']!,runsAgainst:a.runsAgainst+hs['runs']!,ballsBowled:a.ballsBowled+hs['balls']!);
     final fs=[...season.fixtures]..[fi]=updated;
+    final homePlayers=[...ts[hi].players];
+    if(homePlayers.isNotEmpty){final batter=homePlayers[0]; final score=hs['runs']!; homePlayers[0]=batter.copyWith(runs:batter.runs+score,highScore:score>batter.highScore?score:batter.highScore,fifties:batter.fifties+(score>=50&&score<100?1:0),hundreds:batter.hundreds+(score>=100?1:0),ballsFaced:batter.ballsFaced+hs['balls']!);}
+    if(homePlayers.length>1){final bowler=homePlayers[1]; final conceded=ascore['runs']!, wk=ascore['wickets']!; final better=wk>bowler.bestBowlingWickets||(wk==bowler.bestBowlingWickets&&conceded<bowler.bestBowlingRuns); homePlayers[1]=bowler.copyWith(wickets:bowler.wickets+wk,runsConceded:bowler.runsConceded+conceded,ballsBowled:bowler.ballsBowled+ascore['balls']!,bestBowlingWickets:better?wk:bowler.bestBowlingWickets,bestBowlingRuns:better?conceded:bowler.bestBowlingRuns);}
+    ts[hi]=ts[hi].copyWith(players:homePlayers);
+    final awayPlayers=[...ts[ai].players];
+    if(awayPlayers.isNotEmpty){final batter=awayPlayers[0]; final score=ascore['runs']!; awayPlayers[0]=batter.copyWith(runs:batter.runs+score,highScore:score>batter.highScore?score:batter.highScore,fifties:batter.fifties+(score>=50&&score<100?1:0),hundreds:batter.hundreds+(score>=100?1:0),ballsFaced:batter.ballsFaced+ascore['balls']!);}
+    if(awayPlayers.length>1){final bowler=awayPlayers[1]; final conceded=hs['runs']!, wk=hs['wickets']!; final better=wk>bowler.bestBowlingWickets||(wk==bowler.bestBowlingWickets&&conceded<bowler.bestBowlingRuns); awayPlayers[1]=bowler.copyWith(wickets:bowler.wickets+wk,runsConceded:bowler.runsConceded+conceded,ballsBowled:bowler.ballsBowled+hs['balls']!,bestBowlingWickets:better?wk:bowler.bestBowlingWickets,bestBowlingRuns:better?conceded:bowler.bestBowlingRuns);}
+    ts[ai]=ts[ai].copyWith(players:awayPlayers);
     final history=[...season.matchHistory,{'fixtureId':f.id,'home':h.name,'away':a.name,'homeScore':'${hs['runs']}/${hs['wickets']}','awayScore':'${ascore['runs']}/${ascore['wickets']}','homeRunsRaw':hs['runs'],'homeBallsRaw':hs['balls'],'awayRunsRaw':ascore['runs'],'awayBallsRaw':ascore['balls'],'winnerTeamId':winner}];
     return SeasonData(seasonNumber:season.seasonNumber,teams:ts,fixtures:fs,matchHistory:history,month:season.month);
   }
