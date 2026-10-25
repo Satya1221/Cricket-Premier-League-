@@ -68,6 +68,6 @@ void main() {
     );
     expect(result.bowlerThreat, greaterThan(0));
     expect(result.batterControl, greaterThan(0));
-    expect(result.roll, isFinite);
+    expect(result.roll.isFinite, isTrue);
   });
 }
