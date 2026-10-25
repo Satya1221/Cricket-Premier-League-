@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../squad/application/initial_player_pool_provider.dart';
 import '../../squad/domain/regen_factory.dart';
 import '../../../theme/game_theme.dart';
 import 'home_screen.dart';
@@ -9,14 +11,14 @@ import 'home_screen.dart';
 /// Isar schema/player collection, so this prepares the first 300-player pool in
 /// memory rather than pretending to persist it. Replace the in-memory seed with
 /// the Isar-backed initializer when PlayerEntity and its generated schema land.
-class StartupScreen extends StatefulWidget {
+class StartupScreen extends ConsumerStatefulWidget {
   const StartupScreen({super.key});
 
   @override
-  State<StartupScreen> createState() => _StartupScreenState();
+  ConsumerState<StartupScreen> createState() => _StartupScreenState();
 }
 
-class _StartupScreenState extends State<StartupScreen> {
+class _StartupScreenState extends ConsumerState<StartupScreen> {
   String _loadingText = 'Booting match engine...';
   double _progress = 0;
   bool _failed = false;
@@ -43,6 +45,7 @@ class _StartupScreenState extends State<StartupScreen> {
 
       // Deterministic name uniqueness is enforced by RegenFactory.
       final initialPool = RegenFactory().generateDraftClass(300);
+      ref.read(initialPlayerPoolProvider.notifier).state = initialPool;
       await _setStage('Generated ${initialPool.length} prospects...', 0.62);
       await _setStage('Preparing auction systems...', 0.82);
       await _setStage('Preparing franchise headquarters...', 1);
