@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../state/season_schedule_repository.dart';
 import '../../../../models/fixture_model.dart';
+import '../../../../engine/fast_sim_engine.dart';
 
 import '../data/career_save_repository.dart';
 import '../domain/career_simulation_engine.dart';
@@ -15,6 +16,7 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       saves.loadSeason(defaultSaveId) ?? _newSeason();
   final CareerSaveRepository _saves;
   final CareerSimulationEngine _engine = const CareerSimulationEngine();
+  final FastSimEngine _fastSim = const FastSimEngine();
   final SeasonScheduleRepository _schedule = SeasonScheduleRepository();
 
   Future<void> _persistSchedule() => _schedule.save(state.fixtures.map((f) => FixtureModel(
@@ -55,8 +57,17 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     final pending = state.fixtures.where((f) => !f.played).toList();
     if (pending.isEmpty) return;
     final week = pending.first.round;
-    while (state.fixtures.any((f) => !f.played && f.round == week)) {
-      state = _engine.simulateNextFixture(state);
+    while (true) {
+      final fixture = state.fixtures.where((f) => !f.played && f.round == week).firstOrNull;
+      if (fixture == null) break;
+      final home = state.teams.where((team) => team.id == fixture.homeTeamId).firstOrNull;
+      final away = state.teams.where((team) => team.id == fixture.awayTeamId).firstOrNull;
+      if (home == null || away == null) {
+        state = _engine.simulateNextFixture(state);
+        continue;
+      }
+      final result = _fastSim.simulate(home, away);
+      state = _engine.recordFixtureResult(state, fixture.id, result);
     }
     await save();
   }
