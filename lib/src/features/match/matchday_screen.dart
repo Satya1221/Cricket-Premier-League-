@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../theme/game_theme.dart';
 import 'domain/delivery_resolution_engine.dart';
+import 'domain/bowling_angle_engine.dart';
 import 'domain/format_config.dart';
 import 'domain/living_pitch.dart' as pitch;
 import 'domain/stadium_pitch_engine.dart';
@@ -74,8 +75,31 @@ class MatchdayController extends StateNotifier<MatchdayState> {
   void playNextBall() {
     if (state.complete) return;
     final env = _environment;
+    final bowlingProfile = BowlingDeliveryProfile(
+      crease: const CreaseTactics(
+        position: CreasePosition.roundTheWicket,
+        arm: BowlingArm.rightArm,
+        style: BowlingStyleCode.offSpin,
+      ),
+      line: BowlingLine.offStump,
+      length: BowlingLength.goodLength,
+      variation: BowlingVariation.outswinger,
+      fieldTrap: FieldTrap.packedOffSide,
+    );
+    final angleModifiers = const BowlingAngleEngine().resolveOutcomeModifiers(
+      profile: bowlingProfile,
+      batterStance: BatterStance.leftHanded,
+      batterTechnique: 60,
+      batterVsSpin: 60,
+      bowlerControl: 79,
+    );
     final result = DeliveryResolutionEngine(random: _random).resolve(
-      environment: env, bowler: _bowler, batter: _batter, intent: state.intent);
+      environment: env,
+      bowler: _bowler,
+      batter: _batter,
+      intent: state.intent,
+      tacticalModifiers: angleModifiers,
+    );
     final wicket = result.outcome == DeliveryOutcomeType.wicket;
     final scored = switch (result.outcome) {
       DeliveryOutcomeType.wicket || DeliveryOutcomeType.dot => 0,
@@ -91,7 +115,7 @@ class MatchdayController extends StateNotifier<MatchdayState> {
       strikerRuns: state.strikerRuns + scored, strikerBalls: state.strikerBalls + 1,
       bowlerRuns: state.bowlerRuns + scored, bowlerWickets: state.bowlerWickets + (wicket ? 1 : 0),
       concentration: _batter.concentration, stamina: _bowler.stamina, recent: recent,
-      commentary: '${result.commentary} Intent: ${state.intent.name.toUpperCase()}. Batter control ${result.batterControl.toStringAsFixed(0)} vs bowler threat ${result.bowlerThreat.toStringAsFixed(0)}.',
+      commentary: '${result.commentary} Round the wicket, off-stump good length with outswing and packed off-side trap. Intent: ${state.intent.name.toUpperCase()}. Batter control ${result.batterControl.toStringAsFixed(0)} vs bowler threat ${result.bowlerThreat.toStringAsFixed(0)}.',
       complete: wickets >= 10 || balls >= 120 || runs >= state.target);
     if (balls % 6 == 0) _environment.advanceOver();
     if (state.complete == false && (wickets >= 10 || balls >= 120 || runs >= state.target)) {
