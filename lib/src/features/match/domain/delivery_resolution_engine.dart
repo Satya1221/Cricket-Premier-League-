@@ -94,7 +94,7 @@ class DeliveryResolution {
 class DeliveryResolutionEngine {
   DeliveryResolutionEngine({
     Random? random,
-    this.rollShiftScale = 0.5,
+    this.rollShiftScale = 0.12,
   }) : _random = random ?? Random(), assert(rollShiftScale >= 0);
 
   final Random _random;
@@ -130,29 +130,38 @@ class DeliveryResolutionEngine {
         pressureMultiplier +
         captaincyBonus;
     final advantage = batterControl - deliveryThreat;
-    final roll = _random.nextDouble() * 100 + advantage * rollShiftScale;
+    // The skill gap nudges the roll but is bounded, so a big mismatch can no
+    // longer swamp the outcome bands (this was the main cause of the
+    // "7 wickets in 2 overs" bug).
+    final roll =
+        _random.nextDouble() * 100 + advantage.clamp(-30.0, 30.0).toDouble() * rollShiftScale;
 
     // Tactics reshape the outcome bands, not the players' underlying skills.
     // Clamp thresholds into a monotonic sequence to avoid impossible bands.
-    var wicketChance = 10.0;
-    var dotChance = 35.0;
-    var oneTwoChance = 75.0;
+    // Rebalanced bands. A per-ball wicket risk low enough that a 120-ball
+    // innings produces a realistic 5-9 wickets. Intent multiplies the base
+    // risk: DEFEND 0.2x, ROTATE 0.5x, SLOG 2.5x.
+    var wicketChance = 6.0;
+    var dotChance = 34.0;
+    var oneTwoChance = 72.0;
     var fourChance = 90.0;
     switch (intent) {
       case BatterIntent.defend:
-        wicketChance -= 6;
-        dotChance += 30;
-        oneTwoChance += 5;
-        fourChance += 10;
+        wicketChance *= 0.2;
+        dotChance += 26;
+        oneTwoChance += 4;
+        fourChance += 8;
         break;
       case BatterIntent.rotate:
-        dotChance -= 10;
+        wicketChance *= 0.5;
+        dotChance -= 6;
+        oneTwoChance += 6;
         break;
       case BatterIntent.slog:
-        wicketChance += 15;
-        dotChance -= 15;
-        oneTwoChance -= 15;
-        fourChance -= 20;
+        wicketChance *= 2.5;
+        dotChance -= 12;
+        oneTwoChance -= 10;
+        fourChance -= 18;
         break;
     }
     final boundaryFactor = (modifiers['boundary'] ?? 1.0).clamp(0.75, 1.25);
@@ -172,18 +181,18 @@ class DeliveryResolutionEngine {
     fourChance *= (tacticalModifiers['boundaryMultiplier'] ?? 1.0);
     switch (tactic) {
       case BowlerTactic.attack:
-        wicketChance += 5;
-        fourChance -= 10;
+        wicketChance *= 1.4;
+        fourChance -= 8;
         break;
       case BowlerTactic.contain:
-        wicketChance -= 5;
-        fourChance += 15;
-        dotChance += 10;
+        wicketChance *= 0.8;
+        fourChance += 12;
+        dotChance += 8;
         break;
       case BowlerTactic.balanced:
         break;
     }
-    wicketChance = wicketChance.clamp(0.0, 35.0);
+    wicketChance = wicketChance.clamp(0.0, 30.0);
     dotChance = dotChance.clamp(wicketChance, 70.0);
     oneTwoChance = oneTwoChance.clamp(dotChance, 85.0);
     fourChance = fourChance.clamp(oneTwoChance, 99.0);
