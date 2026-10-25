@@ -59,6 +59,19 @@ class AuctionScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Row(children: [
                   Expanded(child: OutlinedButton.icon(
+                    onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding
+                        ? actions.runRivalRound
+                        : null,
+                    icon: const Icon(Icons.psychology_alt_rounded),
+                    label: const Text('RIVAL AI ROUND'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: GamePalette.emerald,
+                      side: const BorderSide(color: GamePalette.emerald),
+                      minimumSize: const Size(48, 52),
+                    ),
+                  )),
+                  const SizedBox(width: 8),
+                  Expanded(child: OutlinedButton.icon(
                     onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding ? () {
                       try { actions.closeLot(); } on StateError catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
