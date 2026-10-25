@@ -1,3 +1,5 @@
+import 'player_contract.dart';
+
 enum PlayerRole { batter, bowler, allRounder, wicketKeeper }
 
 class AuctionPlayer {
@@ -15,6 +17,7 @@ class AuctionPlayer {
     this.bowling = 45,
     this.fielding = 70,
     this.form = 70,
+    this.contract,
   }) : assert(overall >= 1 && overall <= 100),
        assert(potential >= 1 && potential <= 100),
        assert(basePriceCr >= 0);
@@ -32,6 +35,10 @@ class AuctionPlayer {
   final int bowling;
   final int fielding;
   final int form;
+  final PlayerContract? contract;
+
+  double get annualSalaryCr => contract?.currentSalaryCrores ?? 0;
+  int get contractYearsRemaining => contract?.yearsRemaining ?? 0;
 
   double get growthHeadroom => (potential - overall).clamp(0, 100).toDouble();
 
