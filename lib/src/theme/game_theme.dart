@@ -28,7 +28,7 @@ abstract final class GameTheme {
       elevation: 0,
       centerTitle: false,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: GamePalette.panel,
       elevation: 0,
       margin: EdgeInsets.zero,
