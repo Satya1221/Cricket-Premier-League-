@@ -34,7 +34,18 @@ class StandingsScreen extends ConsumerWidget {
               Wrap(spacing: 8, runSpacing: 8, children: [
                 FilledButton.icon(onPressed: nextFixture == null ? null : () => controller.simulateNextMatch(), icon: const Icon(Icons.play_arrow), label: const Text('SIMULATE NEXT')),
                 OutlinedButton.icon(onPressed: nextFixture == null ? null : () => controller.simulateRemainingRound(), icon: const Icon(Icons.fast_forward), label: const Text('SIMULATE ROUND')),
-                OutlinedButton.icon(onPressed: () async { final ok = await controller.load(); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'Career loaded.' : 'No saved career found yet.'))); }, icon: const Icon(Icons.folder_open), label: const Text('LOAD SAVE')),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final ok = await controller.load();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(ok ? 'Career loaded.' : 'No saved career found yet.')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.folder_open),
+                  label: const Text('LOAD SAVE'),
+                ),
                 OutlinedButton.icon(onPressed: controller.save, icon: const Icon(Icons.save), label: const Text('SAVE')),
               ]),
             ]),
