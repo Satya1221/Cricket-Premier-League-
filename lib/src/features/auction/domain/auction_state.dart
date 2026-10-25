@@ -34,6 +34,37 @@ class AuctionState {
     return null;
   }
 
+  Map<String, dynamic> toJson() => {
+        'teams': teams.map((team) => team.toJson()).toList(),
+        'players': players.map((player) => player.toJson()).toList(),
+        'currentPlayerIndex': currentPlayerIndex,
+        'phase': phase.name,
+        'currentBidCr': currentBidCr,
+        'leadingTeamId': leadingTeamId,
+        'bidHistory': bidHistory,
+        'message': message,
+      };
+
+  factory AuctionState.fromJson(Map<String, dynamic> json) => AuctionState(
+        teams: ((json['teams'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((team) => AuctionTeam.fromJson(team.cast<String, dynamic>()))
+            .toList(growable: false),
+        players: ((json['players'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((player) => AuctionPlayer.fromJson(player.cast<String, dynamic>()))
+            .toList(growable: false),
+        currentPlayerIndex: (json['currentPlayerIndex'] as num?)?.toInt() ?? 0,
+        phase: AuctionPhase.values.firstWhere(
+          (value) => value.name == json['phase'],
+          orElse: () => AuctionPhase.ready,
+        ),
+        currentBidCr: (json['currentBidCr'] as num?)?.toDouble() ?? 0,
+        leadingTeamId: json['leadingTeamId'] as String?,
+        bidHistory: ((json['bidHistory'] as List?) ?? const []).cast<String>(),
+        message: json['message'] as String? ?? 'Campaign loaded',
+      );
+
   AuctionState copyWith({
     List<AuctionTeam>? teams,
     List<AuctionPlayer>? players,
