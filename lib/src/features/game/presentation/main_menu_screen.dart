@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../state/user_preferences_provider.dart';
 import '../../../theme/game_theme.dart';
 import '../application/game_controller.dart';
+import '../data/campaign_store.dart';
 import 'home_screen.dart';
 import 'startup_screen.dart';
 
@@ -16,6 +17,84 @@ class MainMenuScreen extends ConsumerWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => const StartupScreen()),
     );
+  }
+
+  Future<void> _openLoadGame(BuildContext context, WidgetRef ref) async {
+    final saves = CampaignStore.listSaves();
+    if (saves.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No saved campaigns yet. Start a new campaign first.'),
+        ),
+      );
+      return;
+    }
+
+    final chosen = await showDialog<CampaignSave>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1C2541),
+        title: const Text(
+          'LOAD CAMPAIGN',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final save in saves)
+                ListTile(
+                  leading: const Icon(Icons.sports_cricket_rounded, color: GamePalette.gold),
+                  title: Text(
+                    '${save.franchiseName} \u00b7 ${save.league}',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                  ),
+                  subtitle: Text(
+                    'Season ${save.seasonNumber} \u00b7 ${save.squadCount} players \u00b7 \u20b9${save.purseCr.toStringAsFixed(1)} Cr\n${_savedLabel(save.lastSavedAt)}',
+                    style: const TextStyle(color: Colors.white60, fontSize: 11),
+                  ),
+                  isThreeLine: true,
+                  onTap: () => Navigator.of(dialogContext).pop(save),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('CANCEL'),
+          ),
+        ],
+      ),
+    );
+    if (chosen == null) return;
+
+    await CampaignStore.setActiveCampaign(chosen.id);
+    ref.read(gameControllerProvider.notifier).restoreCampaign(
+      campaignId: chosen.id,
+      league: chosen.league,
+      franchiseName: chosen.franchiseName,
+      purseCr: chosen.purseCr,
+      difficulty: chosen.difficulty,
+      seasonNumber: chosen.seasonNumber,
+      completedMatches: chosen.completedMatches,
+      phase: chosen.phase,
+      lastAction: chosen.lastAction,
+    );
+
+    if (!context.mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+    );
+  }
+
+  static String _savedLabel(DateTime? savedAt) {
+    if (savedAt == null) return 'Not saved yet';
+    final local = savedAt.toLocal();
+    String two(int value) => value.toString().padLeft(2, '0');
+    return 'Saved ${two(local.day)}/${two(local.month)}/${local.year} '
+        '${two(local.hour)}:${two(local.minute)}';
   }
 
   @override
@@ -76,18 +155,7 @@ class MainMenuScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    onPressed: () {
-                      final session = ref.read(gameControllerProvider);
-                      if (session.campaignId == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No saved campaign found. Start a new campaign first.')),
-                        );
-                        return;
-                      }
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-                      );
-                    },
+                    onPressed: () => _openLoadGame(context, ref),
                     icon: const Icon(Icons.folder_open_rounded),
                     label: const Text('LOAD GAME'),
                     style: OutlinedButton.styleFrom(
