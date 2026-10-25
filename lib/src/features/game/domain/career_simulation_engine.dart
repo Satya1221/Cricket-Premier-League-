@@ -192,16 +192,6 @@ class CareerSimulationEngine {
           overall: overall,
           potential: p.potential,
           role: p.role,
-          runs: p.runs,
-          wickets: p.wickets,
-          highScore: p.highScore,
-          fifties: p.fifties,
-          hundreds: p.hundreds,
-          ballsFaced: p.ballsFaced,
-          runsConceded: p.runsConceded,
-          ballsBowled: p.ballsBowled,
-          bestBowlingRuns: p.bestBowlingRuns,
-          bestBowlingWickets: p.bestBowlingWickets,
         ));
       }
       for(var i=0;i<max(1,academyLevel);i++){
