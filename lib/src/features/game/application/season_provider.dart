@@ -48,8 +48,30 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     if (state.fixtures.any((fixture) => !fixture.played)) {
       throw StateError('Finish every fixture before ending the season.');
     }
+    // Snapshot the season's leaders before the roster rolls over, so the
+    // all-time records survive the transition.
+    await _saves.saveHistory('season-${state.seasonNumber}', _historySnapshot());
     state = _engine.endSeason(state, academyLevel: academyLevel);
     await save();
+  }
+
+  Map<String, Object?> _historySnapshot() {
+    final players = state.teams.expand((team) => team.players).toList();
+    final batters = [...players]..sort((a, b) => b.runs.compareTo(a.runs));
+    final bowlers = [...players]..sort((a, b) => b.wickets.compareTo(a.wickets));
+    return {
+      'seasonNumber': state.seasonNumber,
+      'topRunScorer': batters.isEmpty
+          ? null
+          : <String, Object?>{'name': batters.first.name, 'runs': batters.first.runs},
+      'topWicketTaker': bowlers.isEmpty
+          ? null
+          : <String, Object?>{'name': bowlers.first.name, 'wickets': bowlers.first.wickets},
+      'standings': [
+        for (final team in standings)
+          <String, Object?>{'team': team.name, 'points': team.points},
+      ],
+    };
   }
 
   List<CareerTeam> get standings => _engine.standings(state.teams);
