@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../game/data/campaign_store.dart';
 import '../data/demo_auction.dart';
 import '../domain/auction_engine.dart';
 import '../domain/auction_state.dart';
@@ -37,7 +40,12 @@ class AuctionController extends Notifier<AuctionState> {
 
   void runRivalRound() => state = _engine.runRivalRound(state: state, rivals: _rivals);
 
-  void closeLot() => state = _engine.closeLot(state);
+  /// Closing a lot changes purse and squad, so the save slot is refreshed
+  /// immediately to keep the Load Game cards accurate.
+  void closeLot() {
+    state = _engine.closeLot(state);
+    unawaited(CampaignStore.saveAuction(state));
+  }
   void nextLot() => state = _engine.nextLot(state);
   void reset() => state = createDemoAuction();
 }
