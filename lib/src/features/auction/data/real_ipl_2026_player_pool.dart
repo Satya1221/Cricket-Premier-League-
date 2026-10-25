@@ -85,7 +85,7 @@ final realIpl2026PlayerPool = <AuctionPlayer>[
   _p('srh-abhishek-sharma','Abhishek Sharma','India',PlayerRole.allRounder,26,92,97,96,74,81,price:2,form:88),
   _p('srh-heinrich-klaasen','Heinrich Klaasen','South Africa',PlayerRole.wicketKeeper,35,95,95,97,12,84,price:2,overseas:true,form:89),
   _p('srh-pat-cummins','Pat Cummins','Australia',PlayerRole.allRounder,33,91,92,72,93,85,price:2,overseas:true,form:83),
-  _p('srh-isha kishan','Ishan Kishan','India',PlayerRole.wicketKeeper,28,88,92,91,10,79,price:1,form:80),
+  _p('srh-ishan-kishan','Ishan Kishan','India',PlayerRole.wicketKeeper,28,88,92,91,10,79,price:1,form:80),
   _p('srh-nitish-kumar-reddy','Nitish Kumar Reddy','India',PlayerRole.allRounder,23,87,95,86,80,78,price:1,form:82),
   _p('lsg-rishabh-pant','Rishabh Pant','India',PlayerRole.wicketKeeper,29,92,95,94,12,81,price:2,form:83),
   _p('lsg-nicholas-pooran','Nicholas Pooran','West Indies',PlayerRole.wicketKeeper,31,94,95,97,8,80,price:2,overseas:true,form:87),
@@ -107,6 +107,5 @@ final realIpl2026PlayerPool = <AuctionPlayer>[
   _p('rr-sandeep-sharma','Sandeep Sharma','India',PlayerRole.bowler,33,86,86,16,89,80,price:1,form:81),
   _p('pbks-xavier-bartlett','Xavier Bartlett','Australia',PlayerRole.bowler,27,84,91,22,88,79,price:1,overseas:true,form:80),
   _p('srh-harshal-patel','Harshal Patel','India',PlayerRole.bowler,36,87,87,25,90,75,price:1,form:79),
-  _p('lsg-awanesh-shami','Mohammed Shami','India',PlayerRole.bowler,36,89,89,20,92,80,price:1,form:77),
   _p('dc-pathum-nissanka','Pathum Nissanka','Sri Lanka',PlayerRole.batter,28,86,91,89,12,79,price:1,overseas:true,form:82),
 ];
