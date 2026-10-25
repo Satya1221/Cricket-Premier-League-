@@ -20,7 +20,7 @@ class SimInningsResult {
   final String teamId;
   final int runs, wickets, legalBalls;
   final Map<String, int> batterRuns, bowlerWickets;
-  String get scoreText => runs.toString() + '/' + wickets.toString() + ' (' + (legalBalls ~/ 6).toString() + '.' + (legalBalls % 6).toString() + ' overs)';
+  String get scoreText => '$runs/$wickets (${legalBalls ~/ 6}.${legalBalls % 6} overs)';
 }
 class MatchResultSummary {
   const MatchResultSummary({required this.matchId, required this.homeTeamId, required this.awayTeamId, required this.homeInnings, required this.awayInnings, required this.winnerId, required this.resultText, required this.format});
@@ -37,7 +37,7 @@ class AutoSimEngine {
     final first = _simulateInnings(team: home, bowlingTeam: away, format: format, target: null);
     final second = _simulateInnings(team: away, bowlingTeam: home, format: format, target: first.runs + 1);
     final winner = first.runs == second.runs ? '' : first.runs > second.runs ? home.id : away.id;
-    final result = winner.isEmpty ? 'Match tied' : winner == home.id ? home.name + ' won by ' + (first.runs-second.runs).toString() + ' runs' : away.name + ' won by ' + (10-second.wickets).toString() + ' wickets';
+    final result = winner.isEmpty ? 'Match tied' : winner == home.id ? '${home.name} won by ${first.runs - second.runs} runs' : '${away.name} won by ${10 - second.wickets} wickets';
     return MatchResultSummary(matchId: matchId, homeTeamId: home.id, awayTeamId: away.id, homeInnings: first, awayInnings: second, winnerId: winner, resultText: result, format: format);
   }
   SimInningsResult _simulateInnings({required SimTeam team, required SimTeam bowlingTeam, required CricketFormat format, required int? target}) {
