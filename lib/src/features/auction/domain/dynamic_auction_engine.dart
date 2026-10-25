@@ -169,38 +169,3 @@ class DynamicAuctionEngine {
     );
   }
 }
-
-void main() {
-  final engine = DynamicAuctionEngine();
-  final franchises = [
-    AuctionFranchise(id: 'mum', name: 'Mumbai Mavericks', purse: 5000,
-      neededRoles: ['All-Rounder', 'Bowler'], aggression: 1.4),
-    AuctionFranchise(id: 'che', name: 'Chennai Super Kings', purse: 4000,
-      neededRoles: ['All-Rounder', 'Batter'], aggression: 1.1),
-    AuctionFranchise(id: 'del', name: 'Delhi Dashers', purse: 8000,
-      neededRoles: ['Batter', 'Wicket-Keeper'], aggression: 0.9),
-  ];
-  final lots = [
-    const AuctionPlayerProfile(id: 'p1', name: 'Demo All-Rounder',
-      role: 'All-Rounder', overallRating: 94, basePrice: 200),
-    const AuctionPlayerProfile(id: 'p2', name: 'Demo Batter',
-      role: 'Batter', overallRating: 72, basePrice: 20),
-  ];
-
-  for (final player in lots) {
-    print('\n--- ON THE BLOCK: ${player.name} (${player.role}, OVR ${player.overallRating}) ---');
-    print('Base price: ${player.basePrice}');
-    final result = engine.runAuction(player: player, franchises: franchises);
-    for (final bid in result.bidHistory) {
-      print('${bid.franchiseName} bids ${bid.amount}');
-    }
-    if (result.status == AuctionLotStatus.sold) {
-      print('SOLD: ${player.name} to ${result.winner!.name} for ${result.finalPrice}');
-    } else {
-      print('UNSOLD: no franchise bid above the base price');
-    }
-    for (final team in franchises) {
-      print('${team.name} purse remaining: ${team.purse}');
-    }
-  }
-}
