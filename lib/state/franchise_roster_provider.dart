@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../services/squad_validator.dart';
 import '../src/features/auction/domain/player.dart';
+import '../src/features/game/data/campaign_store.dart';
 
 class FranchiseState {
   const FranchiseState({this.purseCr=120,this.stadiumFunds=12000000,this.activeSquad=const [],this.playingXI=const []});
@@ -19,12 +20,22 @@ class FranchiseRosterNotifier extends StateNotifier<FranchiseState> {
   static const _boxName='franchise_roster';
   static const _key='active-franchise';
   static FranchiseState _load(){
+    final campaignSnapshot = CampaignStore.loadActiveRoster();
+    if (campaignSnapshot != null) {
+      return FranchiseState.fromJson(Map<String, Object?>.from(campaignSnapshot));
+    }
     final raw=Hive.box<dynamic>(_boxName).get(_key);
     if(raw is! String)return const FranchiseState();
     try { final decoded=jsonDecode(raw); return decoded is Map?FranchiseState.fromJson(Map<String,Object?>.from(decoded)):const FranchiseState(); }
     on FormatException { return const FranchiseState(); }
   }
-  Future<void> _save()=>Hive.box<dynamic>(_boxName).put(_key,jsonEncode(state.toJson()));
+  Future<void> _save() async {
+    if (CampaignStore.isInitialized && CampaignStore.activeCampaignId != null) {
+      await CampaignStore.saveActiveRoster(Map<String, dynamic>.from(state.toJson()));
+      return;
+    }
+    await Hive.box<dynamic>(_boxName).put(_key,jsonEncode(state.toJson()));
+  }
   Future<void> setActiveSquad(List<String> ids) async { state=state.copyWith(activeSquad:List.unmodifiable(ids),playingXI:state.playingXI.where(ids.contains).toList()); await _save(); }
   Future<void> setPlayingXI(List<String> ids,List<AuctionPlayer> squad) async {
     final selected=squad.where((p)=>ids.contains(p.id)).toList();
