@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'auction_state.dart';
 import 'player.dart';
+import 'player_contract.dart';
+import 'purse_rules.dart';
 
 enum RivalStyle { balanced, aggressive, budgetGuardian, youthFirst, roleSpecialist }
 
@@ -34,7 +36,9 @@ class BidDecision {
 }
 
 class AuctionEngine {
-  const AuctionEngine();
+  const AuctionEngine({this.purseRules = const PurseRules()});
+
+  final PurseRules purseRules;
 
   double valuationCr(AuctionPlayer player) {
     final skill = player.overall / 100;
@@ -80,7 +84,7 @@ class AuctionEngine {
     final nextBid = currentBidCr == 0
         ? player.basePriceCr
         : currentBidCr + incrementFor(currentBidCr);
-    final feasible = team.purseCr >= nextBid &&
+    final feasible = purseRules.canAffordBid(team, nextBid) &&
         team.remainingSlots > 0 &&
         (!player.isOverseas || team.overseasCount < team.maxOverseas);
     final shouldBid = feasible && nextBid <= reserve;
@@ -115,11 +119,8 @@ class AuctionEngine {
     final nextBid = state.currentBidCr == 0
         ? player.basePriceCr
         : state.currentBidCr + incrementFor(state.currentBidCr);
-    if (team.purseCr < nextBid) throw StateError('Insufficient purse.');
+    purseRules.validateContract(team, player, nextBid);
     if (team.remainingSlots <= 0) throw StateError('Squad is full.');
-    if (player.isOverseas && team.overseasCount >= team.maxOverseas) {
-      throw StateError('Overseas player limit reached.');
-    }
     final history = [
       ...state.bidHistory,
       '${team.shortName} bids ₹${nextBid.toStringAsFixed(2)} Cr',
@@ -200,7 +201,13 @@ class AuctionEngine {
       role: player.role,
       overall: player.overall,
       potential: player.potential,
-      basePriceCr: state.currentBidCr,
+      basePriceCr: player.basePriceCr,
+      contract: PlayerContract(
+        currentSalaryCrores: state.currentBidCr,
+        basePriceCrores: player.basePriceCr,
+        yearsRemaining: 3,
+        isOverseas: player.isOverseas,
+      ),
       isOverseas: player.isOverseas,
       age: player.age,
       batting: player.batting,
