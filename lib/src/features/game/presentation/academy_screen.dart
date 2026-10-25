@@ -68,6 +68,11 @@ class AcademyScreen extends ConsumerWidget {
             cost: s.facilities.upgradeCostAcademy,
             note: 'Raises the youth potential cap by +3 OVR per level (75 \u2192 82 at level 2).',
             onUpgrade: () => _showResult(context, c.upgrade(youthAcademy: true)),
+            onInfo: () => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(
+              title: const Text('YOUTH ACADEMY'),
+              content: Text('Increases maximum potential of generated rookies. Current Cap: ${c.potentialCap(75)}. Next Cap: ${c.potentialCap(75) + 3}.'),
+              actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('GOT IT'))],
+            )),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -124,6 +129,7 @@ Widget _facility(
   required int cost,
   required String note,
   required VoidCallback onUpgrade,
+  VoidCallback? onInfo,
 }) =>
     Container(
       padding: const EdgeInsets.all(16),
@@ -147,6 +153,7 @@ Widget _facility(
                 'LEVEL $level/5',
                 style: const TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900),
               ),
+              if (onInfo != null) IconButton(tooltip: 'Upgrade details', onPressed: onInfo, icon: const Icon(Icons.info_outline, color: GamePalette.gold)),
             ],
           ),
           const SizedBox(height: 8),
