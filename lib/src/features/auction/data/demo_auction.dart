@@ -1,4 +1,5 @@
 import '../domain/auction_state.dart';
+import '../domain/player.dart';
 import 'real_ipl_2026_player_pool.dart';
 
 /// Builds a fresh auction from the published 2026 IPL player pool.
