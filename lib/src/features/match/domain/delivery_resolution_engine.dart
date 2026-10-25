@@ -135,8 +135,7 @@ class DeliveryResolutionEngine {
     // The skill gap nudges the roll but is bounded, so a big mismatch can no
     // longer swamp the outcome bands (this was the main cause of the
     // "7 wickets in 2 overs" bug).
-    final roll =
-        _random.nextDouble() * 100 + advantage.clamp(-30.0, 30.0).toDouble() * rollShiftScale;
+    final roll = (_random.nextDouble() * 100 + advantage.clamp(-30.0, 30.0).toDouble() * rollShiftScale).clamp(0.0, 100.0).toDouble();
 
     // Tactics reshape the outcome bands, not the players' underlying skills.
     // Clamp thresholds into a monotonic sequence to avoid impossible bands.
@@ -207,9 +206,7 @@ class DeliveryResolutionEngine {
             ? DeliveryOutcomeType.dot
             : roll <= oneTwoChance
                 ? (_random.nextBool() ? DeliveryOutcomeType.one : DeliveryOutcomeType.two)
-                : roll <= fourChance
-                    ? DeliveryOutcomeType.four
-                    : DeliveryOutcomeType.six;
+                : (_random.nextBool() ? DeliveryOutcomeType.four : DeliveryOutcomeType.six);
     DismissalType? dismissal;
     if (intent == BatterIntent.slog &&
         (outcome == DeliveryOutcomeType.four || outcome == DeliveryOutcomeType.six)) {
