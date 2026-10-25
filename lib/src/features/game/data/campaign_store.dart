@@ -164,7 +164,9 @@ class CampaignStore {
     return box;
   }
 
-  static String? get activeCampaignId => _settingsBox.get(_activeIdKey);
+  static bool get isInitialized => _saves?.isOpen == true && _settings?.isOpen == true;
+
+  static String? get activeCampaignId => isInitialized ? _settingsBox.get(_activeIdKey) : null;
 
   static Future<void> setActiveCampaign(String id) =>
       _settingsBox.put(_activeIdKey, id);
@@ -279,12 +281,14 @@ class CampaignStore {
 
 
   static Map<String, dynamic>? loadActiveRoster() {
+    if (!isInitialized) return null;
     final id = activeCampaignId;
     final snapshot = id == null ? null : load(id)?.rosterSnapshot;
     return snapshot == null ? null : Map<String, dynamic>.from(snapshot);
   }
 
   static Future<void> saveActiveRoster(Map<String, dynamic> snapshot) async {
+    if (!isInitialized) return;
     final id = activeCampaignId;
     if (id == null) return;
     final existing = load(id);
