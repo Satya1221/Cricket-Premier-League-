@@ -7,22 +7,18 @@ import '../domain/academy_engine.dart';
 
 class AcademyState {
   const AcademyState({
-    this.budget = 1200,
     this.facilities = const AcademyFacilities(),
     this.staff = const [],
   });
 
-  final int budget;
   final AcademyFacilities facilities;
   final List<CoachingStaff> staff;
 
   AcademyState copyWith({
-    int? budget,
     AcademyFacilities? facilities,
     List<CoachingStaff>? staff,
   }) =>
       AcademyState(
-        budget: budget ?? this.budget,
         facilities: facilities ?? this.facilities,
         staff: staff ?? this.staff,
       );
