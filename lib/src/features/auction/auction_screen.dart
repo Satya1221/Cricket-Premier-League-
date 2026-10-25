@@ -228,7 +228,7 @@ class _PlayerLot extends StatelessWidget {
         const SizedBox(height: 12),
         Center(
           child: Text(
-            'SOLD TO\\n${state.teams.where((team) => team.id == state.leadingTeamId).firstOrNull?.name.toUpperCase() ?? 'FRANCHISE'}',
+            'SOLD TO\n${state.teams.where((team) => team.id == state.leadingTeamId).firstOrNull?.name.toUpperCase() ?? 'FRANCHISE'}',
             key: ValueKey('sold-${player.name}'),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 30, height: 1.05, fontWeight: FontWeight.w900, color: GamePalette.gold),
