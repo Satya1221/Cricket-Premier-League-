@@ -83,7 +83,7 @@ void main() {
         player: player,
         team: team,
         rival: const RivalProfile(teamId: 'roy', style: RivalStyle.balanced, aggression: 0),
-        currentBidCr: 5.4,
+        currentBidCr: 18.0,
       );
       final aggressive = engine.rivalDecision(
         player: player,
