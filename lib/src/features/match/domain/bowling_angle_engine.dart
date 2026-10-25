@@ -66,28 +66,45 @@ class BowlingDeliveryProfile {
     var wicket = 1.0, edge = geometry['edgeProbability']!, wide = geometry['wideLineDanger']!;
     var dot = 1.0, boundary = 1.0;
     switch (line) {
-      case BowlingLine.outsideOff: edge *= 1.15; wide *= 1.1;
-      case BowlingLine.offStump: wicket *= 1.08; edge *= 1.08;
-      case BowlingLine.middleStump: wicket *= 1.12; boundary *= 0.95;
-      case BowlingLine.legStump: wicket *= 0.92; boundary *= 1.05;
-      case BowlingLine.outsideLeg: wicket *= 0.78; wide *= 1.3;
+      case BowlingLine.outsideOff:
+        edge *= 1.15; wide *= 1.1; break;
+      case BowlingLine.offStump:
+        wicket *= 1.08; edge *= 1.08; break;
+      case BowlingLine.middleStump:
+        wicket *= 1.12; boundary *= 0.95; break;
+      case BowlingLine.legStump:
+        wicket *= 0.92; boundary *= 1.05; break;
+      case BowlingLine.outsideLeg:
+        wicket *= 0.78; wide *= 1.3; break;
     }
     switch (length) {
-      case BowlingLength.yorker: wicket *= 1.22; boundary *= 0.8; dot *= 1.12;
-      case BowlingLength.full: wicket *= 1.08; boundary *= 1.08;
-      case BowlingLength.goodLength: wicket *= 1.12; edge *= 1.08; dot *= 1.08;
-      case BowlingLength.short: boundary *= 1.12; edge *= 0.95;
-      case BowlingLength.bouncer: wicket *= 1.05; boundary *= 1.15; edge *= 1.04;
+      case BowlingLength.yorker:
+        wicket *= 1.22; boundary *= 0.8; dot *= 1.12; break;
+      case BowlingLength.full:
+        wicket *= 1.08; boundary *= 1.08; break;
+      case BowlingLength.goodLength:
+        wicket *= 1.12; edge *= 1.08; dot *= 1.08; break;
+      case BowlingLength.short:
+        boundary *= 1.12; edge *= 0.95; break;
+      case BowlingLength.bouncer:
+        wicket *= 1.05; boundary *= 1.15; edge *= 1.04; break;
     }
     switch (variation) {
       case BowlingVariation.stock: break;
-      case BowlingVariation.outswinger: edge *= 1.22; wicket *= 1.04;
-      case BowlingVariation.inswinger: wicket *= 1.15; edge *= 0.94;
-      case BowlingVariation.cutter: dot *= 1.12; boundary *= 0.9;
-      case BowlingVariation.slowerBall: dot *= 1.08; boundary *= 0.92;
-      case BowlingVariation.googly: wicket *= crease.style == BowlingStyleCode.legSpin ? 1.2 : 1.0; edge *= 1.05;
-      case BowlingVariation.armBall: wicket *= crease.style == BowlingStyleCode.offSpin ? 1.16 : 1.0;
-      case BowlingVariation.doosra: wicket *= crease.style == BowlingStyleCode.offSpin ? 1.18 : 1.0;
+      case BowlingVariation.outswinger:
+        edge *= 1.22; wicket *= 1.04; break;
+      case BowlingVariation.inswinger:
+        wicket *= 1.15; edge *= 0.94; break;
+      case BowlingVariation.cutter:
+        dot *= 1.12; boundary *= 0.9; break;
+      case BowlingVariation.slowerBall:
+        dot *= 1.08; boundary *= 0.92; break;
+      case BowlingVariation.googly:
+        wicket *= crease.style == BowlingStyleCode.legSpin ? 1.2 : 1.0; edge *= 1.05; break;
+      case BowlingVariation.armBall:
+        wicket *= crease.style == BowlingStyleCode.offSpin ? 1.16 : 1.0; break;
+      case BowlingVariation.doosra:
+        wicket *= crease.style == BowlingStyleCode.offSpin ? 1.18 : 1.0; break;
     }
     if (crease.style == BowlingStyleCode.offSpin || crease.style == BowlingStyleCode.legSpin) {
       final matchup = (70 / max(25, batterVsSpin)).clamp(0.75, 1.5);
