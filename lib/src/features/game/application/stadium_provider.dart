@@ -30,7 +30,7 @@ class StadiumNotifier extends StateNotifier<StadiumState> {
     if(seats<=0)throw ArgumentError.value(seats,'seats','Must be positive.');
     final current=state.selectedStadium;
     if(current.capacity+seats>StadiumEconomy.maximumCapacity)throw StateError('IPL stadium capacity cannot exceed 65000 seats.');
-    final ok=await _treasury.expandStadium(newCapacity:current.capacity+seats);
+    final ok=await _treasury.expandStadium(newCapacity:current.capacity+seats,addedSeats:seats);
     if(!ok)throw StateError('Insufficient operating treasury: stadium expansion costs ₹60 lakh.');
     final expanded=current.copyWith(capacity:current.capacity+seats);
     state=state.copyWith(stadiums:[for(final s in state.stadiums)if(s.id==expanded.id)expanded else s],
