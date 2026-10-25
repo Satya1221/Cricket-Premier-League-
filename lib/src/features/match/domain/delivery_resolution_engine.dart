@@ -109,13 +109,19 @@ class DeliveryResolutionEngine {
   }) {
     assert(pressureMultiplier >= 0 && pressureMultiplier <= 1.5);
     final modifiers = environment.getDeliveryModifiers();
-    final pitchModifier = bowler.isSpinner ? modifiers['spin']! : modifiers['swing']!;
+    final pitchModifier = bowler.isSpinner
+        ? modifiers['spin']!
+        : (modifiers['swing']! * 0.55 + (modifiers['seam'] ?? 1.0) * 0.45);
+    final attributeControl = bowler.isSpinner
+        ? (batter.attributes?.vs ?? batter.baseDefense)
+        : (batter.attributes?.tec ?? batter.baseDefense);
+    final movementSkill = bowler.attributes?.varStat ?? bowler.baseMovement;
     final deliveryThreat =
         ((bowler.baseAccuracy * 0.4) +
-            (bowler.baseMovement * 0.6 * pitchModifier)) *
+            (movementSkill * 0.6 * pitchModifier)) *
         bowler.stamina;
     final batterControl =
-        ((batter.baseDefense * 0.6) + (batter.baseTiming * 0.4)) *
+        ((attributeControl * 0.6) + (batter.baseTiming * 0.4)) *
         batter.concentration *
         pressureMultiplier +
         captaincyBonus;
@@ -145,6 +151,9 @@ class DeliveryResolutionEngine {
         fourChance -= 20;
         break;
     }
+    final boundaryFactor = (modifiers['boundary'] ?? 1.0).clamp(0.75, 1.25);
+    fourChance = fourChance / boundaryFactor;
+    wicketChance += (modifiers['irregularBounceRisk'] ?? 0.0) * 12;
     switch (tactic) {
       case BowlerTactic.attack:
         wicketChance += 5;
