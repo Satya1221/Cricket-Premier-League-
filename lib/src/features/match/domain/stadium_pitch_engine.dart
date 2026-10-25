@@ -111,7 +111,7 @@ class StadiumAsset {
 
 class StadiumEconomy {
   static const int expansionCostPerSeat = 120;
-  static const int maximumCapacity = 65000;
+  static const int maximumCapacity = 100000;
 
   static StadiumAsset expand(StadiumAsset stadium, {required int seats, required int availableFunds}) {
     if (seats <= 0) {
