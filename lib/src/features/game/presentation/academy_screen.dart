@@ -5,6 +5,7 @@ import '../../../theme/game_theme.dart';
 import '../application/academy_provider.dart';
 import '../application/modifiers_provider.dart';
 import '../domain/academy_engine.dart';
+import '../../../../services/treasury_service.dart';
 
 class AcademyScreen extends ConsumerWidget {
   const AcademyScreen({super.key});
@@ -14,6 +15,10 @@ class AcademyScreen extends ConsumerWidget {
     final s = ref.watch(academyProvider);
     final c = ref.read(academyProvider.notifier);
     final modifiers = ref.watch(modifiersProvider);
+    final treasuryBalance = const TreasuryService().balanceRupees;
+    final trainingCost = s.facilities.trainingLevel >= 5 ? 0 : 2500000;
+    final academyNextLevel = s.facilities.youthAcademyLevel + 1;
+    final academyCost = s.facilities.youthAcademyLevel >= 5 ? 0 : (academyNextLevel >= 5 ? 5000000 : 2500000 + (academyNextLevel - 2) * 1000000);
     return Scaffold(
       backgroundColor: const Color(0xFF0B132B),
       appBar: AppBar(title: const Text('ACADEMY & STAFF')),
@@ -30,12 +35,12 @@ class AcademyScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'FRANCHISE DEVELOPMENT FUND',
+                  'OPERATING TREASURY · INR',
                   style: TextStyle(color: Colors.white60, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${s.budget} credits',
+                  '₹${treasuryBalance.toStringAsFixed(0)}',
                   style: const TextStyle(color: GamePalette.gold, fontSize: 30, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 6),
@@ -56,7 +61,7 @@ class AcademyScreen extends ConsumerWidget {
             context,
             title: 'TRAINING FACILITIES',
             level: s.facilities.trainingLevel,
-            cost: s.facilities.upgradeCostTraining,
+            cost: trainingCost,
             note: '+10% player XP per match and -1 day recovery time per level.',
             onUpgrade: () => _showResult(context, c.upgrade(youthAcademy: false)),
           ),
@@ -65,7 +70,7 @@ class AcademyScreen extends ConsumerWidget {
             context,
             title: 'YOUTH ACADEMY',
             level: s.facilities.youthAcademyLevel,
-            cost: s.facilities.upgradeCostAcademy,
+            cost: academyCost,
             note: 'Raises the youth potential cap by +3 OVR per level (75 \u2192 82 at level 2).',
             onUpgrade: () => _showResult(context, c.upgrade(youthAcademy: true)),
             onInfo: () => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(
@@ -198,12 +203,14 @@ String _coachEffect(CoachSpecialty s) => switch (s) {
       CoachSpecialty.youthDevelopment => '+2 youth potential cap while employed.',
     };
 
-void _showResult(BuildContext context, String message) {
+Future<void> _showResult(BuildContext context, Future<String> message) async {
+  final result=await message;
+  if(!context.mounted)return;
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(result),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
