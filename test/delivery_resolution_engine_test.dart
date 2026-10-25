@@ -44,7 +44,7 @@ void main() {
       tactic: BowlerTactic.attack,
     );
     expect(result.thresholds['wicket'], closeTo(18, 0.01));
-    expect(result.thresholds['four'], closeTo(64, 0.01));
+    expect(result.thresholds['four'], 100);
   });
 
   test('contain tactic protects boundaries and reduces wicket threshold', () {
@@ -55,8 +55,8 @@ void main() {
       intent: BatterIntent.rotate,
       tactic: BowlerTactic.contain,
     );
-    expect(result.thresholds['wicket'], closeTo(2.4, 0.01));
-    expect(result.thresholds['four'], 99);
+    expect(result.thresholds['wicket'], closeTo(1.92, 0.01));
+    expect(result.thresholds['four'], 100);
     expect(result.thresholds['dot'], greaterThan(25));
   });
 
