@@ -8,7 +8,7 @@ import '../src/features/game/application/stadium_provider.dart';
 enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsIncomingBatter, needsNewBowler, superOverRequired, completed }
 
 class IplMatchState {
- const IplMatchState({this.innings=1,this.runs=0,this.wickets=0,this.legalBalls=0,this.targetScore=0,this.strikerId,this.nonStrikerId,this.bowlerId,this.battingTeamId='cpl',this.defendingTeamId='opponent',this.homeTeamId='cpl',this.status=IplMatchStatus.inningsOne,this.deliveries=const [],this.winnerTeamId,this.isTie=false,this.message='Select the opening batters to begin.',this.pendingBowlerChange=false});
+ const IplMatchState({this.innings=1,this.runs=0,this.wickets=0,this.legalBalls=0,this.targetScore=0,this.strikerId,this.nonStrikerId,this.bowlerId,this.battingTeamId='cpl',this.defendingTeamId='roy',this.homeTeamId='cpl',this.status=IplMatchStatus.inningsOne,this.deliveries=const [],this.winnerTeamId,this.isTie=false,this.message='Select the opening batters to begin.',this.pendingBowlerChange=false});
  final int innings,runs,wickets,legalBalls,targetScore;
  final String? strikerId,nonStrikerId,bowlerId,winnerTeamId;
  final String battingTeamId,defendingTeamId,homeTeamId;
