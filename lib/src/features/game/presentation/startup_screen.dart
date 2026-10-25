@@ -8,6 +8,8 @@ import '../../../theme/game_theme.dart';
 import 'home_screen.dart';
 import '../application/game_controller.dart';
 import '../data/campaign_store.dart';
+import '../../../../state/franchise_roster_provider.dart';
+import '../../auction/application/auction_controller.dart';
 
 /// Cinematic boot sequence. The current project does not yet have a configured
 /// Isar schema/player collection, so this prepares the first 300-player pool in
@@ -75,6 +77,8 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
       } catch (error) {
         debugPrint('Could not write campaign slot: $error');
       }
+      ref.read(auctionControllerProvider.notifier).loadActiveCampaign();
+      ref.read(franchiseRosterProvider.notifier).loadActiveCampaign();
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder<void>(
