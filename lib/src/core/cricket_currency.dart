@@ -3,9 +3,7 @@ class CricketCurrency {
   const CricketCurrency._();
 
   static String format(double amountInCrores) {
-    if (!amountInCrores.isFinite || amountInCrores < 0) {
-      throw ArgumentError.value(amountInCrores, 'amountInCrores', 'Must be finite and non-negative.');
-    }
+    if (!amountInCrores.isFinite || amountInCrores < 0) return '₹—';
     if (amountInCrores >= 1) return '₹${amountInCrores.toStringAsFixed(2)} Cr';
     final lakhs = amountInCrores * 100;
     if (lakhs < 1) return '₹${(lakhs * 100).round()} thousand';
@@ -13,6 +11,7 @@ class CricketCurrency {
   }
 
   static String formatCompact(double amountInCrores) {
+    if (!amountInCrores.isFinite || amountInCrores < 0) return '₹—';
     if (amountInCrores >= 1) return '₹${amountInCrores.toStringAsFixed(2)} Cr';
     return '₹${(amountInCrores * 100).toStringAsFixed(0)} L';
   }
