@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/game_feel.dart';
+import '../match/matchday_screen.dart';
 
 import '../../theme/game_theme.dart';
 import 'application/auction_controller.dart';
@@ -25,7 +26,7 @@ class AuctionScreen extends ConsumerWidget {
           Text('CRICKET PREMIER LEAGUE', style: TextStyle(fontSize: 11, letterSpacing: 1.8, color: GamePalette.gold, fontWeight: FontWeight.w900)),
           Text('LIVE AUCTION', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
         ]),
-        actions: [IconButton(tooltip: 'Reset demo auction', onPressed: actions.reset, icon: const Icon(Icons.restart_alt))],
+        actions: [IconButton(tooltip: 'Matchday', onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const MatchdayScreen())), icon: const Icon(Icons.sports_cricket_rounded)), IconButton(tooltip: 'Reset demo auction', onPressed: actions.reset, icon: const Icon(Icons.restart_alt))],
       ),
       body: SafeArea(
         child: LayoutBuilder(builder: (context, constraints) {
