@@ -178,7 +178,7 @@ Widget _facility(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: cost == 0 ? null : onUpgrade,
-              child: Text(cost == 0 ? 'MAX LEVEL' : 'UPGRADE \u00b7 $cost CREDITS'),
+              child: Text(cost == 0 ? 'MAX LEVEL' : 'UPGRADE \u00b7 ₹$cost'),
             ),
           ),
         ],
