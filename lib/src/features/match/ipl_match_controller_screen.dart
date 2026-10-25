@@ -11,7 +11,7 @@ class IplMatchControllerScreen extends ConsumerStatefulWidget{
 }
 class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScreen>{
  String? _striker,_nonStriker,_bowler,_incoming;
- String _extra='None',_superOverWinner='cpl';
+ String _extra='None',_superOverWinner='cpl',_dismissal='Caught';
  final List<String> _extras=const ['None','Wide','NoBall','LegBye'];
  @override Widget build(BuildContext context){
   final match=ref.watch(matchNotifierProvider);
@@ -25,6 +25,8 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
   final names={for(final t in auction.teams)for(final p in t.squad)p.id:p.name};
   String label(String id)=>names[id]??id;
   final ready=battingIds.length>=11&&bowlingIds.isNotEmpty;
+  final allowedDismissals=_extra=='Wide'?const ['Stumped','RunOut','HitWicket','ObstructingTheField']:_extra=='NoBall'?const ['RunOut','HitWicket','ObstructingTheField','HitTheBallTwice']:_extra=='LegBye'?const ['RunOut','ObstructingTheField']:const ['Bowled','Caught','LBW','Stumped','RunOut','HitWicket','ObstructingTheField','HitTheBallTwice','TimedOut','RetiredOut'];
+  final dismissalValue=allowedDismissals.contains(_dismissal)?_dismissal:allowedDismissals.first;
   final available=battingIds.where((id)=>id!=match.strikerId&&id!=match.nonStrikerId).toList();
   return Scaffold(
    appBar:AppBar(title:const Text('IPL BALL-BY-BALL')),
@@ -60,10 +62,11 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
       Text('Bowling: ${label(match.bowlerId!)}',style:const TextStyle(color:Colors.white70)),
       const SizedBox(height:8),
       DropdownButtonFormField<String>(value:_extra,decoration:const InputDecoration(labelText:'Extra type'),items:_extras.map((e)=>DropdownMenuItem(value:e,child:Text(e))).toList(),onChanged:(v)=>setState(()=>_extra=v??'None')),
+      const SizedBox(height:8),DropdownButtonFormField<String>(value:dismissalValue,decoration:const InputDecoration(labelText:'Dismissal (used only for wickets)'),items:allowedDismissals.map((d)=>DropdownMenuItem(value:d,child:Text(d))).toList(),onChanged:(v)=>setState(()=>_dismissal=v??'Caught')),
       const SizedBox(height:10),const Text('RECORD DELIVERY',style:TextStyle(color:GamePalette.gold,fontWeight:FontWeight.w900)),
       Wrap(spacing:8,runSpacing:8,children:[
        for(final n in [0,1,2,3,4,6])OutlinedButton(onPressed:()=>_deliver(actions,n,false),child:Text('$n run${n==1?'':'s'}')),
-       FilledButton(onPressed:(_extra=='Wide'||_extra=='NoBall')?null:()=>_deliver(actions,0,true),child:const Text('WICKET')),
+       FilledButton(onPressed:()=>_deliver(actions,0,true,dismissalType:dismissalValue),child:const Text('WICKET')),
       ]),
       const SizedBox(height:8),const Text('IPL T20: 20 overs per innings, 6 legal balls per over, maximum 4 overs per bowler. Wides/no-balls do not count as legal balls.',style:TextStyle(color:Colors.white54,fontSize:11,height:1.4)),
      ],
@@ -79,6 +82,6 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
   );
  }
  Widget _playerPicker(String title,List<String> ids,Map<String,String> names,String? value,ValueChanged<String?> onChanged)=>Padding(padding:const EdgeInsets.only(bottom:10),child:DropdownButtonFormField<String>(value:ids.contains(value)?value:null,decoration:InputDecoration(labelText:title),items:ids.map((id)=>DropdownMenuItem(value:id,child:Text(names[id]??id,overflow:TextOverflow.ellipsis))).toList(),onChanged:ids.isEmpty?null:onChanged));
- void _deliver(MatchNotifier actions,int runs,bool wicket){try{actions.resolveDelivery(runs,wicket,_extra);setState(()=>_extra='None');}catch(e){_error(e.toString());}}
+ void _deliver(MatchNotifier actions,int runs,bool wicket,{String? dismissalType}){try{actions.resolveDelivery(runs,wicket,_extra,dismissalType:dismissalType);setState(()=>_extra='None');}catch(e){_error(e.toString());}}
  void _error(String message)=>ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(message)));
 }
