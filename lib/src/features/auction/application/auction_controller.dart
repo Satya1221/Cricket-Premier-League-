@@ -162,7 +162,46 @@ class AuctionController extends Notifier<AuctionState> {
         state = _engine.nextLot(state);
       }
     }
+    _balanceMinimumSquads();
     unawaited(CampaignStore.saveAuction(state));
+  }
+
+  void _balanceMinimumSquads() {
+    final teams = [...state.teams];
+    for (var recipientIndex = 0; recipientIndex < teams.length; recipientIndex++) {
+      while (teams[recipientIndex].squad.length < 11) {
+        final recipient = teams[recipientIndex];
+        var donorIndex = -1;
+        AuctionPlayer? transfer;
+        var transferCost = double.infinity;
+        for (var candidateIndex = 0; candidateIndex < teams.length; candidateIndex++) {
+          if (candidateIndex == recipientIndex || teams[candidateIndex].squad.length <= 11) continue;
+          final donor = teams[candidateIndex];
+          for (final player in donor.squad) {
+            final cost = player.contract?.currentSalaryCrores ?? player.basePriceCr;
+            if (player.isOverseas && recipient.overseasCount >= recipient.maxOverseas) continue;
+            if (recipient.purseCr < cost || cost >= transferCost) continue;
+            transfer = player;
+            transferCost = cost;
+            donorIndex = candidateIndex;
+          }
+        }
+        if (transfer == null || donorIndex < 0) break;
+        final donor = teams[donorIndex];
+        teams[donorIndex] = donor.copyWith(
+          purseCr: donor.purseCr + transferCost,
+          squad: donor.squad.where((player) => player.id != transfer!.id).toList(),
+        );
+        teams[recipientIndex] = recipient.copyWith(
+          purseCr: recipient.purseCr - transferCost,
+          squad: [...recipient.squad, transfer],
+        );
+      }
+    }
+    state = state.copyWith(
+      teams: teams,
+      message: 'Auction complete • squads balanced for season readiness',
+    );
   }
 
   void loadActiveCampaign() {
