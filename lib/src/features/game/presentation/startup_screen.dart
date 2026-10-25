@@ -50,8 +50,8 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
       await _setStage('Preparing auction systems...', 0.82);
       await _setStage('Preparing franchise headquarters...', 1);
 
-      if (!mounted) return;
       await Future<void>.delayed(const Duration(milliseconds: 450));
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder<void>(
           transitionDuration: const Duration(milliseconds: 800),
