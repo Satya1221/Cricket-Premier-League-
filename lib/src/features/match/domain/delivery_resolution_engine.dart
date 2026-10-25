@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'living_pitch.dart';
 import 'granular_player_profile.dart';
+import 'bowling_angle_engine.dart';
 
 enum DeliveryOutcomeType { wicket, dot, one, two, four, six }
 enum BatterIntent { defend, rotate, slog }
@@ -106,6 +107,7 @@ class DeliveryResolutionEngine {
     bool batterSurvived = true,
     BatterIntent intent = BatterIntent.rotate,
     BowlerTactic tactic = BowlerTactic.balanced,
+    Map<String, double> tacticalModifiers = const {},
   }) {
     assert(pressureMultiplier >= 0 && pressureMultiplier <= 1.5);
     final modifiers = environment.getDeliveryModifiers();
@@ -154,6 +156,11 @@ class DeliveryResolutionEngine {
     final boundaryFactor = (modifiers['boundary'] ?? 1.0).clamp(0.75, 1.25);
     fourChance = fourChance / boundaryFactor;
     wicketChance += (modifiers['irregularBounceRisk'] ?? 0.0) * 12;
+    wicketChance *= (tacticalModifiers['lbwMultiplier'] ?? 1.0);
+    wicketChance *= (tacticalModifiers['stumpingMultiplier'] ?? 1.0);
+    wicketChance *= (tacticalModifiers['edgeProbability'] ?? 1.0);
+    dotChance *= (tacticalModifiers['dotBallMultiplier'] ?? 1.0);
+    fourChance *= (tacticalModifiers['boundaryMultiplier'] ?? 1.0);
     switch (tactic) {
       case BowlerTactic.attack:
         wicketChance += 5;
