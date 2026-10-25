@@ -3,16 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cricket_premier_league/src/features/auction/auction_screen.dart';
+import 'package:cricket_premier_league/src/features/auction/application/auction_controller.dart';
+import 'package:cricket_premier_league/src/features/auction/data/demo_auction.dart';
+import 'package:cricket_premier_league/src/features/auction/domain/auction_state.dart';
+
+class _TestAuctionController extends AuctionController {
+  @override
+  AuctionState build() => createDemoAuction();
+}
 
 void main() {
   testWidgets('auction screen renders the opening lot and core identity',
       (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: AuctionScreen()),
+      ProviderScope(
+        overrides: [
+          auctionControllerProvider.overrideWith(_TestAuctionController.new),
+        ],
+        child: const MaterialApp(home: AuctionScreen()),
       ),
     );
-    await tester.pump();
 
     expect(find.text('CRICKET PREMIER LEAGUE'), findsOneWidget);
     expect(find.text('LIVE AUCTION'), findsOneWidget);
