@@ -1,3 +1,4 @@
+import '../../../../models/fixture_model.dart';
 import 'dart:math';
 
 class CareerPlayer {
@@ -114,6 +115,54 @@ class CareerSimulationEngine {
     ts[ai]=ts[ai].copyWith(players:awayPlayers);
     final history=[...season.matchHistory,{'fixtureId':f.id,'home':h.name,'away':a.name,'homeScore':'${hs['runs']}/${hs['wickets']}','awayScore':'${ascore['runs']}/${ascore['wickets']}','homeRunsRaw':hs['runs'],'homeBallsRaw':hs['balls'],'awayRunsRaw':ascore['runs'],'awayBallsRaw':ascore['balls'],'winnerTeamId':winner}];
     return SeasonData(seasonNumber:season.seasonNumber,teams:ts,fixtures:fs,matchHistory:history,month:season.month);
+  }
+
+  SeasonData recordFixtureResult(
+    SeasonData season,
+    String fixtureId,
+    MatchResultData result,
+  ) {
+    final index = season.fixtures.indexWhere((fixture) => fixture.id == fixtureId);
+    if (index < 0 || season.fixtures[index].played) return season;
+    final fixture = season.fixtures[index];
+    final homeIndex = season.teams.indexWhere((team) => team.id == fixture.homeTeamId);
+    final awayIndex = season.teams.indexWhere((team) => team.id == fixture.awayTeamId);
+    if (homeIndex < 0 || awayIndex < 0) return season;
+    final home = season.teams[homeIndex], away = season.teams[awayIndex];
+    final homeWin = result.homeRuns > result.awayRuns;
+    final awayWin = result.awayRuns > result.homeRuns;
+    final updatedTeams = [...season.teams];
+    updatedTeams[homeIndex] = home.copyWith(
+      played: home.played + 1, won: home.won + (homeWin ? 1 : 0),
+      lost: home.lost + (awayWin ? 1 : 0),
+      points: home.points + (homeWin ? 2 : result.homeRuns == result.awayRuns ? 1 : 0),
+      runsFor: home.runsFor + result.homeRuns, ballsFaced: home.ballsFaced + result.homeBalls,
+      runsAgainst: home.runsAgainst + result.awayRuns, ballsBowled: home.ballsBowled + result.awayBalls,
+    );
+    updatedTeams[awayIndex] = away.copyWith(
+      played: away.played + 1, won: away.won + (awayWin ? 1 : 0),
+      lost: away.lost + (homeWin ? 1 : 0),
+      points: away.points + (awayWin ? 2 : result.homeRuns == result.awayRuns ? 1 : 0),
+      runsFor: away.runsFor + result.awayRuns, ballsFaced: away.ballsFaced + result.awayBalls,
+      runsAgainst: away.runsAgainst + result.homeRuns, ballsBowled: away.ballsBowled + result.homeBalls,
+    );
+    final winner = homeWin ? home.id : awayWin ? away.id : null;
+    final updatedFixtures = [...season.fixtures];
+    updatedFixtures[index] = fixture.copyWith(
+      played: true, homeRuns: result.homeRuns, homeBalls: result.homeBalls,
+      awayRuns: result.awayRuns, awayBalls: result.awayBalls,
+      winnerTeamId: winner,
+    );
+    final history = [...season.matchHistory, <String, Object?>{
+      'fixtureId': fixture.id, 'home': home.name, 'away': away.name,
+      'homeScore': '${result.homeRuns}/${result.homeWickets}',
+      'awayScore': '${result.awayRuns}/${result.awayWickets}',
+      'homeRunsRaw': result.homeRuns, 'homeBallsRaw': result.homeBalls,
+      'awayRunsRaw': result.awayRuns, 'awayBallsRaw': result.awayBalls,
+      'winnerTeamId': winner,
+    }];
+    return SeasonData(seasonNumber: season.seasonNumber, month: season.month,
+      teams: updatedTeams, fixtures: updatedFixtures, matchHistory: history);
   }
 
   List<CareerTeam> standings(List<CareerTeam> teams)=>[...teams]..sort((a,b){final p=b.points.compareTo(a.points);return p!=0?p:b.netRunRate.compareTo(a.netRunRate);});
