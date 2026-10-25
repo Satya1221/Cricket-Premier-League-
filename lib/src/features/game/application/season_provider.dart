@@ -5,16 +5,27 @@ import '../../../../engine/fast_sim_engine.dart';
 
 import '../data/career_save_repository.dart';
 import '../domain/career_simulation_engine.dart';
+import 'game_controller.dart';
+import '../../auction/data/real_ipl_2026_player_pool.dart';
 
 final careerSaveRepositoryProvider = Provider<CareerSaveRepository>((ref) => CareerSaveRepository());
-final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) => SeasonNotifier(ref.read(careerSaveRepositoryProvider)));
+final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) {
+  final campaignId = ref.watch(gameControllerProvider.select((session) => session.campaignId));
+  final saveId = campaignId == null ? SeasonNotifier.defaultSaveId : 'career-$campaignId';
+  return SeasonNotifier(ref.read(careerSaveRepositoryProvider), saveId: saveId);
+});
 
 class SeasonNotifier extends StateNotifier<SeasonData> {
-  SeasonNotifier(this._saves) : super(_loadInitial(_saves)) { _persistSchedule(); }
+  SeasonNotifier(this._saves, {required String saveId})
+      : _saveId = saveId,
+        super(_loadInitial(_saves, saveId)) {
+    _persistSchedule();
+  }
 
-  static SeasonData _loadInitial(CareerSaveRepository saves) =>
-      saves.loadSeason(defaultSaveId) ?? _newSeason();
+  static SeasonData _loadInitial(CareerSaveRepository saves, String saveId) =>
+      saves.loadSeason(saveId) ?? _newSeason();
   final CareerSaveRepository _saves;
+  final String _saveId;
   final CareerSimulationEngine _engine = const CareerSimulationEngine();
   final FastSimEngine _fastSim = const FastSimEngine();
   final SeasonScheduleRepository _schedule = SeasonScheduleRepository();
@@ -29,18 +40,41 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
   static const String defaultSaveId = 'career-main';
 
   static SeasonData _newSeason() {
-    const teams = <CareerTeam>[
-      CareerTeam(id: 'cpl', name: 'Coastal Premier Lions'),
-      CareerTeam(id: 'roy', name: 'Royal Strikers'),
-      CareerTeam(id: 'tit', name: 'Capital Titans'),
-      CareerTeam(id: 'fal', name: 'Frontier Falcons'),
-    ];
-    return SeasonData(seasonNumber: 1, teams: teams, fixtures: const CareerSimulationEngine().generateRoundRobin(teams));
+    const prefixByTeam = <String, String>{
+      'cpl': 'mi-', 'roy': 'rcb-', 'tit': 'csk-', 'fal': 'kkr-',
+      'gt': 'gt-', 'rr': 'rr-', 'pbks': 'pbks-', 'srh': 'srh-',
+      'lsg': 'lsg-', 'dc': 'dc-',
+    };
+    final teams = currentIplFranchises.map((franchise) {
+      final prefix = prefixByTeam[franchise.id]!;
+      final players = realIpl2026PlayerPool
+          .where((player) => player.id.startsWith(prefix))
+          .map((player) => CareerPlayer(
+                id: player.id,
+                name: player.name,
+                age: player.age,
+                overall: player.overall,
+                potential: player.potential,
+                role: player.role.name,
+              ))
+          .toList(growable: false);
+      return CareerTeam(
+        id: franchise.id,
+        name: franchise.name,
+        players: players,
+        purseCr: 120,
+      );
+    }).toList(growable: false);
+    return SeasonData(
+      seasonNumber: 1,
+      teams: teams,
+      fixtures: const CareerSimulationEngine().generateRoundRobin(teams),
+    );
   }
 
-  Future<void> save() async { await _saves.saveSeason(defaultSaveId, state); await _persistSchedule(); }
+  Future<void> save() async { await _saves.saveSeason(_saveId, state); await _persistSchedule(); }
   Future<bool> load() async {
-    final saved = _saves.loadSeason(defaultSaveId);
+    final saved = _saves.loadSeason(_saveId);
     if (saved == null) return false;
     state = saved;
     await _persistSchedule();
