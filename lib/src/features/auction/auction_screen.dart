@@ -64,6 +64,17 @@ class AuctionScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding
+                        ? actions.startLiveBidding
+                        : null,
+                    icon: const Icon(Icons.timer_rounded),
+                    label: const Text('START LIVE AI BIDDING (2s TICKS)'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding
                         ? () => actions.runRivalRound()
