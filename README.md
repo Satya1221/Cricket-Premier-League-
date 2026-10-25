@@ -1,26 +1,44 @@
 # Cricket Premier League — Modernization
 
-A clean, code-first rebuild of the Cricket Premier League Android management game.
+A clean, code-first rebuild of the Cricket Premier League Android management game. The target is a premium Flutter management experience with a deterministic cricket simulation and an isolated, device-profiled code-first 3D presentation layer.
 
-## Direction
-- Premium mobile-first cricket management UI with a dark, gold and emerald visual system.
-- Auction prototype with bid increments, leader tracking, hammer close, sold/unsold status, purse updates, squad capacity and overseas limits.
-- Roadmap for deeper rival AI, careers, match simulation, scouting, player development and 3D presentation.
+## Current foundation
 
-## Current branch foundation
-A new Flutter entry point and responsive auction prototype are in `lib/main.dart`. Demo names and ratings are fictional placeholders, not official player data. The default branch previously contained only a minimal README; this branch starts clean without changing `main`.
+- Flutter + Riverpod app entry point and shared dark / gold / emerald theme.
+- Responsive auction screen with player scouting details, purse metrics, franchise war room, live bid feed and sold/unsold controls.
+- Deterministic player valuation and bid-increment ladder.
+- Purse, squad-size and overseas-player constraints.
+- Prevents a franchise from bidding against itself.
+- Rival strategy valuation that accounts for archetype, aggression, role fit and manager pressure.
+- Regression tests for auction state transitions, purse settlement, squad limits and rival bidding.
+- GitHub Actions workflow for formatting, static analysis and tests.
 
-## Local validation in Termux/Linux
+Demo names and ratings are fictional placeholders, not official player data.
+
+## Architecture
+
+- `lib/src/features/auction/domain`: pure auction rules and state.
+- `lib/src/features/auction/application`: Riverpod controller.
+- `lib/src/features/auction/data`: demo data.
+- `lib/src/features/auction`: Flutter presentation.
+- `lib/src/theme`: reusable visual tokens.
+- `docs/THREE_D_FOUNDATION.md`: 3D rendering boundary, performance budgets and integration gate.
+- `docs/FEATURE_ROADMAP.md`: staged feature plan.
+
+## Local validation
+
 Run from the project root:
 
 ```bash
 flutter pub get
+dart format lib test
 flutter analyze
 flutter test
 flutter build apk --debug
 ```
 
-The remote GitHub editing tools do not execute Flutter, Dart, Android SDK or device performance tests. Do not treat an APK as build-verified until those commands pass locally.
+The connected GitHub editing tools can commit source, but do not execute Flutter, Dart, Android SDK or device performance tests. Do not treat the APK as build-verified until these commands pass in a Flutter-enabled environment.
 
-## 3D approach
-Keep management UI and simulation deterministic and testable. Evaluate code-first 3D rendering packages and assets separately on the target Android device, with a 2D fallback and explicit memory/frame-time budgets.
+## 3D strategy
+
+Keep management UI and simulation deterministic and testable. Evaluate current code-first rendering packages and assets separately on the target Android device. Require Android compatibility, acceptable licensing, a 2D fallback and measured memory/frame-time budgets before adopting a 3D package.
