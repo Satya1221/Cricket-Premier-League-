@@ -1,7 +1,7 @@
 import '../domain/auction_state.dart';
 import '../domain/player.dart';
 
-AuctionState createDemoAuction() => AuctionState(
+AuctionState createDemoAuction() => const AuctionState(
   teams: const [
     AuctionTeam(id: 'cpl', name: 'Coastal Premier Lions', shortName: 'CPL', purseCr: 120),
     AuctionTeam(id: 'roy', name: 'Royal Strikers', shortName: 'ROY', purseCr: 120),
