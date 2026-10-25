@@ -19,6 +19,14 @@ class MatchdayState {
     this.strikerRuns = 26, this.strikerBalls = 18, this.bowlerRuns = 19,
     this.bowlerWickets = 1, this.concentration = .72, this.stamina = .84,
     this.intent = BatterIntent.rotate,
+    this.creasePosition = CreasePosition.roundTheWicket,
+    this.bowlingArm = BowlingArm.rightArm,
+    this.bowlingStyle = BowlingStyleCode.offSpin,
+    this.batterStance = BatterStance.leftHanded,
+    this.bowlingLine = BowlingLine.offStump,
+    this.bowlingLength = BowlingLength.goodLength,
+    this.bowlingVariation = BowlingVariation.outswinger,
+    this.fieldTrap = FieldTrap.packedOffSide,
     this.recent = const ['1', '4', '0', 'W', '2', '1'],
     this.commentary = 'A sharp single keeps the scoreboard moving.',
     this.complete = false,
@@ -27,6 +35,14 @@ class MatchdayState {
   final int runs, wickets, balls, target, strikerRuns, strikerBalls, bowlerRuns, bowlerWickets;
   final double concentration, stamina;
   final BatterIntent intent;
+  final CreasePosition creasePosition;
+  final BowlingArm bowlingArm;
+  final BowlingStyleCode bowlingStyle;
+  final BatterStance batterStance;
+  final BowlingLine bowlingLine;
+  final BowlingLength bowlingLength;
+  final BowlingVariation bowlingVariation;
+  final FieldTrap fieldTrap;
   final List<String> recent;
   final String commentary;
   final bool complete;
@@ -38,12 +54,20 @@ class MatchdayState {
   double get crr => balls == 0 ? 0 : runs * 6 / balls;
   MatchdayState copyWith({int? runs, int? wickets, int? balls, int? strikerRuns, int? strikerBalls,
     int? bowlerRuns, int? bowlerWickets, double? concentration, double? stamina,
-    BatterIntent? intent, List<String>? recent, String? commentary, bool? complete, CricketFormat? format}) =>
+    BatterIntent? intent, CreasePosition? creasePosition, BowlingArm? bowlingArm,
+    BowlingStyleCode? bowlingStyle, BatterStance? batterStance, BowlingLine? bowlingLine,
+    BowlingLength? bowlingLength, BowlingVariation? bowlingVariation, FieldTrap? fieldTrap,
+    List<String>? recent, String? commentary, bool? complete, CricketFormat? format}) =>
     MatchdayState(runs: runs ?? this.runs, wickets: wickets ?? this.wickets,
       balls: balls ?? this.balls, target: target, strikerRuns: strikerRuns ?? this.strikerRuns,
       strikerBalls: strikerBalls ?? this.strikerBalls, bowlerRuns: bowlerRuns ?? this.bowlerRuns,
       bowlerWickets: bowlerWickets ?? this.bowlerWickets, concentration: concentration ?? this.concentration,
-      stamina: stamina ?? this.stamina, intent: intent ?? this.intent, recent: recent ?? this.recent,
+      stamina: stamina ?? this.stamina, intent: intent ?? this.intent,
+      creasePosition: creasePosition ?? this.creasePosition, bowlingArm: bowlingArm ?? this.bowlingArm,
+      bowlingStyle: bowlingStyle ?? this.bowlingStyle, batterStance: batterStance ?? this.batterStance,
+      bowlingLine: bowlingLine ?? this.bowlingLine, bowlingLength: bowlingLength ?? this.bowlingLength,
+      bowlingVariation: bowlingVariation ?? this.bowlingVariation, fieldTrap: fieldTrap ?? this.fieldTrap,
+      recent: recent ?? this.recent,
       commentary: commentary ?? this.commentary, complete: complete ?? this.complete, format: format ?? this.format);
 }
 
@@ -65,6 +89,14 @@ class MatchdayController extends StateNotifier<MatchdayState> {
   late final _bowler = ResolutionBowler(name: 'R. Khan', baseAccuracy: 79, baseMovement: 82, isSpinner: true, stamina: .84);
 
   void setIntent(BatterIntent intent) => state = state.copyWith(intent: intent);
+  void setCreasePosition(CreasePosition value) => state = state.copyWith(creasePosition: value);
+  void setBowlingArm(BowlingArm value) => state = state.copyWith(bowlingArm: value);
+  void setBowlingStyle(BowlingStyleCode value) => state = state.copyWith(bowlingStyle: value);
+  void setBatterStance(BatterStance value) => state = state.copyWith(batterStance: value);
+  void setBowlingLine(BowlingLine value) => state = state.copyWith(bowlingLine: value);
+  void setBowlingLength(BowlingLength value) => state = state.copyWith(bowlingLength: value);
+  void setBowlingVariation(BowlingVariation value) => state = state.copyWith(bowlingVariation: value);
+  void setFieldTrap(FieldTrap value) => state = state.copyWith(fieldTrap: value);
   void setFormat(CricketFormat format) {
     _environment.pitchWear = format == CricketFormat.test ? 0.1 : 0.5;
     _environment.ballAgeOvers = 0;
@@ -76,19 +108,19 @@ class MatchdayController extends StateNotifier<MatchdayState> {
     if (state.complete) return;
     final env = _environment;
     final bowlingProfile = BowlingDeliveryProfile(
-      crease: const CreaseTactics(
-        position: CreasePosition.roundTheWicket,
-        arm: BowlingArm.rightArm,
-        style: BowlingStyleCode.offSpin,
+      crease: CreaseTactics(
+        position: state.creasePosition,
+        arm: state.bowlingArm,
+        style: state.bowlingStyle,
       ),
-      line: BowlingLine.offStump,
-      length: BowlingLength.goodLength,
-      variation: BowlingVariation.outswinger,
-      fieldTrap: FieldTrap.packedOffSide,
+      line: state.bowlingLine,
+      length: state.bowlingLength,
+      variation: state.bowlingVariation,
+      fieldTrap: state.fieldTrap,
     );
     final angleModifiers = const BowlingAngleEngine().resolveOutcomeModifiers(
       profile: bowlingProfile,
-      batterStance: BatterStance.leftHanded,
+      batterStance: state.batterStance,
       batterTechnique: 60,
       batterVsSpin: 60,
       bowlerControl: 79,
@@ -115,7 +147,7 @@ class MatchdayController extends StateNotifier<MatchdayState> {
       strikerRuns: state.strikerRuns + scored, strikerBalls: state.strikerBalls + 1,
       bowlerRuns: state.bowlerRuns + scored, bowlerWickets: state.bowlerWickets + (wicket ? 1 : 0),
       concentration: _batter.concentration, stamina: _bowler.stamina, recent: recent,
-      commentary: '${result.commentary} Round the wicket, off-stump good length with outswing and packed off-side trap. Intent: ${state.intent.name.toUpperCase()}. Batter control ${result.batterControl.toStringAsFixed(0)} vs bowler threat ${result.bowlerThreat.toStringAsFixed(0)}.',
+      commentary: '${result.commentary} ${state.creasePosition.name}, ${state.bowlingArm.name} ${state.bowlingStyle.name}, ${state.bowlingLine.name} ${state.bowlingLength.name}, ${state.bowlingVariation.name}, ${state.fieldTrap.name}. Intent: ${state.intent.name.toUpperCase()}. Batter control ${result.batterControl.toStringAsFixed(0)} vs bowler threat ${result.bowlerThreat.toStringAsFixed(0)}.',
       complete: wickets >= 10 || balls >= 120 || runs >= state.target);
     if (balls % 6 == 0) _environment.advanceOver();
     if (state.complete == false && (wickets >= 10 || balls >= 120 || runs >= state.target)) {
@@ -159,7 +191,13 @@ class MatchdayScreen extends ConsumerWidget {
           _Analytics(label: 'Bowler stamina', value: s.stamina),
           const SizedBox(height: 16),
         ])),
-        _TacticalDesk(state: s, onIntent: actions.setIntent, onPlay: actions.playNextBall),
+        _TacticalDesk(
+          state: s, onIntent: actions.setIntent, onPlay: actions.playNextBall,
+          onCrease: actions.setCreasePosition, onArm: actions.setBowlingArm,
+          onStyle: actions.setBowlingStyle, onStance: actions.setBatterStance,
+          onLine: actions.setBowlingLine, onLength: actions.setBowlingLength,
+          onVariation: actions.setBowlingVariation, onTrap: actions.setFieldTrap,
+        ),
       ])),
     );
   }
@@ -235,8 +273,40 @@ class _Analytics extends StatelessWidget {
 }
 
 class _TacticalDesk extends StatelessWidget {
-  const _TacticalDesk({required this.state, required this.onIntent, required this.onPlay});
-  final MatchdayState state; final ValueChanged<BatterIntent> onIntent; final VoidCallback onPlay;
+  const _TacticalDesk({
+    required this.state, required this.onIntent, required this.onPlay,
+    required this.onCrease, required this.onArm, required this.onStyle,
+    required this.onStance, required this.onLine, required this.onLength,
+    required this.onVariation, required this.onTrap,
+  });
+  final MatchdayState state;
+  final ValueChanged<BatterIntent> onIntent;
+  final VoidCallback onPlay;
+  final ValueChanged<CreasePosition> onCrease;
+  final ValueChanged<BowlingArm> onArm;
+  final ValueChanged<BowlingStyleCode> onStyle;
+  final ValueChanged<BatterStance> onStance;
+  final ValueChanged<BowlingLine> onLine;
+  final ValueChanged<BowlingLength> onLength;
+  final ValueChanged<BowlingVariation> onVariation;
+  final ValueChanged<FieldTrap> onTrap;
+
+  Widget _choice<T extends Enum>(String label, T value, List<T> values, ValueChanged<T> changed) =>
+    DropdownButtonFormField<T>(
+      value: value,
+      isExpanded: true,
+      dropdownColor: const Color(0xFF1C2541),
+      style: const TextStyle(color: Colors.white, fontSize: 12),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white60, fontSize: 11),
+        filled: true, fillColor: Colors.white.withValues(alpha: .04),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.white12)),
+      ),
+      items: values.map((v) => DropdownMenuItem<T>(value: v, child: Text(v.name.replaceAllMapped(RegExp(r'[A-Z]'), (m) => ' ${m[0]}').trim().toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
+      onChanged: (v) { if (v != null) changed(v); },
+    );
   @override
   Widget build(BuildContext context) => Container(padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
     decoration: const BoxDecoration(color: Color(0xFF1C2541), borderRadius: BorderRadius.vertical(top: Radius.circular(26))),
@@ -255,6 +325,32 @@ class _TacticalDesk extends StatelessWidget {
         selected: {state.intent}, onSelectionChanged: (selection) => onIntent(selection.first),
         style: SegmentedButton.styleFrom(backgroundColor: Colors.white10, foregroundColor: Colors.white70,
           selectedForegroundColor: Colors.black, selectedBackgroundColor: GamePalette.gold))),
+      const SizedBox(height: 14),
+      const Align(alignment: Alignment.centerLeft, child: Text('BOWLING PLAN', style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: .8))),
+      const SizedBox(height: 8),
+      Row(children: [
+        Expanded(child: _choice('Crease', state.creasePosition, CreasePosition.values, onCrease)),
+        const SizedBox(width: 8),
+        Expanded(child: _choice('Bowling arm', state.bowlingArm, BowlingArm.values, onArm)),
+      ]),
+      const SizedBox(height: 8),
+      Row(children: [
+        Expanded(child: _choice('Style', state.bowlingStyle, BowlingStyleCode.values, onStyle)),
+        const SizedBox(width: 8),
+        Expanded(child: _choice('Batter stance', state.batterStance, BatterStance.values, onStance)),
+      ]),
+      const SizedBox(height: 8),
+      Row(children: [
+        Expanded(child: _choice('Line', state.bowlingLine, BowlingLine.values, onLine)),
+        const SizedBox(width: 8),
+        Expanded(child: _choice('Length', state.bowlingLength, BowlingLength.values, onLength)),
+      ]),
+      const SizedBox(height: 8),
+      Row(children: [
+        Expanded(child: _choice('Variation', state.bowlingVariation, BowlingVariation.values, onVariation)),
+        const SizedBox(width: 8),
+        Expanded(child: _choice('Field trap', state.fieldTrap, FieldTrap.values, onTrap)),
+      ]),
       const SizedBox(height: 12),
       SizedBox(width: double.infinity, height: 56, child: ElevatedButton.icon(
         onPressed: state.complete ? null : onPlay, icon: const Icon(Icons.sports_cricket),
