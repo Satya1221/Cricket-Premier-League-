@@ -12,6 +12,7 @@ import 'stadium_screen.dart';
 import '../application/game_controller.dart';
 import '../application/global_calendar_controller.dart';
 import 'inbox_screen.dart';
+import 'standings_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -194,6 +195,15 @@ class HomeScreen extends ConsumerWidget {
                   builder: (_) => const AuctionScreen(),
                 ));
               },
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.leaderboard_rounded,
+              title: 'LEAGUE TABLE & SIMULATION',
+              subtitle: 'View points, NRR and simulate other franchises’ fixtures.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => const StandingsScreen(),
+              )),
             ),
             const SizedBox(height: 10),
             _ActionTile(
