@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/delivery_model.dart';
 import '../services/stats_aggregator.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../src/features/game/application/stadium_provider.dart';
 
 enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsIncomingBatter, needsNewBowler, superOverRequired, completed }
@@ -31,7 +32,19 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:winnerTeamId,isTie:false,message:'$winnerTeamId win.');
   _saveCareerStats();
  }
- void _saveCareerStats(){if(_statsSaved)return;_statsSaved=true;unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));if(state.homeTeamId=='cpl')unawaited(_onHomeMatchEnd?.call()??Future<void>.value());}
+ void _saveCareerStats(){
+  if(_statsSaved)return;
+  _statsSaved=true;
+  unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));
+  unawaited(Hive.box<dynamic>('history_records').put('ipl-result-$_matchId',{
+   'matchId':_matchId,'winnerTeamId':state.winnerTeamId,'homeTeamId':state.homeTeamId,
+   'innings':state.innings,'finalRuns':state.runs,'wickets':state.wickets,
+   'legalBalls':state.legalBalls,'targetScore':state.targetScore,
+   'deliveries':state.deliveries.map((d)=>d.toJson()).toList(),
+   'completedAt':DateTime.now().toIso8601String(),
+  }));
+  if(state.homeTeamId=='cpl')unawaited(_onHomeMatchEnd?.call()??Future<void>.value());
+}
  static const int maxLegalBalls=120;
  void setTeams({required String battingTeamId,required String defendingTeamId,String homeTeamId='cpl'})=>state=state.copyWith(battingTeamId:battingTeamId,defendingTeamId:defendingTeamId,homeTeamId:homeTeamId);
  void selectOpeningBatters({required String strikerId,required String nonStrikerId}) {
