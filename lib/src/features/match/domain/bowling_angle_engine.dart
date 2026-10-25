@@ -33,8 +33,12 @@ class CreaseTactics {
     }
     // Spin match-ups add turn-direction effects rather than treating all spin alike.
     if (style == BowlingStyleCode.offSpin && batterStance == BatterStance.rightHanded) {
-      if (position == CreasePosition.overTheWicket) edge *= 1.12;
-      else { lbw *= 1.12; stumping *= 1.08; }
+      if (position == CreasePosition.overTheWicket) {
+        edge *= 1.12;
+      } else {
+        lbw *= 1.12;
+        stumping *= 1.08;
+      }
     } else if (style == BowlingStyleCode.legSpin && batterStance == BatterStance.leftHanded) {
       if (position == CreasePosition.roundTheWicket) { edge *= 1.18; stumping *= 1.1; }
     }
