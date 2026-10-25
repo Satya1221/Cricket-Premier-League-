@@ -43,17 +43,17 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
      if(match.status==IplMatchStatus.needsOpeningBatters||match.strikerId==null&&match.nonStrikerId==null)...[
       _playerPicker('Opening striker',battingIds,names,_striker,(v)=>setState(()=>_striker=v)),
       _playerPicker('Opening non-striker',battingIds.where((id)=>id!=_striker).toList(),names,_nonStriker,(v)=>setState(()=>_nonStriker=v)),
-      FilledButton(onPressed:_striker!=null&&_nonStriker!=null&&_striker!=_nonStriker?(){
+      FilledButton(onPressed:_striker!=null&&_nonStriker!=null&&battingIds.contains(_striker)&&battingIds.contains(_nonStriker)&&_striker!=_nonStriker?(){
        try{actions.selectOpeningBatters(strikerId:_striker!,nonStrikerId:_nonStriker!);setState(()=>_incoming=null);}catch(e){_error(e.toString());}
       }:null,child:const Text('CONFIRM BATTERS')),
      ],
      if(match.status==IplMatchStatus.needsIncomingBatter)...[
       _playerPicker('Incoming batter',available,names,_incoming,(v)=>setState(()=>_incoming=v)),
-      FilledButton(onPressed:_incoming==null?null:(){try{actions.selectIncomingBatter(_incoming!);setState(()=>_incoming=null);}catch(e){_error(e.toString());}},child:const Text('SEND INCOMING BATTER')),
+      FilledButton(onPressed:_incoming==null||!available.contains(_incoming)?null:(){try{actions.selectIncomingBatter(_incoming!);setState(()=>_incoming=null);}catch(e){_error(e.toString());}},child:const Text('SEND INCOMING BATTER')),
      ],
      if(match.pendingBowlerChange)...[
       _playerPicker('Select bowler (max 4 overs)',bowlingIds.where((id)=>id!=match.bowlerId).toList(),names,_bowler,(v)=>setState(()=>_bowler=v)),
-      FilledButton(onPressed:_bowler==null?null:(){try{actions.selectNewBowler(_bowler!);setState(()=>_bowler=null);}catch(e){_error(e.toString());}},child:const Text('CONFIRM BOWLER')),
+      FilledButton(onPressed:_bowler==null||!bowlingIds.contains(_bowler)?null:(){try{actions.selectNewBowler(_bowler!);setState(()=>_bowler=null);}catch(e){_error(e.toString());}},child:const Text('CONFIRM BOWLER')),
      ],
      if(match.strikerId!=null&&match.nonStrikerId!=null&&match.bowlerId!=null&&!match.pendingBowlerChange&&match.status!=IplMatchStatus.needsIncomingBatter)...[
       Text('Batting: ${label(match.strikerId!)}*  /  ${label(match.nonStrikerId!)}',style:const TextStyle(fontWeight:FontWeight.w800)),
