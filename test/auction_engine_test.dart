@@ -72,7 +72,7 @@ void main() {
         player: player,
         team: team,
         rival: const RivalProfile(teamId: 'roy', style: RivalStyle.balanced, aggression: 1),
-        currentBidCr: 3,
+        currentBidCr: 5.4,
       );
       expect(aggressive.shouldBid, isTrue);
       expect(cautious.shouldBid, isFalse);
