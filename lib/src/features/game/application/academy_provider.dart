@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../models/franchise_model.dart';
+import '../../../../services/treasury_service.dart';
 
 import '../domain/academy_engine.dart';
 
@@ -26,23 +29,23 @@ class AcademyState {
 }
 
 class AcademyNotifier extends StateNotifier<AcademyState> {
-  AcademyNotifier() : super(const AcademyState());
+  AcademyNotifier() : super(_initial());
+  final TreasuryService _treasury=const TreasuryService();
+  static AcademyState _initial(){final f=Hive.box<FranchiseModel>('franchises').get('cpl')??const FranchiseModel(id:'cpl');return AcademyState(facilities:AcademyFacilities(trainingLevel:f.trainingFacilityLevel.clamp(1,5).toInt(),youthAcademyLevel:f.youthAcademyLevel.clamp(1,5).toInt()));}
 
-  String upgrade({required bool youthAcademy}) {
-    final result = purchaseUpgrade(
-      budget: state.budget,
-      facilities: state.facilities,
-      youthAcademy: youthAcademy,
-    );
-    if (!result.success) return result.message;
-
-    state = state.copyWith(
-      budget: result.remainingBudget,
-      facilities: result.facilities,
-    );
-    return youthAcademy
-        ? 'Youth Academy upgraded to Level ${state.facilities.youthAcademyLevel}. Potential cap increased.'
-        : 'Training Facilities upgraded to Level ${state.facilities.trainingLevel}. Development bonuses increased.';
+  Future<String> upgrade({required bool youthAcademy}) async {
+    final currentLevel=youthAcademy?state.facilities.youthAcademyLevel:state.facilities.trainingLevel;
+    if(currentLevel>=5)return 'Facility already at maximum level.';
+    final nextLevel=currentLevel+1;
+    final cost=youthAcademy?(nextLevel>=5?5000000:2500000+(nextLevel-2)*1000000):2500000;
+    final ok=youthAcademy
+      ?await _treasury.upgradeAcademy(level:nextLevel,costRupees:cost)
+      :await _treasury.spend(rupees:cost,description:'Training facility upgrade to level $nextLevel',category:'Academy');
+    if(!ok)return 'Insufficient operating treasury for this upgrade.';
+    if(!youthAcademy){final f=_treasury.franchise;await Hive.box<FranchiseModel>('franchises').put('cpl',f.copyWith(trainingFacilityLevel:nextLevel));}
+    final facilities=youthAcademy?state.facilities.upgradeAcademy():state.facilities.upgradeTraining();
+    state=state.copyWith(facilities:facilities);
+    return '${youthAcademy?'Youth Academy':'Training Facilities'} upgraded to Level $nextLevel for ₹$cost.';
   }
 
   String hireCoach(CoachingStaff coach) {
