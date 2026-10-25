@@ -14,7 +14,9 @@ class AcademyFacilities {
   AcademyFacilities upgradeAcademy() => youthAcademyLevel >= 5 ? this : AcademyFacilities(trainingLevel: trainingLevel, youthAcademyLevel: youthAcademyLevel + 1);
   int potentialBonus(Iterable<CoachingStaff> staff) {
     final youthCoach = staff.where((s) => s.specialty == CoachSpecialty.youthDevelopment).fold<int>(0, (v, s) => v + s.level);
-    final specialist = staff.fold<int>(0, (v, s) => v + s.level);
+    final specialist = staff
+        .where((s) => s.specialty != CoachSpecialty.youthDevelopment)
+        .fold<int>(0, (v, s) => v + s.level);
     return (youthAcademyLevel - 1) * 3 + (trainingLevel - 1) * 2 + (youthCoach * 2) + (specialist ~/ 4);
   }
   int adjustedPotentialCap({required int baseCap, required Iterable<CoachingStaff> staff}) => (baseCap + potentialBonus(staff)).clamp(1, 100);
