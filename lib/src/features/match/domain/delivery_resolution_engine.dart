@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'living_pitch.dart';
-import 'granular_player_profile.dart';
+import '../../squad/domain/granular_player_profile.dart';
 import 'bowling_angle_engine.dart';
 
 enum DeliveryOutcomeType { wicket, dot, one, two, four, six }
