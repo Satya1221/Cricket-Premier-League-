@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../theme/game_theme.dart';
+import '../../theme/game_theme.dart';
 import '../../../providers/match_provider.dart';
 import '../../../state/franchise_roster_provider.dart';
 import '../../auction/application/auction_controller.dart';
@@ -18,12 +18,14 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
   final actions=ref.read(matchNotifierProvider.notifier);
   final roster=ref.watch(franchiseRosterProvider);
   final auction=ref.watch(auctionControllerProvider);
-  final ids=roster.playingXI;
-  final team=auction.teams.where((t)=>t.id=='cpl').firstOrNull;
-  final names={for(final p in (team?.squad??const []))p.id:p.name};
+  final battingTeam=auction.teams.where((t)=>t.id==match.battingTeamId).toList();
+  final bowlingTeam=auction.teams.where((t)=>t.id==match.defendingTeamId).toList();
+  final battingIds=match.battingTeamId=='cpl'?roster.playingXI:(battingTeam.isEmpty?const <String>[]:battingTeam.first.squad.take(11).map((p)=>p.id).toList());
+  final bowlingIds=match.defendingTeamId=='cpl'?roster.playingXI:(bowlingTeam.isEmpty?const <String>[]:bowlingTeam.first.squad.map((p)=>p.id).toList());
+  final names={for(final t in auction.teams)for(final p in t.squad)p.id:p.name};
   String label(String id)=>names[id]??id;
-  final ready=ids.length==11;
-  final available=ids.where((id)=>id!=match.strikerId&&id!=match.nonStrikerId).toList();
+  final ready=battingIds.length>=11&&bowlingIds.isNotEmpty;
+  final available=battingIds.where((id)=>id!=match.strikerId&&id!=match.nonStrikerId).toList();
   return Scaffold(
    appBar:AppBar(title:const Text('IPL BALL-BY-BALL')),
    body:ListView(padding:const EdgeInsets.all(16),children:[
@@ -39,8 +41,8 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
     if(!ready)const Card(child:Padding(padding:EdgeInsets.all(16),child:Text('Select and save a valid IPL Playing XI of 11 players first. The match controller uses that saved XI.'))),
     if(ready&&match.status!=IplMatchStatus.completed&&match.status!=IplMatchStatus.superOverRequired)...[
      if(match.status==IplMatchStatus.needsOpeningBatters||match.strikerId==null&&match.nonStrikerId==null)...[
-      _playerPicker('Opening striker',ids,names,_striker,(v)=>setState(()=>_striker=v)),
-      _playerPicker('Opening non-striker',ids.where((id)=>id!=_striker).toList(),names,_nonStriker,(v)=>setState(()=>_nonStriker=v)),
+      _playerPicker('Opening striker',battingIds,names,_striker,(v)=>setState(()=>_striker=v)),
+      _playerPicker('Opening non-striker',battingIds.where((id)=>id!=_striker).toList(),names,_nonStriker,(v)=>setState(()=>_nonStriker=v)),
       FilledButton(onPressed:_striker!=null&&_nonStriker!=null&&_striker!=_nonStriker?(){
        try{actions.selectOpeningBatters(strikerId:_striker!,nonStrikerId:_nonStriker!);setState(()=>_incoming=null);}catch(e){_error(e.toString());}
       }:null,child:const Text('CONFIRM BATTERS')),
@@ -50,7 +52,7 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
       FilledButton(onPressed:_incoming==null?null:(){try{actions.selectIncomingBatter(_incoming!);setState(()=>_incoming=null);}catch(e){_error(e.toString());}},child:const Text('SEND INCOMING BATTER')),
      ],
      if(match.pendingBowlerChange)...[
-      _playerPicker('Select bowler (max 4 overs)',ids.where((id)=>id!=match.bowlerId).toList(),names,_bowler,(v)=>setState(()=>_bowler=v)),
+      _playerPicker('Select bowler (max 4 overs)',bowlingIds.where((id)=>id!=match.bowlerId).toList(),names,_bowler,(v)=>setState(()=>_bowler=v)),
       FilledButton(onPressed:_bowler==null?null:(){try{actions.selectNewBowler(_bowler!);setState(()=>_bowler=null);}catch(e){_error(e.toString());}},child:const Text('CONFIRM BOWLER')),
      ],
      if(match.strikerId!=null&&match.nonStrikerId!=null&&match.bowlerId!=null&&!match.pendingBowlerChange&&match.status!=IplMatchStatus.needsIncomingBatter)...[
