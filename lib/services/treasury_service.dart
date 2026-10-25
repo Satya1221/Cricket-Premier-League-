@@ -30,7 +30,7 @@ class TreasuryService {
   return true;
  }
  Future<bool> expandStadium({required int newCapacity,required int addedSeats}) async {
-  if(newCapacity<=franchise.stadiumCapacity||addedSeats<=0)return false;
+  if(newCapacity<=0||addedSeats<=0)return false;
   final current=franchise;
   final cost=stadiumExpansionCostRupees;
   if(current.stadiumFunds<cost)return false;
