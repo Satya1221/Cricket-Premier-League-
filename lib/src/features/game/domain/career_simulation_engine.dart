@@ -98,7 +98,7 @@ class CareerSimulationEngine {
     ts[hi]=h.copyWith(played:h.played+1,won:h.won+(hw?1:0),lost:h.lost+(hw?0:1),points:h.points+(hw?2:0),runsFor:h.runsFor+hs['runs']!,ballsFaced:h.ballsFaced+hs['balls']!,runsAgainst:h.runsAgainst+ascore['runs']!,ballsBowled:h.ballsBowled+ascore['balls']!);
     ts[ai]=a.copyWith(played:a.played+1,won:a.won+(hw?0:1),lost:a.lost+(hw?1:0),points:a.points+(hw?0:2),runsFor:a.runsFor+ascore['runs']!,ballsFaced:a.ballsFaced+ascore['balls']!,runsAgainst:a.runsAgainst+hs['runs']!,ballsBowled:a.ballsBowled+hs['balls']!);
     final fs=[...season.fixtures]..[fi]=updated;
-    final history=[...season.matchHistory,{'fixtureId':f.id,'home':h.name,'away':a.name,'homeScore':'${hs['runs']}/${hs['wickets']}','awayScore':'${ascore['runs']}/${ascore['wickets']}','winnerTeamId':winner}];
+    final history=[...season.matchHistory,{'fixtureId':f.id,'home':h.name,'away':a.name,'homeScore':'${hs['runs']}/${hs['wickets']}','awayScore':'${ascore['runs']}/${ascore['wickets']}','homeRunsRaw':hs['runs'],'homeBallsRaw':hs['balls'],'awayRunsRaw':ascore['runs'],'awayBallsRaw':ascore['balls'],'winnerTeamId':winner}];
     return SeasonData(seasonNumber:season.seasonNumber,teams:ts,fixtures:fs,matchHistory:history,month:season.month);
   }
 
