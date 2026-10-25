@@ -7,6 +7,7 @@ import '../../match/matchday_screen.dart';
 import '../../match/presentation/field_editor_screen.dart';
 import '../../squad/presentation/medical_screen.dart';
 import '../../squad/presentation/squad_selection_screen.dart';
+import '../../../../state/franchise_roster_provider.dart';
 import 'academy_screen.dart';
 import 'press_conference_dialog.dart';
 import 'stadium_screen.dart';
@@ -25,6 +26,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(gameControllerProvider);
+    final franchiseRoster = ref.watch(franchiseRosterProvider);
     final game = ref.read(gameControllerProvider.notifier);
     final calendar = ref.watch(globalCalendarProvider);
     final calendarController = ref.read(globalCalendarProvider.notifier);
@@ -243,8 +245,16 @@ class HomeScreen extends ConsumerWidget {
               title: 'MATCHDAY',
               subtitle: 'Play deliveries and manage batting intent.',
               onTap: () {
-                if (session.phase == GamePhase.preSeason ||
-                    session.phase == GamePhase.auction) {
+                if (franchiseRoster.playingXI.length != 11) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Select and validate your Playing XI before entering Matchday.')),
+                  );
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => const SquadSelectionScreen(),
+                  ));
+                  return;
+                }
+                if (session.phase == GamePhase.preSeason || session.phase == GamePhase.auction) {
                   game.startSeason();
                 }
                 Navigator.of(context).push(MaterialPageRoute<void>(
