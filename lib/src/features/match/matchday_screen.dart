@@ -11,6 +11,7 @@ import 'domain/format_config.dart';
 import 'domain/living_pitch.dart' as pitch;
 import 'domain/stadium_pitch_engine.dart';
 import '../game/application/stadium_provider.dart';
+import 'ipl_match_controller_screen.dart';
 
 @immutable
 class MatchdayState {
@@ -169,7 +170,7 @@ class MatchdayScreen extends ConsumerWidget {
       backgroundColor: const Color(0xFF0B132B),
       appBar: AppBar(backgroundColor: Colors.transparent, centerTitle: true,
         title: Text('${s.format.name.toUpperCase()} MATCH', style: const TextStyle(letterSpacing: 2, color: Colors.white70, fontSize: 14)),
-        actions: [PopupMenuButton<CricketFormat>(tooltip: 'Match format', onSelected: actions.setFormat, itemBuilder: (_) => CricketFormat.values.map((format) => PopupMenuItem(value: format, child: Text(format.name.toUpperCase()))).toList()), IconButton(onPressed: actions.resetMatch, icon: const Icon(Icons.restart_alt), tooltip: 'Reset match')]),
+        actions: [IconButton(tooltip:'IPL innings & scorecard controller',onPressed:()=>Navigator.of(context).push(MaterialPageRoute<void>(builder:(_)=>const IplMatchControllerScreen())),icon:const Icon(Icons.scoreboard_rounded)), PopupMenuButton<CricketFormat>(tooltip: 'Match format', onSelected: actions.setFormat, itemBuilder: (_) => CricketFormat.values.map((format) => PopupMenuItem(value: format, child: Text(format.name.toUpperCase()))).toList()), IconButton(onPressed: actions.resetMatch, icon: const Icon(Icons.restart_alt), tooltip: 'Reset match')]),
       body: SafeArea(child: Column(children: [
         _Scoreboard(state: s),
         Expanded(child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16), children: [
