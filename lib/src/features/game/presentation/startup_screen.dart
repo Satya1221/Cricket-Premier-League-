@@ -58,7 +58,7 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
       ref.read(gameControllerProvider.notifier).startCampaign(
         campaignId: campaignId,
         league: 'Indian Premier League',
-        franchiseName: 'Coastal Premier Lions',
+        franchiseName: 'Mumbai Indians',
         purseCr: 120,
         difficulty: 'Normal',
       );
