@@ -7,16 +7,16 @@ import '../src/features/game/application/stadium_provider.dart';
 enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsIncomingBatter, needsNewBowler, superOverRequired, completed }
 
 class IplMatchState {
- const IplMatchState({this.innings=1,this.runs=0,this.wickets=0,this.legalBalls=0,this.targetScore=0,this.strikerId,this.nonStrikerId,this.bowlerId,this.battingTeamId='cpl',this.defendingTeamId='opponent',this.status=IplMatchStatus.inningsOne,this.deliveries=const [],this.winnerTeamId,this.isTie=false,this.message='Select the opening batters to begin.',this.pendingBowlerChange=false});
+ const IplMatchState({this.innings=1,this.runs=0,this.wickets=0,this.legalBalls=0,this.targetScore=0,this.strikerId,this.nonStrikerId,this.bowlerId,this.battingTeamId='cpl',this.defendingTeamId='opponent',this.homeTeamId='cpl',this.status=IplMatchStatus.inningsOne,this.deliveries=const [],this.winnerTeamId,this.isTie=false,this.message='Select the opening batters to begin.',this.pendingBowlerChange=false});
  final int innings,runs,wickets,legalBalls,targetScore;
  final String? strikerId,nonStrikerId,bowlerId,winnerTeamId;
- final String battingTeamId,defendingTeamId;
+ final String battingTeamId,defendingTeamId,homeTeamId;
  final IplMatchStatus status;
  final List<DeliveryModel> deliveries;
  final bool isTie,pendingBowlerChange;
  final String message;
  String get overs=>'${legalBalls~/6}.${legalBalls%6}';
- IplMatchState copyWith({int? innings,int? runs,int? wickets,int? legalBalls,int? targetScore,String? strikerId,String? nonStrikerId,String? bowlerId,String? winnerTeamId,String? battingTeamId,String? defendingTeamId,IplMatchStatus? status,List<DeliveryModel>? deliveries,bool? isTie,String? message,bool? pendingBowlerChange,bool clearStriker=false,bool clearNonStriker=false,bool clearBowler=false,bool clearWinner=false})=>IplMatchState(innings:innings??this.innings,runs:runs??this.runs,wickets:wickets??this.wickets,legalBalls:legalBalls??this.legalBalls,targetScore:targetScore??this.targetScore,strikerId:clearStriker?null:(strikerId??this.strikerId),nonStrikerId:clearNonStriker?null:(nonStrikerId??this.nonStrikerId),bowlerId:clearBowler?null:(bowlerId??this.bowlerId),winnerTeamId:clearWinner?null:(winnerTeamId??this.winnerTeamId),battingTeamId:battingTeamId??this.battingTeamId,defendingTeamId:defendingTeamId??this.defendingTeamId,status:status??this.status,deliveries:deliveries??this.deliveries,isTie:isTie??this.isTie,message:message??this.message,pendingBowlerChange:pendingBowlerChange??this.pendingBowlerChange);
+ IplMatchState copyWith({int? innings,int? runs,int? wickets,int? legalBalls,int? targetScore,String? strikerId,String? nonStrikerId,String? bowlerId,String? winnerTeamId,String? battingTeamId,String? defendingTeamId,String? homeTeamId,IplMatchStatus? status,List<DeliveryModel>? deliveries,bool? isTie,String? message,bool? pendingBowlerChange,bool clearStriker=false,bool clearNonStriker=false,bool clearBowler=false,bool clearWinner=false})=>IplMatchState(innings:innings??this.innings,runs:runs??this.runs,wickets:wickets??this.wickets,legalBalls:legalBalls??this.legalBalls,targetScore:targetScore??this.targetScore,strikerId:clearStriker?null:(strikerId??this.strikerId),nonStrikerId:clearNonStriker?null:(nonStrikerId??this.nonStrikerId),bowlerId:clearBowler?null:(bowlerId??this.bowlerId),winnerTeamId:clearWinner?null:(winnerTeamId??this.winnerTeamId),battingTeamId:battingTeamId??this.battingTeamId,defendingTeamId:defendingTeamId??this.defendingTeamId,homeTeamId:homeTeamId??this.homeTeamId,status:status??this.status,deliveries:deliveries??this.deliveries,isTie:isTie??this.isTie,message:message??this.message,pendingBowlerChange:pendingBowlerChange??this.pendingBowlerChange);
 }
 
 final matchNotifierProvider=StateNotifierProvider<MatchNotifier,IplMatchState>((ref)=>MatchNotifier(onHomeMatchEnd:()=>ref.read(stadiumProvider.notifier).recordHomeMatch()));
@@ -31,9 +31,9 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:winnerTeamId,isTie:false,message:'$winnerTeamId win.');
   _saveCareerStats();
  }
- void _saveCareerStats(){if(_statsSaved)return;_statsSaved=true;unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));unawaited(_onHomeMatchEnd?.call()??Future<void>.value());}
+ void _saveCareerStats(){if(_statsSaved)return;_statsSaved=true;unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));if(state.homeTeamId=='cpl')unawaited(_onHomeMatchEnd?.call()??Future<void>.value());}
  static const int maxLegalBalls=120;
- void setTeams({required String battingTeamId,required String defendingTeamId})=>state=state.copyWith(battingTeamId:battingTeamId,defendingTeamId:defendingTeamId);
+ void setTeams({required String battingTeamId,required String defendingTeamId,String homeTeamId='cpl'})=>state=state.copyWith(battingTeamId:battingTeamId,defendingTeamId:defendingTeamId,homeTeamId:homeTeamId);
  void selectOpeningBatters({required String strikerId,required String nonStrikerId}) {
   if(strikerId==nonStrikerId)throw ArgumentError('Two different batters are required.');
   if(state.status!=IplMatchStatus.needsOpeningBatters && state.legalBalls>0)throw StateError('Opening batters can only be selected at an innings start.');
