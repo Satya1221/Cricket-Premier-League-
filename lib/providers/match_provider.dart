@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/delivery_model.dart';
 import '../services/stats_aggregator.dart';
+import '../src/features/game/application/stadium_provider.dart';
 
 enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsIncomingBatter, needsNewBowler, superOverRequired, completed }
 
@@ -18,10 +19,11 @@ class IplMatchState {
  IplMatchState copyWith({int? innings,int? runs,int? wickets,int? legalBalls,int? targetScore,String? strikerId,String? nonStrikerId,String? bowlerId,String? winnerTeamId,String? battingTeamId,String? defendingTeamId,IplMatchStatus? status,List<DeliveryModel>? deliveries,bool? isTie,String? message,bool? pendingBowlerChange,bool clearStriker=false,bool clearNonStriker=false,bool clearBowler=false,bool clearWinner=false})=>IplMatchState(innings:innings??this.innings,runs:runs??this.runs,wickets:wickets??this.wickets,legalBalls:legalBalls??this.legalBalls,targetScore:targetScore??this.targetScore,strikerId:clearStriker?null:(strikerId??this.strikerId),nonStrikerId:clearNonStriker?null:(nonStrikerId??this.nonStrikerId),bowlerId:clearBowler?null:(bowlerId??this.bowlerId),winnerTeamId:clearWinner?null:(winnerTeamId??this.winnerTeamId),battingTeamId:battingTeamId??this.battingTeamId,defendingTeamId:defendingTeamId??this.defendingTeamId,status:status??this.status,deliveries:deliveries??this.deliveries,isTie:isTie??this.isTie,message:message??this.message,pendingBowlerChange:pendingBowlerChange??this.pendingBowlerChange);
 }
 
-final matchNotifierProvider=StateNotifierProvider<MatchNotifier,IplMatchState>((ref)=>MatchNotifier());
+final matchNotifierProvider=StateNotifierProvider<MatchNotifier,IplMatchState>((ref)=>MatchNotifier(onHomeMatchEnd:()=>ref.read(stadiumProvider.notifier).recordHomeMatch()));
 
 class MatchNotifier extends StateNotifier<IplMatchState>{
- MatchNotifier():super(const IplMatchState());
+ MatchNotifier({Future<void> Function()? onHomeMatchEnd}):_onHomeMatchEnd=onHomeMatchEnd,super(const IplMatchState());
+ final Future<void> Function()? _onHomeMatchEnd;
  final String _matchId='ipl-match-${DateTime.now().microsecondsSinceEpoch}';
  bool _statsSaved=false;
  void endMatch({required String winnerTeamId}) {
