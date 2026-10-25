@@ -1,5 +1,4 @@
 import 'player.dart';
-import 'player_contract.dart';
 
 /// Result of advancing one franchise by one completed season.
 ///
