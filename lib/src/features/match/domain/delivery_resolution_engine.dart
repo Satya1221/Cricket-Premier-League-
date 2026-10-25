@@ -122,21 +122,26 @@ class DeliveryResolutionEngine {
         wicketChance -= 6;
         dotChance += 30;
         fourChance += 10;
+        break;
       case BatterIntent.rotate:
         dotChance -= 10;
+        break;
       case BatterIntent.slog:
         wicketChance += 15;
         dotChance -= 15;
         fourChance -= 20;
+        break;
     }
     switch (tactic) {
       case BowlerTactic.attack:
         wicketChance += 5;
         fourChance -= 10;
+        break;
       case BowlerTactic.contain:
         wicketChance -= 5;
         fourChance += 15;
         dotChance += 10;
+        break;
       case BowlerTactic.balanced:
         break;
     }
