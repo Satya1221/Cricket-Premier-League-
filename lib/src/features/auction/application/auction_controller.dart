@@ -14,6 +14,8 @@ class AuctionController extends Notifier<AuctionState> {
   AuctionState build() => createDemoAuction();
 
   void bidFor(String teamId) => state = _engine.placeBid(state: state, teamId: teamId);
+  void runRivalRound() => state = _engine.runRivalRound(state: state, rivals: rivalProfiles);
+
   void closeLot() => state = _engine.closeLot(state);
   void nextLot() => state = _engine.nextLot(state);
   void reset() => state = createDemoAuction();
