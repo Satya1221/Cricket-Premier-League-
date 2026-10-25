@@ -16,7 +16,8 @@ class StadiumState {
 }
 
 class StadiumNotifier extends StateNotifier<StadiumState> {
-  StadiumNotifier() : super(StadiumState(stadiums: defaultStadiums(), selectedStadiumId: 'chepauk'));
+  StadiumNotifier() : super(_initial());
+  static StadiumState _initial()=>StadiumState(stadiums:defaultStadiums(),selectedStadiumId:'chepauk',franchiseFunds:const TreasuryService().franchise.stadiumFunds);
   final TreasuryService _treasury = const TreasuryService();
   void selectStadium(String id) {
     if (!state.stadiums.any((s) => s.id == id)) {
