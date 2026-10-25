@@ -49,6 +49,19 @@ class StandingsScreen extends ConsumerWidget {
                   label: const Text('LOAD SAVE'),
                 ),
                 OutlinedButton.icon(onPressed: controller.save, icon: const Icon(Icons.save), label: const Text('SAVE')),
+                if (pendingFixtures.isEmpty)
+                  FilledButton.icon(
+                    onPressed: () async {
+                      await controller.endSeason();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Season ${season.seasonNumber} archived. Season ${season.seasonNumber + 1} is ready.')),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.flag_rounded),
+                    label: const Text('END SEASON & ADVANCE'),
+                  ),
               ]),
             ]),
           ),
