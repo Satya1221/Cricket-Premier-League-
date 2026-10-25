@@ -29,7 +29,7 @@ class StadiumNotifier extends StateNotifier<StadiumState> {
   Future<void> expandBy(int seats) async {
     if(seats<=0)throw ArgumentError.value(seats,'seats','Must be positive.');
     final current=state.selectedStadium;
-    if(current.capacity+seats>65000)throw StateError('IPL stadium capacity cannot exceed 65000 seats.');
+    if(current.capacity+seats>StadiumEconomy.maximumCapacity)throw StateError('IPL stadium capacity cannot exceed 65000 seats.');
     final ok=await _treasury.expandStadium(addedSeats:seats);
     if(!ok)throw StateError('Insufficient operating treasury: stadium expansion costs ₹60 lakh.');
     final expanded=current.copyWith(capacity:current.capacity+seats);
