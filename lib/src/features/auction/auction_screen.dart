@@ -343,7 +343,7 @@ class _ManagerDeck extends StatelessWidget {
     final canAfford = team != null && team.purseCr >= nextBid;
     final alreadyLeading = state.leadingTeamId == 'cpl';
     final canBid = active && player != null && canAfford && !alreadyLeading &&
-        team!.remainingSlots > 0 &&
+        team.remainingSlots > 0 &&
         (!player.isOverseas || team.overseasCount < team.maxOverseas);
 
     return _Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -370,8 +370,8 @@ class _ManagerDeck extends StatelessWidget {
             !active ? 'LOT CLOSED' :
             alreadyLeading ? 'YOU HOLD THE BID' :
             !canAfford ? 'INSUFFICIENT PURSE' :
-            team != null && team.remainingSlots <= 0 ? 'SQUAD FULL' :
-            player != null && player.isOverseas && team != null && team.overseasCount >= team.maxOverseas
+            team.remainingSlots <= 0 ? 'SQUAD FULL' :
+            player != null && player.isOverseas && team.overseasCount >= team.maxOverseas
                 ? 'OVERSEAS LIMIT REACHED'
                 : 'PLACE BID • ${CricketCurrency.format(nextBid).toUpperCase()}',
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: .3),
