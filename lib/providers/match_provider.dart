@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/delivery_model.dart';
+import '../services/stats_aggregator.dart';
 
 enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsIncomingBatter, needsNewBowler, superOverRequired, completed }
 
@@ -20,6 +22,14 @@ final matchNotifierProvider=StateNotifierProvider<MatchNotifier,IplMatchState>((
 
 class MatchNotifier extends StateNotifier<IplMatchState>{
  MatchNotifier():super(const IplMatchState());
+ final String _matchId='ipl-match-${DateTime.now().microsecondsSinceEpoch}';
+ bool _statsSaved=false;
+ void endMatch({required String winnerTeamId}) {
+  if(state.status==IplMatchStatus.completed)return;
+  state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:winnerTeamId,isTie:false,message:'$winnerTeamId win.');
+  _saveCareerStats();
+ }
+ void _saveCareerStats(){if(_statsSaved)return;_statsSaved=true;unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));}
  static const int maxLegalBalls=120;
  void setTeams({required String battingTeamId,required String defendingTeamId})=>state=state.copyWith(battingTeamId:battingTeamId,defendingTeamId:defendingTeamId);
  void selectOpeningBatters({required String strikerId,required String nonStrikerId}) {
@@ -70,7 +80,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
  }
  void evaluateInningsState(){
   if(state.status==IplMatchStatus.completed||state.status==IplMatchStatus.superOverRequired)return;
-  if(state.innings==2&&state.runs>=state.targetScore){state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:state.battingTeamId,message:'${state.battingTeamId} win by ${10-state.wickets} wickets.');return;}
+  if(state.innings==2&&state.runs>=state.targetScore){endMatch(winnerTeamId:state.battingTeamId);return;}
   final inningsOver=state.wickets>=10||state.legalBalls>=maxLegalBalls;
   if(!inningsOver)return;
   if(state.innings==1){
@@ -78,8 +88,8 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
    return;
   }
   if(state.runs==state.targetScore-1){state=state.copyWith(status:IplMatchStatus.superOverRequired,isTie:true,message:'Match tied. IPL rules require a Super Over.');return;}
-  state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:state.defendingTeamId,message:'${state.defendingTeamId} win by ${state.targetScore-state.runs-1} runs.');
+  endMatch(winnerTeamId:state.defendingTeamId);
  }
- void endSuperOver({required String winnerTeamId}){if(state.status!=IplMatchStatus.superOverRequired)throw StateError('A Super Over is not pending.');state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:winnerTeamId,isTie:false,message:'$winnerTeamId win after the Super Over.');}
+ void endSuperOver({required String winnerTeamId}){if(state.status!=IplMatchStatus.superOverRequired)throw StateError('A Super Over is not pending.');endMatch(winnerTeamId:winnerTeamId);}
  void reset()=>state=const IplMatchState();
 }
