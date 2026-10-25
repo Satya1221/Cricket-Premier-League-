@@ -72,8 +72,11 @@ class AuctionEngine {
       RivalStyle.youthFirst => player.age <= 24 ? 1.20 : 0.82,
       RivalStyle.roleSpecialist => roleFit,
     };
+    // Aggression affects willingness to stay in a bidding war; pressure can
+    // temporarily push a manager beyond its normal valuation ceiling.
+    final aggressionFactor = 0.82 + rival.aggression.clamp(0.0, 1.0) * 0.36;
     final pressureFactor = 1 + rival.managerPressure.clamp(-0.2, 0.2);
-    final reserve = valuationCr(player) * styleFactor * pressureFactor;
+    final reserve = valuationCr(player) * styleFactor * aggressionFactor * pressureFactor;
     final nextBid = currentBidCr == 0
         ? player.basePriceCr
         : currentBidCr + incrementFor(currentBidCr);
@@ -106,6 +109,9 @@ class AuctionEngine {
     final index = state.teams.indexWhere((team) => team.id == teamId);
     if (index < 0) throw ArgumentError.value(teamId, 'teamId', 'Unknown team');
     final team = state.teams[index];
+    if (state.leadingTeamId == teamId) {
+      throw StateError('Your franchise is already the highest bidder. Wait for a rival counter-bid.');
+    }
     final nextBid = state.currentBidCr == 0
         ? player.basePriceCr
         : state.currentBidCr + incrementFor(state.currentBidCr);
