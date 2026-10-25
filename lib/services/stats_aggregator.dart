@@ -1,0 +1,34 @@
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/delivery_model.dart';
+import '../models/player_model.dart';
+
+class StatsAggregator {
+ const StatsAggregator();
+ Future<void> aggregateMatch({required String matchId,required List<DeliveryModel> deliveries}) async {
+  final players=Hive.box<PlayerModel>('players');
+  final processed=Hive.box<dynamic>('history_records');
+  if(processed.containsKey('stats-$matchId'))return;
+  final runs=<String,int>{},balls=<String,int>{},wickets=<String,int>{};
+  for(final d in deliveries){
+   runs[d.strikerId]=(runs[d.strikerId]??0)+d.runsScored;
+   if(d.extraType!='Wide')balls[d.strikerId]=(balls[d.strikerId]??0)+1;
+   // IPL bowler wickets exclude run-outs; this model has no dismissal subtype yet.
+   if(d.isWicket && d.extraType!='Wide' && d.extraType!='LegBye'){
+    wickets[d.bowlerId]=(wickets[d.bowlerId]??0)+1;
+   }
+  }
+  final involved=<String>{...runs.keys,...balls.keys,...wickets.keys}..remove('');
+  for(final id in involved){
+   final player=players.get(id);if(player==null)continue;
+   final matchRuns=runs[id]??0;
+   await players.put(id,player.copyWith(
+    careerRuns:player.careerRuns+matchRuns,
+    careerWickets:player.careerWickets+(wickets[id]??0),
+    matchesPlayed:player.matchesPlayed+1,
+    highestScore:matchRuns>player.highestScore?matchRuns:player.highestScore,
+    careerBallsFaced:player.careerBallsFaced+(balls[id]??0),
+   ));
+  }
+  await processed.put('stats-$matchId',{'matchId':matchId,'playerIds':involved.toList(),'aggregatedAt':DateTime.now().toIso8601String()});
+ }
+}
