@@ -35,6 +35,31 @@ void main() {
     expect(batter.concentration, lessThanOrEqualTo(1.0));
   });
 
+  test('slog plus attack widens wicket and six outcome bands', () {
+    final result = DeliveryResolutionEngine(random: Random(1)).resolve(
+      environment: environment(),
+      bowler: ResolutionBowler(name: 'Bowler', baseAccuracy: 70, baseMovement: 70, isSpinner: false),
+      batter: ResolutionBatter(name: 'Batter', baseTiming: 70, baseDefense: 70, concentration: 1),
+      intent: BatterIntent.slog,
+      tactic: BowlerTactic.attack,
+    );
+    expect(result.thresholds['wicket'], 30);
+    expect(result.thresholds['four'], 60);
+  });
+
+  test('contain tactic protects boundaries and reduces wicket threshold', () {
+    final result = DeliveryResolutionEngine(random: Random(1)).resolve(
+      environment: environment(),
+      bowler: ResolutionBowler(name: 'Bowler', baseAccuracy: 70, baseMovement: 70, isSpinner: false),
+      batter: ResolutionBatter(name: 'Batter', baseTiming: 70, baseDefense: 70, concentration: 1),
+      intent: BatterIntent.rotate,
+      tactic: BowlerTactic.contain,
+    );
+    expect(result.thresholds['wicket'], 5);
+    expect(result.thresholds['four'], 99);
+    expect(result.thresholds['dot'], greaterThan(25));
+  });
+
   test('concentration and pitch modifiers affect the debug calculations', () {
     final result = DeliveryResolutionEngine(random: Random(1)).resolve(
       environment: environment(),
