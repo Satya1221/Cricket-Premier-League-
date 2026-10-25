@@ -192,6 +192,11 @@ class DeliveryResolutionEngine {
       case BowlerTactic.balanced:
         break;
     }
+    // A tired bowler (below 40% stamina) leaks more bad deliveries, which
+    // lifts the boundary band.
+    if (bowler.stamina < 0.4) {
+      fourChance -= 6;
+    }
     // Hard per-intent ceiling: environmental and tactical bonuses must never
     // turn a defensive/rotating batter into a near-certain wicket. The old
     // generic 30% ceiling allowed extreme modifiers to produce collapses.
