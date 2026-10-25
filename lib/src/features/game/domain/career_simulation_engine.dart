@@ -117,7 +117,38 @@ class CareerSimulationEngine {
     for(var rank=0;rank<ranked.length;rank++){
       final t=ranked[rank]; final prize=switch(rank){0=>20.0,1=>12.5,2=>8.0,3=>6.0,_=>2.0};
       final players=<CareerPlayer>[];
-      for(final p in t.players){final age=p.age+1;if(age<=38)players.add(p.copyWith(age:age));}
+      for (final p in t.players) {
+        final age = p.age + 1;
+        var overall = p.overall;
+        if (age <= 24) {
+          // Young players grow toward their ceiling.
+          overall = min(p.potential, overall + 1 + rng.nextInt(4));
+        } else if (age >= 35) {
+          // Veterans decline.
+          overall = max(40, overall - 2 - rng.nextInt(5));
+        }
+        if (age > 38 || overall < 55) {
+          continue; // Retires.
+        }
+        players.add(CareerPlayer(
+          id: p.id,
+          name: p.name,
+          age: age,
+          overall: overall,
+          potential: p.potential,
+          role: p.role,
+          runs: p.runs,
+          wickets: p.wickets,
+          highScore: p.highScore,
+          fifties: p.fifties,
+          hundreds: p.hundreds,
+          ballsFaced: p.ballsFaced,
+          runsConceded: p.runsConceded,
+          ballsBowled: p.ballsBowled,
+          bestBowlingRuns: p.bestBowlingRuns,
+          bestBowlingWickets: p.bestBowlingWickets,
+        ));
+      }
       for(var i=0;i<max(1,academyLevel);i++){
         final pot=min(95,65+academyLevel*4+rng.nextInt(11));
         players.add(CareerPlayer(id:'Y${season.seasonNumber+1}-${t.id}-$i',name:'Academy Prospect ${t.id.toUpperCase()} ${i+1}',age:17+rng.nextInt(4),overall:max(45,pot-15),potential:pot,role:const ['batter','bowler','allRounder','wicketKeeper'][rng.nextInt(4)]));
