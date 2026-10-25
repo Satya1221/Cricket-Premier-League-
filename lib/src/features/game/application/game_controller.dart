@@ -183,12 +183,14 @@ class GameController extends StateNotifier<GameSessionState> {
     required int completedMatches,
     required GamePhase phase,
     required String lastAction,
+    double? purseCr,
   }) {
     state = state.copyWith(
       seasonNumber: seasonNumber,
       completedMatches: completedMatches,
       phase: phase,
       lastAction: lastAction,
+      purseCr: purseCr,
     );
   }
 
