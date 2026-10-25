@@ -31,6 +31,23 @@ void main() {
       expect(sold.teams.first.squad.single.basePriceCr, 2);
     });
 
+    test('auction state survives JSON save and restore', () {
+      final initial = createDemoAuction();
+      final bid = engine.placeBid(state: initial, teamId: 'cpl');
+      final sold = engine.closeLot(bid);
+      final restored = AuctionState.fromJson(
+        Map<String, dynamic>.from(sold.toJson()),
+      );
+
+      expect(restored.phase, sold.phase);
+      expect(restored.currentPlayerIndex, sold.currentPlayerIndex);
+      expect(restored.currentBidCr, sold.currentBidCr);
+      expect(restored.leadingTeamId, sold.leadingTeamId);
+      expect(restored.bidHistory, sold.bidHistory);
+      expect(restored.teams.first.purseCr, sold.teams.first.purseCr);
+      expect(restored.teams.first.squad.single.contract?.currentSalaryCrores, 2);
+    });
+
     test('cannot bid after a lot has closed', () {
       final sold = engine.closeLot(engine.placeBid(state: createDemoAuction(), teamId: 'cpl'));
       expect(() => engine.placeBid(state: sold, teamId: 'roy'), throwsStateError);
