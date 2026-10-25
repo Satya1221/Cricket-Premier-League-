@@ -21,6 +21,21 @@ class CareerSaveRepository {
     return SeasonData.fromJson(Map<String, Object?>.from(decoded));
   }
 
+  static const String historyBoxName = 'history_records';
+  Box<dynamic> get _historyBox => Hive.box<dynamic>(historyBoxName);
+
+  Future<void> saveHistory(String seasonKey, Map<String, Object?> snapshot) =>
+      _historyBox.put(seasonKey, jsonEncode(snapshot));
+
+  Map<String, Object?>? loadHistory(String seasonKey) {
+    final raw = _historyBox.get(seasonKey);
+    if (raw is! String) return null;
+    final decoded = jsonDecode(raw);
+    return decoded is Map ? Map<String, Object?>.from(decoded) : null;
+  }
+
+  List<String> get historyKeys => _historyBox.keys.whereType<String>().toList()..sort();
+
   List<String> get saveIds => _box.keys.whereType<String>().toList()..sort();
 
   Future<void> deleteSave(String saveId) => _box.delete(saveId);
