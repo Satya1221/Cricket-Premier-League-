@@ -95,9 +95,15 @@ class MatchEngine {
     var swing = 0.0;
     if (fast) {
       swing += e.oversOld < 5 ? 0.10 : max(0, 0.10 - e.oversOld * 0.004);
-      if (e.weather == WeatherType.overcast) swing += 0.10;
-      if (e.pitch == PitchType.green && e.oversOld < 5) swing += 0.15;
-      if (e.pitchWear > 0.55 && c.phase == MatchPhase.deathOvers && e.oversOld >= 20) swing += 0.12;
+      if (e.weather == WeatherType.overcast) {
+        swing += 0.10;
+      }
+      if (e.pitch == PitchType.green && e.oversOld < 5) {
+        swing += 0.15;
+      }
+      if (e.pitchWear > 0.55 && c.phase == MatchPhase.deathOvers && e.oversOld >= 20) {
+        swing += 0.12;
+      }
     }
     final wetSpinPenalty = spin && e.isNightMatch ? e.dew * 0.24 : 0.0;
     final dustSpinBonus = spin && e.pitch == PitchType.dusty ? 0.04 + e.pitchWear * 0.20 : 0.0;
