@@ -20,7 +20,9 @@ class MedicalNotifier extends StateNotifier<MedicalState> {
     final assessments = workloads.map(_engine.assess).toList(growable: false);
     final injuries = [...state.injuries];
     for (final a in assessments.where((a) => a.riskBand == InjuryRiskBand.critical)) {
-      if (!injuries.any((i) => i.playerId == a.playerId)) injuries.add(InjuryRecord(playerId: a.playerId, injuryType: 'High workload injury risk', matchesRemainingOut: a.recommendedRestDays, severityRisk: 5, notes: a.reasons.join(' • ')));
+      if (!injuries.any((i) => i.playerId == a.playerId)) {
+        injuries.add(InjuryRecord(playerId: a.playerId, injuryType: 'High workload injury risk', matchesRemainingOut: a.recommendedRestDays, severityRisk: 5, notes: a.reasons.join(' • ')));
+      }
     }
     state = state.copyWith(assessments: assessments, injuries: injuries);
   }
