@@ -15,7 +15,7 @@ class StatsAggregator {
    // IPL does not credit a bowler for run-outs, retired-out, timed-out,
    // obstructing the field, or hit-the-ball-twice dismissals.
    const uncredited={'RunOut','RetiredOut','TimedOut','ObstructingTheField','HitTheBallTwice','RetiredHurt'};
-   if(d.isWicket && d.extraType!='Wide' && d.extraType!='LegBye' && !uncredited.contains(d.dismissalType)) {
+   if(d.isWicket && !uncredited.contains(d.dismissalType) && d.extraType!='NoBall' && !(d.extraType=='Wide' && d.dismissalType!='Stumped')) {
     wickets[d.bowlerId]=(wickets[d.bowlerId]??0)+1;
    }
   }
