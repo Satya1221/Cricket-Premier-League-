@@ -20,9 +20,13 @@ class FranchiseRosterNotifier extends StateNotifier<FranchiseState> {
   static const _boxName='franchise_roster';
   static const _key='active-franchise';
   static FranchiseState _load(){
-    final campaignSnapshot = CampaignStore.loadActiveRoster();
-    if (campaignSnapshot != null) {
-      return FranchiseState.fromJson(Map<String, Object?>.from(campaignSnapshot));
+    final campaignId = CampaignStore.activeCampaignId;
+    if (CampaignStore.isInitialized && campaignId != null) {
+      final campaignSnapshot = CampaignStore.loadActiveRoster();
+      if (campaignSnapshot != null) {
+        return FranchiseState.fromJson(Map<String, Object?>.from(campaignSnapshot));
+      }
+      return const FranchiseState();
     }
     final raw=Hive.box<dynamic>(_boxName).get(_key);
     if(raw is! String)return const FranchiseState();
@@ -36,6 +40,10 @@ class FranchiseRosterNotifier extends StateNotifier<FranchiseState> {
     }
     await Hive.box<dynamic>(_boxName).put(_key,jsonEncode(state.toJson()));
   }
+  void loadActiveCampaign() {
+    state = _load();
+  }
+
   Future<void> setActiveSquad(List<String> ids) async { state=state.copyWith(activeSquad:List.unmodifiable(ids),playingXI:state.playingXI.where(ids.contains).toList()); await _save(); }
   Future<void> setPlayingXI(List<String> ids,List<AuctionPlayer> squad) async {
     final selected=squad.where((p)=>ids.contains(p.id)).toList();
