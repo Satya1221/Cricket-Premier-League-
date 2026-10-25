@@ -110,10 +110,14 @@ class MainMenuScreen extends ConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 DropdownButtonFormField<String>(
-                                  value: preferences.difficulty,
+                                  initialValue: preferences.difficulty,
                                   decoration: const InputDecoration(labelText: 'Difficulty'),
                                   items: const ['Easy', 'Normal', 'Hard'].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-                                  onChanged: (value) { if (value != null) actions.setDifficulty(value); },
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      actions.setDifficulty(value);
+                                    }
+                                  },
                                 ),
                                 SwitchListTile(
                                   contentPadding: EdgeInsets.zero,
