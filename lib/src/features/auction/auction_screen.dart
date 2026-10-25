@@ -5,6 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/game_feel.dart';
 import '../../core/cricket_currency.dart';
 import '../match/matchday_screen.dart';
+import '../game/application/season_provider.dart';
+import '../game/presentation/standings_screen.dart';
 
 import '../../theme/game_theme.dart';
 import 'application/auction_controller.dart';
@@ -45,9 +47,32 @@ class AuctionScreen extends ConsumerWidget {
                 Expanded(child: _Metric(label: 'TOTAL BUDGET', value: '₹${(state.teams.length * 120).toStringAsFixed(0)} Cr', icon: Icons.monetization_on_outlined)),
               ]),
               const SizedBox(height: 18),
-              if (player == null)
-                const _AuctionComplete()
-              else ...[
+              if (player == null) ...[
+                const _AuctionComplete(),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () async {
+                      try {
+                        await ref.read(seasonProvider.notifier).startFromAuction(state);
+                        if (!context.mounted) return;
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute<void>(builder: (_) => const StandingsScreen()),
+                        );
+                      } on StateError catch (error) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(error.message)),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.emoji_events_rounded),
+                    label: const Text('START SEASON FROM AUCTION SQUADS'),
+                  ),
+                ),
+              ] else ...[
                 _PlayerLot(player: player, state: state),
                 const SizedBox(height: 14),
                 if (wide)
@@ -70,6 +95,15 @@ class AuctionScreen extends ConsumerWidget {
                         : null,
                     icon: const Icon(Icons.timer_rounded),
                     label: const Text('START LIVE AI BIDDING (2s TICKS)'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: actions.simulateRemainingAuction,
+                    icon: const Icon(Icons.fast_forward_rounded),
+                    label: const Text('SIMULATE REMAINING AUCTION'),
                   ),
                 ),
                 const SizedBox(height: 8),
