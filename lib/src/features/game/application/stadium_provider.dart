@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../match/domain/stadium_pitch_engine.dart';
+import '../../../../services/treasury_service.dart';
 
 class StadiumState {
   const StadiumState({required this.stadiums, required this.selectedStadiumId, this.franchiseFunds = 12000000, this.lastMatchRevenue = 0, this.lastAction = 'Select a home ground to shape your match strategy.'});
@@ -16,6 +17,7 @@ class StadiumState {
 
 class StadiumNotifier extends StateNotifier<StadiumState> {
   StadiumNotifier() : super(StadiumState(stadiums: defaultStadiums(), selectedStadiumId: 'chepauk'));
+  final TreasuryService _treasury = const TreasuryService();
   void selectStadium(String id) {
     if (!state.stadiums.any((s) => s.id == id)) {
       throw ArgumentError.value(id, 'id', 'Unknown stadium.');
@@ -23,15 +25,21 @@ class StadiumNotifier extends StateNotifier<StadiumState> {
     final selected = state.stadiums.firstWhere((s) => s.id == id);
     state = state.copyWith(selectedStadiumId: id, lastAction: 'Home ground changed to ${selected.name}.');
   }
-  void expandBy(int seats) {
-    final expanded = StadiumEconomy.expand(state.selectedStadium, seats: seats, availableFunds: state.franchiseFunds);
-    final cost = seats * StadiumEconomy.expansionCostPerSeat;
-    state = state.copyWith(stadiums: [for (final s in state.stadiums) if (s.id == expanded.id) expanded else s],
-      franchiseFunds: state.franchiseFunds - cost, lastAction: 'Expanded ${expanded.name} by $seats seats for ₹$cost.');
+  Future<void> expandBy(int seats) async {
+    if(seats<=0)throw ArgumentError.value(seats,'seats','Must be positive.');
+    final current=state.selectedStadium;
+    if(current.capacity+seats>65000)throw StateError('IPL stadium capacity cannot exceed 65000 seats.');
+    final ok=await _treasury.expandStadium(addedSeats:seats);
+    if(!ok)throw StateError('Insufficient operating treasury: stadium expansion costs ₹60 lakh.');
+    final expanded=current.copyWith(capacity:current.capacity+seats);
+    state=state.copyWith(stadiums:[for(final s in state.stadiums)if(s.id==expanded.id)expanded else s],
+      franchiseFunds:_treasury.franchise.stadiumFunds,lastAction:'Expanded ${expanded.name} by $seats seats for ₹60 lakh.');
   }
-  void recordHomeMatch({double attendanceRate = 0.85}) {
-    final revenue = StadiumEconomy.ticketRevenue(state.selectedStadium, attendanceRate: attendanceRate);
-    state = state.copyWith(franchiseFunds: state.franchiseFunds + revenue, lastMatchRevenue: revenue, lastAction: 'Home match earned ₹$revenue in ticket revenue.');
+  Future<void> recordHomeMatch({double attendanceRate=1.0}) async {
+    final stadium=state.selectedStadium;
+    final capacity=(stadium.capacity*attendanceRate).round();
+    final revenue=await _treasury.recordTicketRevenue(capacity:capacity,ticketPriceRupees:stadium.ticketPrice);
+    state=state.copyWith(franchiseFunds:_treasury.franchise.stadiumFunds,lastMatchRevenue:revenue,lastAction:'Home match earned ₹$revenue in ticket revenue.');
   }
 }
 final stadiumProvider = StateNotifierProvider<StadiumNotifier, StadiumState>((ref) => StadiumNotifier());
