@@ -7,7 +7,7 @@ class PlayerWorkloadState {
   final int fatigue,injuryWeeksRemaining;
   final String? injuryType;
   bool get unavailable=>injuryWeeksRemaining>0;
-  PlayerWorkloadState copyWith({int? fatigue,int? injuryWeeksRemaining,String? injuryType,bool clearInjury=false})=>PlayerWorkloadState(playerId:playerId,fatigue:(fatigue??this.fatigue).clamp(0,100),injuryWeeksRemaining:injuryWeeksRemaining??this.injuryWeeksRemaining,injuryType:clearInjury?null:(injuryType??this.injuryType));
+  PlayerWorkloadState copyWith({int? fatigue,int? injuryWeeksRemaining,String? injuryType,bool clearInjury=false})=>PlayerWorkloadState(playerId:playerId,fatigue:(fatigue??this.fatigue).clamp(0,100).toInt(),injuryWeeksRemaining:injuryWeeksRemaining??this.injuryWeeksRemaining,injuryType:clearInjury?null:(injuryType??this.injuryType));
 }
 class MedicalWorkloadService {
   const MedicalWorkloadService();
@@ -16,9 +16,9 @@ class MedicalWorkloadService {
     return player.copyWith(fatigue:player.fatigue+added);
   }
   PlayerWorkloadState advanceWeek(PlayerWorkloadState player,{int physioLevel=0}) {
-    final recovery=20+physioLevel.clamp(0,5)*10;
+    final recovery=20+physioLevel.clamp(0,5).toInt()*10;
     final weeks=max(0,player.injuryWeeksRemaining-1);
-    return player.copyWith(fatigue:max(0,player.fatigue-recovery),injuryWeeksRemaining:weeks,clearInjury:weeks==0);
+    return player.copyWith(fatigue:max(0,player.fatigue-recovery).toInt(),injuryWeeksRemaining:weeks,clearInjury:weeks==0);
   }
   PlayerWorkloadState rollPreMatchInjury(PlayerWorkloadState player,{Random? random}) {
     if(player.fatigue<=75||player.unavailable)return player;
