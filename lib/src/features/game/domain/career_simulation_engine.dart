@@ -51,7 +51,7 @@ class SeasonData {
 class CareerSimulationEngine {
   const CareerSimulationEngine();
 
-  /// Circle method: every pair meets once; odd team counts receive a bye.
+  /// Double round-robin circle method; the second leg reverses every venue.
   List<CareerFixture> generateRoundRobin(List<CareerTeam> teams,{int season=1}) {
     if(teams.length<2)return const [];
     final slots=<CareerTeam?>[...teams,if(teams.length.isOdd)null];
