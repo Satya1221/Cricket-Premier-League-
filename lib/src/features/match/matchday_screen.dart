@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../theme/game_theme.dart';
 import 'domain/delivery_resolution_engine.dart';
+import 'domain/format_config.dart';
 import 'domain/living_pitch.dart' as pitch;
 
 @immutable
@@ -18,6 +19,7 @@ class MatchdayState {
     this.recent = const ['1', '4', '0', 'W', '2', '1'],
     this.commentary = 'A sharp single keeps the scoreboard moving.',
     this.complete = false,
+    this.format = CricketFormat.t20,
   });
   final int runs, wickets, balls, target, strikerRuns, strikerBalls, bowlerRuns, bowlerWickets;
   final double concentration, stamina;
@@ -25,19 +27,21 @@ class MatchdayState {
   final List<String> recent;
   final String commentary;
   final bool complete;
-  int get ballsLeft => max(0, 120 - balls);
+  final CricketFormat format;
+  FormatConfig get config => FormatConfig.forFormat(format);
+  int get ballsLeft => max(0, config.legalBallsPerInnings - balls);
   int get runsNeeded => max(0, target - runs);
-  String get overs => '${balls ~/ 6}.${balls % 6}';
+  String get overs => '${balls ~/ config.ballsPerOver}.${balls % config.ballsPerOver}';
   double get crr => balls == 0 ? 0 : runs * 6 / balls;
   MatchdayState copyWith({int? runs, int? wickets, int? balls, int? strikerRuns, int? strikerBalls,
     int? bowlerRuns, int? bowlerWickets, double? concentration, double? stamina,
-    BatterIntent? intent, List<String>? recent, String? commentary, bool? complete}) =>
+    BatterIntent? intent, List<String>? recent, String? commentary, bool? complete, CricketFormat? format}) =>
     MatchdayState(runs: runs ?? this.runs, wickets: wickets ?? this.wickets,
       balls: balls ?? this.balls, target: target, strikerRuns: strikerRuns ?? this.strikerRuns,
       strikerBalls: strikerBalls ?? this.strikerBalls, bowlerRuns: bowlerRuns ?? this.bowlerRuns,
       bowlerWickets: bowlerWickets ?? this.bowlerWickets, concentration: concentration ?? this.concentration,
       stamina: stamina ?? this.stamina, intent: intent ?? this.intent, recent: recent ?? this.recent,
-      commentary: commentary ?? this.commentary, complete: complete ?? this.complete);
+      commentary: commentary ?? this.commentary, complete: complete ?? this.complete, format: format ?? this.format);
 }
 
 final matchProvider = StateNotifierProvider<MatchdayController, MatchdayState>((ref) => MatchdayController());
@@ -50,6 +54,13 @@ class MatchdayController extends StateNotifier<MatchdayState> {
   late final _bowler = ResolutionBowler(name: 'R. Khan', baseAccuracy: 79, baseMovement: 82, isSpinner: true, stamina: .84);
 
   void setIntent(BatterIntent intent) => state = state.copyWith(intent: intent);
+  void setFormat(CricketFormat format) {
+    _environment.pitchWear = format == CricketFormat.test ? 0.1 : 0.5;
+    _environment.ballAgeOvers = 0;
+    _batter.concentration = .72;
+    _bowler.stamina = .84;
+    state = MatchdayState(format: format, target: format == CricketFormat.test ? 350 : format == CricketFormat.odi ? 280 : format == CricketFormat.hundred ? 145 : 178, runs: 0, wickets: 0, balls: 0, strikerRuns: 0, strikerBalls: 0, bowlerRuns: 0, bowlerWickets: 0, concentration: .72, stamina: .84, recent: const [], commentary: '${format.name.toUpperCase()} match initialized.');
+  }
   void playNextBall() {
     if (state.complete) return;
     final env = MatchEnvironment(
@@ -79,7 +90,7 @@ class MatchdayController extends StateNotifier<MatchdayState> {
   void resetMatch() {
     _environment.pitchWear = 0; _environment.ballAgeOvers = 0;
     _batter.concentration = .72; _bowler.stamina = .84;
-    state = const MatchdayState();
+    state = MatchdayState(format: state.format, target: state.format == CricketFormat.test ? 350 : state.format == CricketFormat.odi ? 280 : state.format == CricketFormat.hundred ? 145 : 178, runs: 0, wickets: 0, balls: 0, strikerRuns: 0, strikerBalls: 0, bowlerRuns: 0, bowlerWickets: 0, concentration: .72, stamina: .84, recent: const [], commentary: '${state.format.name.toUpperCase()} match reset.');
   }
 }
 
@@ -92,8 +103,8 @@ class MatchdayScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0B132B),
       appBar: AppBar(backgroundColor: Colors.transparent, centerTitle: true,
-        title: const Text('T20 FINAL', style: TextStyle(letterSpacing: 2, color: Colors.white70, fontSize: 14)),
-        actions: [IconButton(onPressed: actions.resetMatch, icon: const Icon(Icons.restart_alt), tooltip: 'Reset match')]),
+        title: Text('${s.format.name.toUpperCase()} MATCH', style: const TextStyle(letterSpacing: 2, color: Colors.white70, fontSize: 14)),
+        actions: [PopupMenuButton<CricketFormat>(tooltip: 'Match format', onSelected: actions.setFormat, itemBuilder: (_) => CricketFormat.values.map((format) => PopupMenuItem(value: format, child: Text(format.name.toUpperCase()))).toList()), IconButton(onPressed: actions.resetMatch, icon: const Icon(Icons.restart_alt), tooltip: 'Reset match')]),
       body: SafeArea(child: Column(children: [
         _Scoreboard(state: s),
         Expanded(child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16), children: [
