@@ -12,18 +12,19 @@ class CareerPlayer {
 }
 
 class CareerTeam {
-  const CareerTeam({required this.id,required this.name,this.played=0,this.won=0,this.lost=0,this.points=0,this.runsFor=0,this.ballsFaced=0,this.runsAgainst=0,this.ballsBowled=0,this.players=const [],this.purseCr=120});
+  const CareerTeam({required this.id,required this.name,this.played=0,this.won=0,this.lost=0,this.points=0,this.runsFor=0,this.ballsFaced=0,this.runsAgainst=0,this.ballsBowled=0,this.players=const [],this.playingXIIds=const [],this.purseCr=120});
   final String id,name;
   final int played,won,lost,points,runsFor,ballsFaced,runsAgainst,ballsBowled;
   final List<CareerPlayer> players;
+  final List<String> playingXIIds;
   final double purseCr;
   double get netRunRate {
     if(ballsFaced==0||ballsBowled==0)return 0;
     return runsFor/(ballsFaced/6)-runsAgainst/(ballsBowled/6);
   }
-  CareerTeam copyWith({int? played,int? won,int? lost,int? points,int? runsFor,int? ballsFaced,int? runsAgainst,int? ballsBowled,List<CareerPlayer>? players,double? purseCr})=>CareerTeam(id:id,name:name,played:played??this.played,won:won??this.won,lost:lost??this.lost,points:points??this.points,runsFor:runsFor??this.runsFor,ballsFaced:ballsFaced??this.ballsFaced,runsAgainst:runsAgainst??this.runsAgainst,ballsBowled:ballsBowled??this.ballsBowled,players:players??this.players,purseCr:purseCr??this.purseCr);
-  Map<String,Object?> toJson()=>{'id':id,'name':name,'played':played,'won':won,'lost':lost,'points':points,'runsFor':runsFor,'ballsFaced':ballsFaced,'runsAgainst':runsAgainst,'ballsBowled':ballsBowled,'purseCr':purseCr,'players':players.map((p)=>p.toJson()).toList()};
-  factory CareerTeam.fromJson(Map<String,Object?> j)=>CareerTeam(id:j['id']! as String,name:j['name']! as String,played:j['played'] as int? ?? 0,won:j['won'] as int? ?? 0,lost:j['lost'] as int? ?? 0,points:j['points'] as int? ?? 0,runsFor:j['runsFor'] as int? ?? 0,ballsFaced:j['ballsFaced'] as int? ?? 0,runsAgainst:j['runsAgainst'] as int? ?? 0,ballsBowled:j['ballsBowled'] as int? ?? 0,purseCr:(j['purseCr'] as num?)?.toDouble()??120,players:(j['players'] as List<Object?>? ?? const []).map((p)=>CareerPlayer.fromJson(Map<String,Object?>.from(p! as Map))).toList());
+  CareerTeam copyWith({int? played,int? won,int? lost,int? points,int? runsFor,int? ballsFaced,int? runsAgainst,int? ballsBowled,List<CareerPlayer>? players,List<String>? playingXIIds,double? purseCr})=>CareerTeam(id:id,name:name,played:played??this.played,won:won??this.won,lost:lost??this.lost,points:points??this.points,runsFor:runsFor??this.runsFor,ballsFaced:ballsFaced??this.ballsFaced,runsAgainst:runsAgainst??this.runsAgainst,ballsBowled:ballsBowled??this.ballsBowled,players:players??this.players,playingXIIds:playingXIIds??this.playingXIIds,purseCr:purseCr??this.purseCr);
+  Map<String,Object?> toJson()=>{'id':id,'name':name,'played':played,'won':won,'lost':lost,'points':points,'runsFor':runsFor,'ballsFaced':ballsFaced,'runsAgainst':runsAgainst,'ballsBowled':ballsBowled,'purseCr':purseCr,'players':players.map((p)=>p.toJson()).toList(),'playingXIIds':playingXIIds};
+  factory CareerTeam.fromJson(Map<String,Object?> j)=>CareerTeam(id:j['id']! as String,name:j['name']! as String,played:j['played'] as int? ?? 0,won:j['won'] as int? ?? 0,lost:j['lost'] as int? ?? 0,points:j['points'] as int? ?? 0,runsFor:j['runsFor'] as int? ?? 0,ballsFaced:j['ballsFaced'] as int? ?? 0,runsAgainst:j['runsAgainst'] as int? ?? 0,ballsBowled:j['ballsBowled'] as int? ?? 0,purseCr:(j['purseCr'] as num?)?.toDouble()??120,players:(j['players'] as List<Object?>? ?? const []).map((p)=>CareerPlayer.fromJson(Map<String,Object?>.from(p! as Map))).toList(),playingXIIds:(j['playingXIIds'] as List<Object?>? ?? const []).whereType<String>().toList());
 }
 
 class CareerFixture {
@@ -96,7 +97,14 @@ class CareerSimulationEngine {
     final hi=season.teams.indexWhere((t)=>t.id==f.homeTeamId),ai=season.teams.indexWhere((t)=>t.id==f.awayTeamId);
     if(hi<0||ai<0)return season;
     final h=season.teams[hi],a=season.teams[ai];
-    int rating(CareerTeam t)=>t.players.isEmpty?65:t.players.fold<int>(0,(sum,p)=>sum+p.overall)~/t.players.length;
+    int rating(CareerTeam t) {
+      if (t.players.isEmpty) return 65;
+      final selected = t.playingXIIds.isEmpty
+          ? ([...t.players]..sort((a, b) => b.overall.compareTo(a.overall))).take(11).toList()
+          : t.players.where((player) => t.playingXIIds.contains(player.id)).toList();
+      final lineup = selected.isEmpty ? t.players : selected;
+      return lineup.fold<int>(0, (sum, player) => sum + player.overall) ~/ lineup.length;
+    }
     final hs=simulateInnings(battingRating:rating(h)+3,bowlingRating:rating(a),random:random);
     final ascore=simulateInnings(battingRating:rating(a),bowlingRating:rating(h)+3,random:random);
     final hw=hs['runs']!>=ascore['runs']!; final winner=hw?h.id:a.id;
