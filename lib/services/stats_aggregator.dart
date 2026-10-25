@@ -12,8 +12,10 @@ class StatsAggregator {
   for(final d in deliveries){
    runs[d.strikerId]=(runs[d.strikerId]??0)+d.runsScored;
    if(d.extraType!='Wide')balls[d.strikerId]=(balls[d.strikerId]??0)+1;
-   // IPL bowler wickets exclude run-outs; this model has no dismissal subtype yet.
-   if(d.isWicket && d.extraType!='Wide' && d.extraType!='LegBye'){
+   // IPL does not credit a bowler for run-outs, retired-out, timed-out,
+   // obstructing the field, or hit-the-ball-twice dismissals.
+   const uncredited={'RunOut','RetiredOut','TimedOut','ObstructingTheField','HitTheBallTwice','RetiredHurt'};
+   if(d.isWicket && d.extraType!='Wide' && d.extraType!='LegBye' && !uncredited.contains(d.dismissalType)) {
     wickets[d.bowlerId]=(wickets[d.bowlerId]??0)+1;
    }
   }
