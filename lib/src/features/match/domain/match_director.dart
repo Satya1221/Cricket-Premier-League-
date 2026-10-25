@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'delivery_resolution_engine.dart';
-
 /// The semantic result of one delivery, independent of Flutter or a 3D renderer.
 class DeliveryEvent {
   const DeliveryEvent({
@@ -54,7 +52,6 @@ class MatchDirector {
     var legalBalls = 0;
     var score = totalRuns;
     var batterScore = batterRuns;
-    var outs = wickets;
 
     while (legalBalls < 6 && legalBalls < ballsRemainingInInnings) {
       final roll = rng.nextInt(100);
@@ -98,7 +95,6 @@ class MatchDirector {
       legalBalls++;
       score += batterRunsThisBall + extras;
       batterScore += batterRunsThisBall;
-      if (wicket) outs++;
 
       final absoluteBall = startingBall + legalBalls;
       final lastBallOfOver = legalBalls == 6;
