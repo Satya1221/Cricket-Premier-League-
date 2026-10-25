@@ -8,6 +8,7 @@ import '../../match/presentation/field_editor_screen.dart';
 import '../../squad/presentation/medical_screen.dart';
 import 'academy_screen.dart';
 import 'press_conference_dialog.dart';
+import 'stadium_screen.dart';
 import '../application/game_controller.dart';
 import '../application/global_calendar_controller.dart';
 import 'inbox_screen.dart';
@@ -229,6 +230,13 @@ class HomeScreen extends ConsumerWidget {
               title: 'FIELD PLACEMENT',
               subtitle: 'Arrange fielders on the oval and set tactical roles.',
               onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const FieldEditorScreen())),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.stadium_rounded,
+              title: 'STADIUM & PITCH',
+              subtitle: 'Choose home conditions, upgrade capacity and earn ticket revenue.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const StadiumScreen())),
             ),
             const SizedBox(height: 10),
             _ActionTile(
