@@ -52,6 +52,13 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   if(state.status!=IplMatchStatus.needsOpeningBatters && state.legalBalls>0)throw StateError('Opening batters can only be selected at an innings start.');
   state=state.copyWith(strikerId:strikerId,nonStrikerId:nonStrikerId,status:state.innings==1?IplMatchStatus.inningsOne:IplMatchStatus.inningsTwo,message:'Batters ready.',clearBowler:true,pendingBowlerChange:true);
  }
+ void selectIncomingBatter(String batterId){
+  if(state.status!=IplMatchStatus.needsIncomingBatter)throw StateError('No incoming batter is required.');
+  if(batterId.isEmpty||batterId==state.strikerId||batterId==state.nonStrikerId)throw ArgumentError('Choose a batter not already at the crease.');
+  final fillStriker=state.strikerId==null;
+  state=state.copyWith(strikerId:fillStriker?batterId:null,nonStrikerId:fillStriker?null:batterId,status:state.innings==1?IplMatchStatus.inningsOne:IplMatchStatus.inningsTwo,message:'Incoming batter ready.');
+  if(state.wickets<10&&state.legalBalls>0&&state.legalBalls%6==0)endOfOver();
+ }
  void selectNewBowler(String bowlerId){
   if(bowlerId.trim().isEmpty)throw ArgumentError('Select a bowler.');
   if(!state.pendingBowlerChange && state.bowlerId!=null)throw StateError('A new bowler is only needed at the start of an over.');
