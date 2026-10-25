@@ -159,9 +159,16 @@ class DeliveryResolutionEngine {
     final boundaryFactor = (modifiers['boundary'] ?? 1.0).clamp(0.75, 1.25);
     fourChance = fourChance / boundaryFactor;
     wicketChance += (modifiers['irregularBounceRisk'] ?? 0.0) * 12;
-    wicketChance *= (tacticalModifiers['lbwMultiplier'] ?? 1.0);
-    wicketChance *= (tacticalModifiers['stumpingMultiplier'] ?? 1.0);
-    wicketChance *= (tacticalModifiers['edgeProbability'] ?? 1.0);
+    // Avoid multiplying unrelated dismissal modifiers together (which would
+    // inflate every wicket chance). Use their bounded average for the generic
+    // wicket band, then use each modifier as a relative weight when choosing
+    // the dismissal subtype below.
+    final wicketModifier = (
+      (tacticalModifiers['lbwMultiplier'] ?? 1.0) +
+      (tacticalModifiers['stumpingMultiplier'] ?? 1.0) +
+      (tacticalModifiers['edgeProbability'] ?? 1.0)
+    ) / 3;
+    wicketChance *= wicketModifier.clamp(0.5, 2.0);
     dotChance *= (tacticalModifiers['dotBallMultiplier'] ?? 1.0);
     fourChance *= (tacticalModifiers['boundaryMultiplier'] ?? 1.0);
     switch (tactic) {
