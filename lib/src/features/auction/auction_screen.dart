@@ -61,7 +61,7 @@ class AuctionScreen extends ConsumerWidget {
                   Expanded(child: OutlinedButton.icon(
                     onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding ? () {
                       try { actions.closeLot(); } on StateError catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Unable to close lot')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
                       }
                     } : null,
                     icon: const Icon(Icons.gavel_rounded),
@@ -242,7 +242,7 @@ class _TeamWarRoom extends StatelessWidget {
         enabled: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding,
         onTap: () {
           try { onBid(team.id); } on StateError catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'Bid rejected')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
           }
         },
       )),
