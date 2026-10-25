@@ -94,7 +94,7 @@ final realIpl2026PlayerPool = <AuctionPlayer>[
   _p('lsg-mitchell-marsh','Mitchell Marsh','Australia',PlayerRole.allRounder,35,89,89,90,82,78,price:1,overseas:true,form:80),
   _p('lsg-mohammed-shami','Mohammed Shami','India',PlayerRole.bowler,36,89,89,20,92,80,price:1,form:77),
   _p('lsg-mayank-yadav','Mayank Yadav','India',PlayerRole.bowler,23,87,97,14,94,75,price:1,form:78),
-  _p('lsg-awanesh-khan','Avesh Khan','India',PlayerRole.bowler,29,85,89,18,88,76,price:1,form:77),
+  _p('lsg-avesh-khan','Avesh Khan','India',PlayerRole.bowler,29,85,89,18,88,76,price:1,form:77),
   _p('dc-kl-rahul','KL Rahul','India',PlayerRole.wicketKeeper,34,91,91,94,12,83,price:2,form:81),
   _p('dc-axar-patel','Axar Patel','India',PlayerRole.allRounder,32,91,93,81,91,89,price:2,form:84),
   _p('dc-kuldeep-yadav','Kuldeep Yadav','India',PlayerRole.bowler,31,92,94,15,95,83,price:2,form:87),
