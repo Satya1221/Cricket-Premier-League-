@@ -176,6 +176,22 @@ class GameController extends StateNotifier<GameSessionState> {
     );
   }
 
+
+  /// Synchronizes the persistent league season with the franchise dashboard.
+  void syncCareerProgress({
+    required int seasonNumber,
+    required int completedMatches,
+    required GamePhase phase,
+    required String lastAction,
+  }) {
+    state = state.copyWith(
+      seasonNumber: seasonNumber,
+      completedMatches: completedMatches,
+      phase: phase,
+      lastAction: lastAction,
+    );
+  }
+
   void endSeason() {
     if (state.phase != GamePhase.season) {
       throw StateError('Only an active season can end.');
