@@ -236,6 +236,20 @@ class CampaignStore {
     ));
   }
 
+  /// Restores the active campaign's auction snapshot, if one has been saved.
+  /// Invalid or older snapshots are ignored so a damaged save cannot block boot.
+  static AuctionState? loadActiveAuction() {
+    final id = activeCampaignId;
+    if (id == null) return null;
+    final snapshot = load(id)?.auctionSnapshot;
+    if (snapshot == null) return null;
+    try {
+      return AuctionState.fromJson(Map<String, dynamic>.from(snapshot));
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<void> saveAuction(AuctionState state) async {
     final id = activeCampaignId;
     if (id == null) return;
