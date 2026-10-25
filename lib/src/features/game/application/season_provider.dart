@@ -130,6 +130,27 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     return true;
   }
 
+
+  Future<void> setPlayingXI(String teamId, List<String> playerIds) async {
+    final teamIndex = state.teams.indexWhere((team) => team.id == teamId);
+    if (teamIndex < 0) throw ArgumentError.value(teamId, 'teamId', 'Unknown franchise');
+    final team = state.teams[teamIndex];
+    final available = team.players.map((player) => player.id).toSet();
+    if (playerIds.any((id) => !available.contains(id))) {
+      throw FormatException('Playing XI must contain players owned by this franchise.');
+    }
+    final teams = [...state.teams];
+    teams[teamIndex] = team.copyWith(playingXIIds: List.unmodifiable(playerIds));
+    state = SeasonData(
+      seasonNumber: state.seasonNumber,
+      teams: teams,
+      fixtures: state.fixtures,
+      matchHistory: state.matchHistory,
+      month: state.month,
+    );
+    await save();
+  }
+
   Future<void> simulateNextMatch() async {
     state = _engine.simulateNextFixture(state);
     await save();
