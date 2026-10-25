@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../theme/game_theme.dart';
 import '../application/season_provider.dart';
+import '../../../../state/league_standings_provider.dart';
 
 class StandingsScreen extends ConsumerWidget {
   const StandingsScreen({super.key});
@@ -11,7 +12,7 @@ class StandingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final season = ref.watch(seasonProvider);
     final controller = ref.read(seasonProvider.notifier);
-    final ranked = controller.standings;
+    final ranked = ref.watch(leagueStandingsProvider);
     final nextFixture = season.fixtures.where((f) => !f.played).firstOrNull;
     return Scaffold(
       appBar: AppBar(title: Text('SEASON ${season.seasonNumber} • LEAGUE TABLE')),
@@ -66,12 +67,12 @@ class StandingsScreen extends ConsumerWidget {
                   for (var i = 0; i < ranked.length; i++)
                     DataRow(cells: [
                       DataCell(Text('${i + 1}')),
-                      DataCell(Text(ranked[i].name)),
+                      DataCell(Text(season.teams.firstWhere((team) => team.id == ranked[i].teamId).name)),
                       DataCell(Text('${ranked[i].played}')),
                       DataCell(Text('${ranked[i].won}')),
                       DataCell(Text('${ranked[i].lost}')),
                       DataCell(Text('${ranked[i].points}', style: const TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900))),
-                      DataCell(Text(ranked[i].netRunRate.toStringAsFixed(3))),
+                      DataCell(Text(ranked[i].nrr.toStringAsFixed(3))),
                     ]),
                 ],
               ),
