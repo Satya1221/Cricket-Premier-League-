@@ -7,6 +7,8 @@ import '../data/career_save_repository.dart';
 import '../domain/career_simulation_engine.dart';
 import 'game_controller.dart';
 import '../../auction/data/real_ipl_2026_player_pool.dart';
+import '../../auction/domain/auction_state.dart';
+import '../../auction/domain/player.dart';
 
 final careerSaveRepositoryProvider = Provider<CareerSaveRepository>((ref) => CareerSaveRepository());
 final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) {
@@ -70,6 +72,40 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       teams: teams,
       fixtures: const CareerSimulationEngine().generateRoundRobin(teams),
     );
+  }
+
+
+  /// Converts the completed auction's squads into the playable league season.
+  Future<void> startFromAuction(AuctionState auction) async {
+    if (auction.currentPlayer != null) {
+      throw StateError('Finish the auction before starting the season.');
+    }
+    final teams = auction.teams.map((team) {
+      if (team.squad.length < 11) {
+        throw StateError(
+          '${team.name} has only ${team.squad.length} players. Complete the auction until every franchise has at least 11.',
+        );
+      }
+      return CareerTeam(
+        id: team.id,
+        name: team.name,
+        purseCr: team.purseCr,
+        players: team.squad.map((player) => CareerPlayer(
+          id: player.id,
+          name: player.name,
+          age: player.age,
+          overall: player.overall,
+          potential: player.potential,
+          role: player.role.name,
+        )).toList(growable: false),
+      );
+    }).toList(growable: false);
+    state = SeasonData(
+      seasonNumber: state.seasonNumber,
+      teams: teams,
+      fixtures: _engine.generateRoundRobin(teams, season: state.seasonNumber),
+    );
+    await save();
   }
 
   Future<void> save() async { await _saves.saveSeason(_saveId, state); await _persistSchedule(); }
