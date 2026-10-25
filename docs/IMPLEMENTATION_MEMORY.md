@@ -78,3 +78,15 @@ Flutter/Dart cricket franchise management game with a polished dark navy, gold a
 4. Do not claim a feature is integrated, persistent or tested unless the code and verification support that claim.
 5. Keep changes modular, use existing Riverpod/theme conventions, and do not add a dependency without updating `pubspec.yaml` and the project setup.
 6. After each meaningful batch, update this file with commit links/paths and mark checklist items only when genuinely complete.
+
+
+## Additional static runtime fixes (2026-10-25)
+
+- Fixed the inbox action crash: because the app has no named-route table yet, unknown inbox actions now show an unavailable-action message instead of calling `Navigator.pushNamed` and throwing at runtime. The existing `/calendar` special case remains.
+- Fixed the matchday pitch-degradation dead branch by checking the newly updated `state.complete` after each delivery.
+- Fixed academy potential calculation so youth-development coaches are not counted again in the general specialist subtotal.
+- Fixed `MatchDirector` highlight ordering so pressure/last-ball/milestone highlights can be selected before generic boundary highlights; removed the hard-coded absolute T20 ball-limit check in favor of the supplied innings ball budget.
+- Made currency formatting return `₹—` for negative or non-finite values rather than throwing while a widget is building.
+- Recent analyzer fixes also corrected the home AppBar actions placement, unsupported match resolver argument, finite-number matcher, terminal auction dollar interpolation/import, redundant null checks, and unused imports/locals.
+- These are source-level edits only. Flutter analyzer, tests and APK build have not been run in this environment. CI is still the authoritative validation.
+- Remaining static-review items not yet changed: game-feel audio asset/lifecycle (no bundled sound asset exists), full duplicate-engine/type consolidation, debug entry points in library files, and comprehensive domain tests. These need careful integration decisions rather than deleting code solely because current call-site search finds none.
