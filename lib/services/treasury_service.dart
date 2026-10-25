@@ -29,9 +29,8 @@ class TreasuryService {
   await _record(description:description,amount:rupees.toDouble(),income:false,category:category,newBalance:updated.stadiumFunds.toDouble());
   return true;
  }
- Future<bool> expandStadium({required int newCapacity}) async {
-  if(newCapacity<=franchise.stadiumCapacity)return false;
-  final addedSeats=newCapacity-franchise.stadiumCapacity;
+ Future<bool> expandStadium({required int newCapacity,required int addedSeats}) async {
+  if(newCapacity<=franchise.stadiumCapacity||addedSeats<=0)return false;
   final current=franchise;
   final cost=stadiumExpansionCostRupees;
   if(current.stadiumFunds<cost)return false;
