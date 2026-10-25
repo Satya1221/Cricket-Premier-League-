@@ -37,7 +37,7 @@ class AutoSimEngine {
     final first = _simulateInnings(team: home, bowlingTeam: away, format: format, target: null);
     final second = _simulateInnings(team: away, bowlingTeam: home, format: format, target: first.runs + 1);
     final winner = first.runs == second.runs ? '' : first.runs > second.runs ? home.id : away.id;
-    final result = winner.isEmpty ? 'Match tied' : winner == home.id ? home.name + ' won by ' + (10-second.wickets).toString() + ' wickets' : away.name + ' won by ' + (first.runs-second.runs).toString() + ' runs';
+    final result = winner.isEmpty ? 'Match tied' : winner == home.id ? home.name + ' won by ' + (first.runs-second.runs).toString() + ' runs' : away.name + ' won by ' + (10-second.wickets).toString() + ' wickets';
     return MatchResultSummary(matchId: matchId, homeTeamId: home.id, awayTeamId: away.id, homeInnings: first, awayInnings: second, winnerId: winner, resultText: result, format: format);
   }
   SimInningsResult _simulateInnings({required SimTeam team, required SimTeam bowlingTeam, required CricketFormat format, required int? target}) {
