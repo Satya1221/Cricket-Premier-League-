@@ -5,19 +5,38 @@ import '../../../../engine/fast_sim_engine.dart';
 
 import '../data/career_save_repository.dart';
 import '../domain/career_simulation_engine.dart';
+import 'game_controller.dart';
+import '../data/campaign_store.dart';
+import '../../auction/data/real_ipl_2026_player_pool.dart';
+import '../../auction/domain/auction_state.dart';
 
 final careerSaveRepositoryProvider = Provider<CareerSaveRepository>((ref) => CareerSaveRepository());
-final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) => SeasonNotifier(ref.read(careerSaveRepositoryProvider)));
+final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) {
+  final campaignId = ref.watch(gameControllerProvider.select((session) => session.campaignId));
+  final saveId = campaignId == null ? SeasonNotifier.defaultSaveId : 'career-$campaignId';
+  return SeasonNotifier(
+    ref.read(careerSaveRepositoryProvider),
+    saveId: saveId,
+    gameController: ref.read(gameControllerProvider.notifier),
+  );
+});
 
 class SeasonNotifier extends StateNotifier<SeasonData> {
-  SeasonNotifier(this._saves) : super(_loadInitial(_saves)) { _persistSchedule(); }
+  SeasonNotifier(this._saves, {required String saveId, required GameController gameController})
+      : _saveId = saveId,
+        _gameController = gameController,
+        super(_loadInitial(_saves, saveId)) {
+    _persistSchedule();
+  }
 
-  static SeasonData _loadInitial(CareerSaveRepository saves) =>
-      saves.loadSeason(defaultSaveId) ?? _newSeason();
+  static SeasonData _loadInitial(CareerSaveRepository saves, String saveId) =>
+      saves.loadSeason(saveId) ?? _newSeason();
   final CareerSaveRepository _saves;
+  final String _saveId;
+  final GameController _gameController;
   final CareerSimulationEngine _engine = const CareerSimulationEngine();
   final FastSimEngine _fastSim = const FastSimEngine();
-  final SeasonScheduleRepository _schedule = SeasonScheduleRepository();
+  late final SeasonScheduleRepository _schedule = SeasonScheduleRepository(saveId: _saveId);
 
   Future<void> _persistSchedule() => _schedule.save(state.fixtures.map((f) => FixtureModel(
     matchId: f.id, homeTeamId: f.homeTeamId, awayTeamId: f.awayTeamId,
@@ -29,27 +48,113 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
   static const String defaultSaveId = 'career-main';
 
   static SeasonData _newSeason() {
-    const teams = <CareerTeam>[
-      CareerTeam(id: 'cpl', name: 'Coastal Premier Lions'),
-      CareerTeam(id: 'roy', name: 'Royal Strikers'),
-      CareerTeam(id: 'tit', name: 'Capital Titans'),
-      CareerTeam(id: 'fal', name: 'Frontier Falcons'),
-    ];
-    return SeasonData(seasonNumber: 1, teams: teams, fixtures: const CareerSimulationEngine().generateRoundRobin(teams));
+    const prefixByTeam = <String, String>{
+      'cpl': 'mi-', 'roy': 'rcb-', 'tit': 'csk-', 'fal': 'kkr-',
+      'gt': 'gt-', 'rr': 'rr-', 'pbks': 'pbks-', 'srh': 'srh-',
+      'lsg': 'lsg-', 'dc': 'dc-',
+    };
+    final teams = currentIplFranchises.map((franchise) {
+      final prefix = prefixByTeam[franchise.id]!;
+      final players = realIpl2026PlayerPool
+          .where((player) => player.id.startsWith(prefix))
+          .map((player) => CareerPlayer(
+                id: player.id,
+                name: player.name,
+                age: player.age,
+                overall: player.overall,
+                potential: player.potential,
+                role: player.role.name,
+              ))
+          .toList(growable: false);
+      return CareerTeam(
+        id: franchise.id,
+        name: franchise.name,
+        players: players,
+        purseCr: 120,
+      );
+    }).toList(growable: false);
+    return SeasonData(
+      seasonNumber: 1,
+      teams: teams,
+      fixtures: const CareerSimulationEngine().generateRoundRobin(teams),
+    );
   }
 
-  Future<void> save() async { await _saves.saveSeason(defaultSaveId, state); await _persistSchedule(); }
+
+  /// Converts the completed auction's squads into the playable league season.
+  Future<void> startFromAuction(AuctionState auction) async {
+    if (auction.currentPlayer != null) {
+      throw StateError('Finish the auction before starting the season.');
+    }
+    final teams = auction.teams.map((team) {
+      if (team.squad.length < 11) {
+        throw StateError(
+          '${team.name} has only ${team.squad.length} players. Complete the auction until every franchise has at least 11.',
+        );
+      }
+      return CareerTeam(
+        id: team.id,
+        name: team.name,
+        purseCr: team.purseCr,
+        players: team.squad.map((player) => CareerPlayer(
+          id: player.id,
+          name: player.name,
+          age: player.age,
+          overall: player.overall,
+          potential: player.potential,
+          role: player.role.name,
+        )).toList(growable: false),
+      );
+    }).toList(growable: false);
+    state = SeasonData(
+      seasonNumber: state.seasonNumber,
+      teams: teams,
+      fixtures: _engine.generateRoundRobin(teams, season: state.seasonNumber),
+    );
+    await save();
+    await _syncDashboard(lastAction: 'Season ${state.seasonNumber} started from the completed auction.');
+  }
+
+  Future<void> save() async { await _saves.saveSeason(_saveId, state); await _persistSchedule(); }
   Future<bool> load() async {
-    final saved = _saves.loadSeason(defaultSaveId);
+    final saved = _saves.loadSeason(_saveId);
     if (saved == null) return false;
     state = saved;
     await _persistSchedule();
+    final hasPlayed = state.fixtures.any((fixture) => fixture.played);
+    final seasonActive = hasPlayed || _gameController.state.phase == GamePhase.season;
+    await _syncDashboard(
+      lastAction: seasonActive ? 'Season ${state.seasonNumber} resumed.' : 'Pre-season for Season ${state.seasonNumber}.',
+      seasonActive: seasonActive,
+    );
     return true;
+  }
+
+
+  Future<void> setPlayingXI(String teamId, List<String> playerIds) async {
+    final teamIndex = state.teams.indexWhere((team) => team.id == teamId);
+    if (teamIndex < 0) throw ArgumentError.value(teamId, 'teamId', 'Unknown franchise');
+    final team = state.teams[teamIndex];
+    final available = team.players.map((player) => player.id).toSet();
+    if (playerIds.any((id) => !available.contains(id))) {
+      throw FormatException('Playing XI must contain players owned by this franchise.');
+    }
+    final teams = [...state.teams];
+    teams[teamIndex] = team.copyWith(playingXIIds: List.unmodifiable(playerIds));
+    state = SeasonData(
+      seasonNumber: state.seasonNumber,
+      teams: teams,
+      fixtures: state.fixtures,
+      matchHistory: state.matchHistory,
+      month: state.month,
+    );
+    await save();
   }
 
   Future<void> simulateNextMatch() async {
     state = _engine.simulateNextFixture(state);
     await save();
+    await _syncDashboard(lastAction: 'Season ${state.seasonNumber}: ${state.fixtures.where((fixture) => fixture.played).length} fixtures completed.');
   }
 
   /// Resolves every fixture in the next match week so AI teams progress together.
@@ -71,6 +176,7 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       state = _engine.recordFixtureResult(state, fixture.id, result);
     }
     await save();
+    await _syncDashboard(lastAction: 'Match week simulated for Season ${state.seasonNumber}.');
   }
 
   Future<void> simulateRemainingRound() async {
@@ -80,6 +186,7 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       state = _engine.simulateNextFixture(state);
     }
     await save();
+    await _syncDashboard(lastAction: 'Round completed in Season ${state.seasonNumber}.');
   }
 
   Future<void> endSeason({int academyLevel = 1}) async {
@@ -88,9 +195,25 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     }
     // Snapshot the season's leaders before the roster rolls over, so the
     // all-time records survive the transition.
-    await _saves.saveHistory('season-${state.seasonNumber}', _historySnapshot());
+    await _saves.saveHistory('$_saveId-season-${state.seasonNumber}', _historySnapshot());
     state = _engine.endSeason(state, academyLevel: academyLevel);
     await save();
+    await _syncDashboard(lastAction: 'Season ${state.seasonNumber - 1} archived. Pre-season for Season ${state.seasonNumber}.', seasonActive: false);
+  }
+
+
+  Future<void> _syncDashboard({required String lastAction, bool seasonActive = true}) async {
+    final played = state.fixtures.where((fixture) => fixture.played).length;
+    _gameController.syncCareerProgress(
+      seasonNumber: state.seasonNumber,
+      completedMatches: played,
+      phase: seasonActive ? GamePhase.season : GamePhase.preSeason,
+      lastAction: lastAction,
+      purseCr: state.teams.any((team) => team.id == 'cpl')
+          ? state.teams.firstWhere((team) => team.id == 'cpl').purseCr
+          : null,
+    );
+    await CampaignStore.saveSession(_gameController.state);
   }
 
   Map<String, Object?> _historySnapshot() {

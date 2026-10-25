@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../state/user_preferences_provider.dart';
+import '../../../../state/franchise_roster_provider.dart';
+import '../../auction/application/auction_controller.dart';
 import '../../../theme/game_theme.dart';
 import '../application/game_controller.dart';
 import '../data/campaign_store.dart';
@@ -71,6 +73,8 @@ class MainMenuScreen extends ConsumerWidget {
     if (chosen == null) return;
 
     await CampaignStore.setActiveCampaign(chosen.id);
+    ref.read(auctionControllerProvider.notifier).loadActiveCampaign();
+    ref.read(franchiseRosterProvider.notifier).loadActiveCampaign();
     ref.read(gameControllerProvider.notifier).restoreCampaign(
       campaignId: chosen.id,
       league: chosen.league,

@@ -79,7 +79,8 @@ class AuctionEngine {
     final aggressionFactor = 0.82 + rival.aggression.clamp(0.0, 1.0) * 0.36;
     final pressureFactor = 1 + rival.managerPressure.clamp(-0.2, 0.2);
     final paceNeedFactor = team.squad.where((p) => p.role == PlayerRole.bowler && p.bowling >= 65).length < 2 && player.role == PlayerRole.bowler && player.bowling >= 65 ? 1.30 : 1.0;
-    final reserve = valuationCr(player) * styleFactor * aggressionFactor * pressureFactor * paceNeedFactor;
+    final rosterDepthFactor = team.squad.length >= team.minSquadSize ? 0.72 : 1.0;
+    final reserve = valuationCr(player) * styleFactor * aggressionFactor * pressureFactor * paceNeedFactor * rosterDepthFactor;
     final nextBid = currentBidCr == 0
         ? player.basePriceCr
         : currentBidCr + incrementFor(currentBidCr);

@@ -28,6 +28,12 @@ class AuctionController extends Notifier<AuctionState> {
       aggression: 0.68,
       targetRoles: {PlayerRole.batter, PlayerRole.allRounder},
     ),
+    RivalProfile(teamId: 'gt', style: RivalStyle.roleSpecialist, aggression: 0.72, targetRoles: {PlayerRole.bowler}),
+    RivalProfile(teamId: 'rr', style: RivalStyle.youthFirst, aggression: 0.75),
+    RivalProfile(teamId: 'pbks', style: RivalStyle.aggressive, aggression: 0.78),
+    RivalProfile(teamId: 'srh', style: RivalStyle.aggressive, aggression: 0.80, targetRoles: {PlayerRole.batter, PlayerRole.wicketKeeper}),
+    RivalProfile(teamId: 'lsg', style: RivalStyle.budgetGuardian, aggression: 0.48),
+    RivalProfile(teamId: 'dc', style: RivalStyle.balanced, aggression: 0.60),
   ];
 
   @override
@@ -114,6 +120,94 @@ class AuctionController extends Notifier<AuctionState> {
   }
   void nextLot() {
     state = _engine.nextLot(state);
+    unawaited(CampaignStore.saveAuction(state));
+  }
+
+
+  /// Completes the remaining lots with rival strategy plus a roster-fill fallback.
+  /// This makes a full season playable without requiring 180 manual lot advances.
+  void simulateRemainingAuction() {
+    stopLiveBidding();
+    var processed = 0;
+    while (state.currentPlayer != null &&
+        state.phase != AuctionPhase.completed &&
+        processed <= state.players.length) {
+      processed++;
+      if (state.phase == AuctionPhase.ready ||
+          state.phase == AuctionPhase.bidding) {
+        state = _engine.runRivalRound(state: state, rivals: _rivals);
+        if (state.leadingTeamId == null) {
+          final candidates = [...state.teams]
+            ..sort((a, b) {
+              final size = a.squad.length.compareTo(b.squad.length);
+              if (size != 0) return size;
+              return a.purseCr.compareTo(b.purseCr);
+            });
+          for (final team in candidates) {
+            try {
+              state = _engine.placeBid(state: state, teamId: team.id);
+              break;
+            } on StateError {
+              continue;
+            } on ArgumentError {
+              continue;
+            }
+          }
+        }
+        state = _engine.closeLot(state);
+      }
+      if (state.phase == AuctionPhase.sold ||
+          state.phase == AuctionPhase.unsold) {
+        state = _engine.nextLot(state);
+      }
+    }
+    _balanceMinimumSquads();
+    unawaited(CampaignStore.saveAuction(state));
+  }
+
+  void _balanceMinimumSquads() {
+    final teams = [...state.teams];
+    for (var recipientIndex = 0; recipientIndex < teams.length; recipientIndex++) {
+      while (teams[recipientIndex].squad.length < 11) {
+        final recipient = teams[recipientIndex];
+        var donorIndex = -1;
+        AuctionPlayer? transfer;
+        var transferCost = double.infinity;
+        for (var candidateIndex = 0; candidateIndex < teams.length; candidateIndex++) {
+          if (candidateIndex == recipientIndex || teams[candidateIndex].squad.length <= 11) continue;
+          final donor = teams[candidateIndex];
+          for (final player in donor.squad) {
+            final cost = player.contract?.currentSalaryCrores ?? player.basePriceCr;
+            if (player.isOverseas && recipient.overseasCount >= recipient.maxOverseas) continue;
+            if (recipient.purseCr < cost || cost >= transferCost) continue;
+            transfer = player;
+            transferCost = cost;
+            donorIndex = candidateIndex;
+          }
+        }
+        final selectedPlayer = transfer;
+        if (selectedPlayer == null || donorIndex < 0) break;
+        final donor = teams[donorIndex];
+        teams[donorIndex] = donor.copyWith(
+          purseCr: donor.purseCr + transferCost,
+          squad: donor.squad.where((player) => player.id != selectedPlayer.id).toList(),
+        );
+        teams[recipientIndex] = recipient.copyWith(
+          purseCr: recipient.purseCr - transferCost,
+          squad: [...recipient.squad, selectedPlayer],
+        );
+      }
+    }
+    state = state.copyWith(
+      teams: teams,
+      message: 'Auction complete • squads balanced for season readiness',
+    );
+  }
+
+  void loadActiveCampaign() {
+    stopLiveBidding();
+    state = CampaignStore.loadActiveAuction() ?? createDemoAuction();
+    unawaited(_syncPlayerModels(state));
     unawaited(CampaignStore.saveAuction(state));
   }
 

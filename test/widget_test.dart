@@ -27,6 +27,6 @@ void main() {
     expect(find.text('CRICKET PREMIER LEAGUE'), findsOneWidget);
     expect(find.text('LIVE AUCTION'), findsOneWidget);
     expect(find.text('Build a dynasty.'), findsOneWidget);
-    expect(find.text('Aarav Sen'), findsOneWidget);
+    expect(find.text('Rohit Sharma'), findsOneWidget);
   });
 }

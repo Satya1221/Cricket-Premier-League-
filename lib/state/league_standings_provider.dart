@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../src/features/game/application/season_provider.dart';
+import '../src/features/game/application/game_controller.dart';
 import 'season_schedule_repository.dart';
 
 class LeagueStanding {
@@ -10,7 +11,9 @@ class LeagueStanding {
 }
 final leagueStandingsProvider=Provider<List<LeagueStanding>>((ref){
   ref.watch(seasonProvider);
-  final fixtures=SeasonScheduleRepository().load();
+  final campaignId = ref.watch(gameControllerProvider.select((session) => session.campaignId));
+  final saveId = campaignId == null ? SeasonNotifier.defaultSaveId : 'career-$campaignId';
+  final fixtures=SeasonScheduleRepository(saveId: saveId).load();
   final teams=ref.read(seasonProvider).teams;
   final rows={for(final t in teams)t.id:[0,0,0,0,0,0,0,0,0,0]};
   for(final f in fixtures.where((f)=>f.isCompleted&&f.result!=null)){

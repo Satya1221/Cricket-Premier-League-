@@ -23,6 +23,7 @@ class CampaignSave {
     this.lastSavedAt,
     this.auctionSnapshot,
     this.calendarSnapshot,
+    this.rosterSnapshot,
   });
 
   final String id;
@@ -38,6 +39,7 @@ class CampaignSave {
   final DateTime? lastSavedAt;
   final Map<String, dynamic>? auctionSnapshot;
   final Map<String, dynamic>? calendarSnapshot;
+  final Map<String, dynamic>? rosterSnapshot;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -53,6 +55,7 @@ class CampaignSave {
         'lastSavedAt': (lastSavedAt ?? DateTime.now()).toIso8601String(),
         'auctionSnapshot': auctionSnapshot,
         'calendarSnapshot': calendarSnapshot,
+        'rosterSnapshot': rosterSnapshot,
       };
 
   factory CampaignSave.fromJson(Map<String, dynamic> json) => CampaignSave(
@@ -69,6 +72,7 @@ class CampaignSave {
         lastSavedAt: DateTime.tryParse(json['lastSavedAt'] as String? ?? ''),
         auctionSnapshot: (json['auctionSnapshot'] as Map?)?.cast<String, dynamic>(),
         calendarSnapshot: (json['calendarSnapshot'] as Map?)?.cast<String, dynamic>(),
+        rosterSnapshot: (json['rosterSnapshot'] as Map?)?.cast<String, dynamic>(),
       );
 
   CampaignSave copyWith({
@@ -84,6 +88,7 @@ class CampaignSave {
     DateTime? lastSavedAt,
     Map<String, dynamic>? auctionSnapshot,
     Map<String, dynamic>? calendarSnapshot,
+    Map<String, dynamic>? rosterSnapshot,
   }) =>
       CampaignSave(
         id: id,
@@ -99,6 +104,7 @@ class CampaignSave {
         lastSavedAt: lastSavedAt ?? this.lastSavedAt,
         auctionSnapshot: auctionSnapshot ?? this.auctionSnapshot,
         calendarSnapshot: calendarSnapshot ?? this.calendarSnapshot,
+        rosterSnapshot: rosterSnapshot ?? this.rosterSnapshot,
       );
 }
 
@@ -158,7 +164,9 @@ class CampaignStore {
     return box;
   }
 
-  static String? get activeCampaignId => _settingsBox.get(_activeIdKey);
+  static bool get isInitialized => _saves?.isOpen == true && _settings?.isOpen == true;
+
+  static String? get activeCampaignId => isInitialized ? _settingsBox.get(_activeIdKey) : null;
 
   static Future<void> setActiveCampaign(String id) =>
       _settingsBox.put(_activeIdKey, id);
@@ -269,6 +277,23 @@ class CampaignStore {
       auctionSnapshot: state.toJson(),
       lastAction: state.message,
     ));
+  }
+
+
+  static Map<String, dynamic>? loadActiveRoster() {
+    if (!isInitialized) return null;
+    final id = activeCampaignId;
+    final snapshot = id == null ? null : load(id)?.rosterSnapshot;
+    return snapshot == null ? null : Map<String, dynamic>.from(snapshot);
+  }
+
+  static Future<void> saveActiveRoster(Map<String, dynamic> snapshot) async {
+    if (!isInitialized) return;
+    final id = activeCampaignId;
+    if (id == null) return;
+    final existing = load(id);
+    if (existing == null) return;
+    await save(existing.copyWith(rosterSnapshot: snapshot));
   }
 
   static Future<void> saveCalendar(Map<String, dynamic> snapshot) async {

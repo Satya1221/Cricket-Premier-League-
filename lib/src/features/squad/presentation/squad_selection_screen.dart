@@ -4,6 +4,7 @@ import '../../../theme/game_theme.dart';
 import '../../../../state/franchise_roster_provider.dart';
 import '../../auction/application/auction_controller.dart';
 import '../../auction/domain/player.dart';
+import '../../game/application/season_provider.dart';
 
 class SquadSelectionScreen extends ConsumerStatefulWidget {
   const SquadSelectionScreen({super.key});
@@ -67,6 +68,7 @@ class _SquadSelectionScreenState extends ConsumerState<SquadSelectionScreen> {
     try {
       await actions.setActiveSquad(squad.map((p)=>p.id).toList());
       await actions.setPlayingXI(_selected.toList(),squad);
+      await ref.read(seasonProvider.notifier).setPlayingXI('cpl', _selected.toList());
       if(!mounted)return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Playing XI validated and saved.')));
       Navigator.of(context).pop();
