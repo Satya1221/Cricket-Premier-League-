@@ -57,6 +57,22 @@ class AuctionScreen extends ConsumerWidget {
                   _AuctionFeed(state: state),
                 ],
                 const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding
+                        ? () => actions.runRivalRound()
+                        : null,
+                    icon: const Icon(Icons.psychology_alt_rounded),
+                    label: const Text('SIMULATE RIVAL AI ROUND'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: GamePalette.emerald,
+                      side: const BorderSide(color: GamePalette.emerald),
+                      minimumSize: const Size(48, 48),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Row(children: [
                   Expanded(child: OutlinedButton.icon(
                     onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding
