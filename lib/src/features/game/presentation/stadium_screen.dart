@@ -4,6 +4,7 @@ import '../../../theme/game_theme.dart';
 import '../../match/domain/stadium_pitch_engine.dart';
 import '../application/stadium_provider.dart';
 import 'income_statement_screen.dart';
+import '../../../../services/treasury_service.dart';
 
 class StadiumScreen extends ConsumerWidget {
   const StadiumScreen({super.key});
@@ -12,6 +13,7 @@ class StadiumScreen extends ConsumerWidget {
     final state = ref.watch(stadiumProvider);
     final actions = ref.read(stadiumProvider.notifier);
     final stadium = state.selectedStadium;
+    final treasuryBalance = const TreasuryService().balanceRupees;
     final pitch = StadiumPitch(stadiumName: stadium.name, city: stadium.city, basePitchType: stadium.pitchType);
     return Scaffold(
       appBar: AppBar(title: const Text('STADIUM & PITCH')),
@@ -57,14 +59,14 @@ class StadiumScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: GamePalette.panel, borderRadius: BorderRadius.circular(16), border: Border.all(color: GamePalette.line)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('FRANCHISE FUNDS  ₹${state.franchiseFunds}', style: const TextStyle(fontWeight: FontWeight.w900, color: GamePalette.gold)),
+            Text('OPERATING TREASURY  ₹${treasuryBalance.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w900, color: GamePalette.gold)),
             const SizedBox(height: 6),
             Text('Last home-match revenue: ₹${state.lastMatchRevenue}', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 10),
-            const Text('Expand capacity by 5,000 seats for ₹600,000. Capacity is capped at 65,000.', style: TextStyle(color: Colors.white60, height: 1.35)),
+            const Text('Expand capacity by 5,000 seats for ₹60,00,000. IPL venue capacity is not capped at 65,000 seats.', style: TextStyle(color: Colors.white60, height: 1.35)),
             const SizedBox(height: 10),
             SizedBox(width: double.infinity, child: ElevatedButton.icon(
-              onPressed: stadium.capacity >= StadiumEconomy.maximumCapacity || state.franchiseFunds < 6000000 ? null : () async {
+              onPressed: stadium.capacity >= StadiumEconomy.maximumCapacity || treasuryBalance < 6000000 ? null : () async {
                 try { await actions.expandBy(5000); if(context.mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Stadium expansion completed.'))); }
                 on StateError catch (error) { if(context.mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message))); }
               },
