@@ -13,7 +13,8 @@ class StandingsScreen extends ConsumerWidget {
     final season = ref.watch(seasonProvider);
     final controller = ref.read(seasonProvider.notifier);
     final ranked = ref.watch(leagueStandingsProvider);
-    final nextFixture = season.fixtures.where((f) => !f.played).firstOrNull;
+    final pendingFixtures = season.fixtures.where((f) => !f.played).toList();
+    final nextFixture = pendingFixtures.isEmpty ? null : pendingFixtures.first;
     return Scaffold(
       appBar: AppBar(title: Text('SEASON ${season.seasonNumber} • LEAGUE TABLE')),
       backgroundColor: const Color(0xFF0B132B),
