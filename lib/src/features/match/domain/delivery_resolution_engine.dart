@@ -24,6 +24,8 @@ class ResolutionBowler {
   final double baseAccuracy;
   final double baseMovement;
   final bool isSpinner;
+  final BowlingStats? attributes;
+  final PlayerCondition? condition;
   double stamina;
 
   void recoverOrTireAfterBall() {
@@ -47,6 +49,9 @@ class ResolutionBatter {
   final String name;
   final double baseTiming;
   final double baseDefense;
+  final BattingStats? attributes;
+  final PlayerCondition? condition;
+  final PlayerTraits? traits;
   double concentration;
 
   void settleAfterSurvivingBall() {
