@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/game_theme.dart';
 import '../../../providers/match_provider.dart';
 import '../../../state/franchise_roster_provider.dart';
-import '../../auction/application/auction_controller.dart';
+import '../auction/application/auction_controller.dart';
 
 class IplMatchControllerScreen extends ConsumerStatefulWidget{
  const IplMatchControllerScreen({super.key});
@@ -22,7 +22,7 @@ class _IplMatchControllerScreenState extends ConsumerState<IplMatchControllerScr
   final bowlingTeam=auction.teams.where((t)=>t.id==match.defendingTeamId).toList();
   final battingIds=match.battingTeamId=='cpl'?roster.playingXI:(battingTeam.isEmpty?const <String>[]:battingTeam.first.squad.take(11).map((p)=>p.id).toList());
   final bowlingIds=match.defendingTeamId=='cpl'?roster.playingXI:(bowlingTeam.isEmpty?const <String>[]:bowlingTeam.first.squad.map((p)=>p.id).toList());
-  final names={for(final t in auction.teams)for(final p in t.squad)p.id:p.name};
+  final Map<String, String> names = {for (final t in auction.teams) for (final p in t.squad) p.id: p.name};
   String label(String id)=>names[id]??id;
   final ready=battingIds.length>=11&&bowlingIds.isNotEmpty;
   final allowedDismissals=_extra=='Wide'?const ['Stumped','RunOut','HitWicket','ObstructingTheField']:_extra=='NoBall'?const ['RunOut','HitWicket','ObstructingTheField','HitTheBallTwice']:_extra=='LegBye'?const ['RunOut','ObstructingTheField']:const ['Bowled','Caught','LBW','Stumped','RunOut','HitWicket','ObstructingTheField','HitTheBallTwice','TimedOut','RetiredOut'];
