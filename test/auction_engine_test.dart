@@ -50,6 +50,34 @@ void main() {
       expect(engine.nextLot(closed).currentPlayerIndex, 1);
     });
 
+    test('a franchise cannot bid against itself', () {
+      final firstBid = engine.placeBid(state: createDemoAuction(), teamId: 'cpl');
+      expect(
+        () => engine.placeBid(state: firstBid, teamId: 'cpl'),
+        throwsStateError,
+      );
+    });
+
+    test('higher rival aggression increases its valuation ceiling', () {
+      final state = createDemoAuction();
+      final player = state.players.first;
+      final team = state.teams[1];
+      final cautious = engine.rivalDecision(
+        player: player,
+        team: team,
+        rival: const RivalProfile(teamId: 'roy', style: RivalStyle.balanced, aggression: 0),
+        currentBidCr: 3,
+      );
+      final aggressive = engine.rivalDecision(
+        player: player,
+        team: team,
+        rival: const RivalProfile(teamId: 'roy', style: RivalStyle.balanced, aggression: 1),
+        currentBidCr: 3,
+      );
+      expect(aggressive.shouldBid, isTrue);
+      expect(cautious.shouldBid, isFalse);
+    });
+
     test('rival bid depends on its style and has a reason', () {
       final state = createDemoAuction();
       final player = state.players.first;
