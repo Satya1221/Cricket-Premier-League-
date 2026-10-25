@@ -87,8 +87,6 @@ class AuctionScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Row(children: [
-                  const SizedBox.shrink(),
-                  const SizedBox(width: 0),
                   Expanded(child: OutlinedButton.icon(
                     onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding ? () {
                       try { actions.closeLot(); } on StateError catch (e) {
