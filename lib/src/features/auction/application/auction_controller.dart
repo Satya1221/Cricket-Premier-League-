@@ -103,16 +103,7 @@ class AuctionController extends Notifier<AuctionState> {
         squadIds: [...franchise.squadIds, if (!franchise.squadIds.contains(player.id)) player.id],
       );
       unawaited(franchiseBox.put('cpl', updated));
-      final playersBox = Hive.box<PlayerModel>('players');
-      final playerModel = PlayerModel(
-        id: player.id, name: player.name, age: player.age, role: switch(player.role) {
-          PlayerRole.batter => 'Batter', PlayerRole.bowler => 'Pace',
-          PlayerRole.allRounder => 'AR', PlayerRole.wicketKeeper => 'WK',
-        },
-        batSkill: player.batting, bowlSkill: player.bowling, fielding: player.fielding,
-        stamina: 80, form: player.form, nation: player.nation, isOverseas: player.isOverseas,
-      );
-      unawaited(playersBox.put(player.id, playerModel));
+
     }
     unawaited(CampaignStore.saveAuction(state));
   }
