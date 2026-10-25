@@ -9,6 +9,7 @@ class InboxMessage {
     this.actionRoute = '/inbox',
     this.priority = InboxPriority.normal,
     this.isRead = false,
+    this.isCritical = false,
   })  : assert(id != ''),
         assert(subject != ''),
         assert(actionRoute != '');
@@ -19,6 +20,7 @@ class InboxMessage {
   final String body;
   final String actionRoute;
   final InboxPriority priority;
+  final bool isCritical;
   bool isRead;
 
   InboxMessage copyWith({bool? isRead}) => InboxMessage(
@@ -28,6 +30,7 @@ class InboxMessage {
         body: body,
         actionRoute: actionRoute,
         priority: priority,
+        isCritical: isCritical,
         isRead: isRead ?? this.isRead,
       );
 }
