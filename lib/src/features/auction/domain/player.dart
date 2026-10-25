@@ -42,6 +42,49 @@ class AuctionPlayer {
 
   double get growthHeadroom => (potential - overall).clamp(0, 100).toDouble();
 
+  Map<String, dynamic> toJson() => {
+        'id': id, 'name': name, 'nation': nation, 'role': role.name,
+        'overall': overall, 'potential': potential, 'basePriceCr': basePriceCr,
+        'isOverseas': isOverseas, 'age': age, 'batting': batting,
+        'bowling': bowling, 'fielding': fielding, 'form': form,
+        'contract': contract == null ? null : {
+          'currentSalaryCrores': contract!.currentSalaryCrores,
+          'basePriceCrores': contract!.basePriceCrores,
+          'yearsRemaining': contract!.yearsRemaining,
+          'isOverseas': contract!.isOverseas,
+          'signedSeason': contract!.signedSeason,
+        },
+      };
+
+  factory AuctionPlayer.fromJson(Map<String, dynamic> json) {
+    final contractJson = (json['contract'] as Map?)?.cast<String, dynamic>();
+    return AuctionPlayer(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      nation: json['nation'] as String? ?? 'India',
+      role: PlayerRole.values.firstWhere(
+        (value) => value.name == json['role'],
+        orElse: () => PlayerRole.batter,
+      ),
+      overall: (json['overall'] as num?)?.toInt() ?? 60,
+      potential: (json['potential'] as num?)?.toInt() ?? 65,
+      basePriceCr: (json['basePriceCr'] as num?)?.toDouble() ?? 0.2,
+      isOverseas: json['isOverseas'] as bool? ?? false,
+      age: (json['age'] as num?)?.toInt() ?? 24,
+      batting: (json['batting'] as num?)?.toInt() ?? 60,
+      bowling: (json['bowling'] as num?)?.toInt() ?? 45,
+      fielding: (json['fielding'] as num?)?.toInt() ?? 60,
+      form: (json['form'] as num?)?.toInt() ?? 60,
+      contract: contractJson == null ? null : PlayerContract(
+        currentSalaryCrores: (contractJson['currentSalaryCrores'] as num?)?.toDouble() ?? 0,
+        basePriceCrores: (contractJson['basePriceCrores'] as num?)?.toDouble() ?? 0,
+        yearsRemaining: (contractJson['yearsRemaining'] as num?)?.toInt() ?? 1,
+        isOverseas: contractJson['isOverseas'] as bool? ?? false,
+        signedSeason: (contractJson['signedSeason'] as num?)?.toInt() ?? 1,
+      ),
+    );
+  }
+
   String get roleLabel => switch (role) {
     PlayerRole.batter => 'BATTER',
     PlayerRole.bowler => 'BOWLER',
@@ -72,6 +115,28 @@ class AuctionTeam {
   final int minSquadSize;
   final int maxOverseas;
   final int maxOverseasPlayingXi;
+
+  Map<String, dynamic> toJson() => {
+        'id': id, 'name': name, 'shortName': shortName, 'purseCr': purseCr,
+        'squad': squad.map((player) => player.toJson()).toList(),
+        'maxSquadSize': maxSquadSize, 'minSquadSize': minSquadSize,
+        'maxOverseas': maxOverseas, 'maxOverseasPlayingXi': maxOverseasPlayingXi,
+      };
+
+  factory AuctionTeam.fromJson(Map<String, dynamic> json) => AuctionTeam(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        shortName: json['shortName'] as String? ?? 'CLB',
+        purseCr: (json['purseCr'] as num?)?.toDouble() ?? 120,
+        squad: ((json['squad'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((player) => AuctionPlayer.fromJson(player.cast<String, dynamic>()))
+            .toList(growable: false),
+        maxSquadSize: (json['maxSquadSize'] as num?)?.toInt() ?? 25,
+        minSquadSize: (json['minSquadSize'] as num?)?.toInt() ?? 18,
+        maxOverseas: (json['maxOverseas'] as num?)?.toInt() ?? 8,
+        maxOverseasPlayingXi: (json['maxOverseasPlayingXi'] as num?)?.toInt() ?? 4,
+      );
 
   /// Auction expenditure uses the winning hammer price, not the player's base price.
   double get spentCr => squad.fold<double>(
