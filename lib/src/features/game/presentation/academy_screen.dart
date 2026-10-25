@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../theme/game_theme.dart';
 import '../application/academy_provider.dart';
+import '../application/modifiers_provider.dart';
 import '../domain/academy_engine.dart';
 
 class AcademyScreen extends ConsumerWidget {
@@ -12,6 +13,7 @@ class AcademyScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(academyProvider);
     final c = ref.read(academyProvider.notifier);
+    final modifiers = ref.watch(modifiersProvider);
     return Scaffold(
       backgroundColor: const Color(0xFF0B132B),
       appBar: AppBar(title: const Text('ACADEMY & STAFF')),
@@ -41,6 +43,11 @@ class AcademyScreen extends ConsumerWidget {
                   'Youth potential cap preview: ${c.potentialCap(75)} OVR',
                   style: const TextStyle(color: Colors.greenAccent),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  'Active bonuses: XP ×${modifiers.matchXpMultiplier.toStringAsFixed(2)} · Youth development ×${modifiers.youthDevelopmentMultiplier.toStringAsFixed(2)} · Recovery ×${modifiers.recoveryMultiplier.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 11, height: 1.4),
+                ),
               ],
             ),
           ),
@@ -51,7 +58,7 @@ class AcademyScreen extends ConsumerWidget {
             level: s.facilities.trainingLevel,
             cost: s.facilities.upgradeCostTraining,
             note: '+10% player XP per match and -1 day recovery time per level.',
-            onUpgrade: () => c.upgrade(youthAcademy: false),
+            onUpgrade: () => _showResult(context, c.upgrade(youthAcademy: false)),
           ),
           const SizedBox(height: 12),
           _facility(
@@ -60,7 +67,7 @@ class AcademyScreen extends ConsumerWidget {
             level: s.facilities.youthAcademyLevel,
             cost: s.facilities.upgradeCostAcademy,
             note: 'Raises the youth potential cap by +3 OVR per level (75 \u2192 82 at level 2).',
-            onUpgrade: () => c.upgrade(youthAcademy: true),
+            onUpgrade: () => _showResult(context, c.upgrade(youthAcademy: true)),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -87,12 +94,13 @@ class AcademyScreen extends ConsumerWidget {
                     ? const Icon(Icons.check_circle, color: Colors.greenAccent)
                     : IconButton(
                         onPressed: () {
-                          c.hireCoach(CoachingStaff(
+                          final message = c.hireCoach(CoachingStaff(
                             name: _coachName(specialty),
                             specialty: specialty,
                             level: 1,
                             salaryPerSeason: 100,
                           ));
+                          _showResult(context, message);
                         },
                         icon: const Icon(Icons.add_circle_outline, color: GamePalette.gold),
                       ),
