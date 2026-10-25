@@ -157,7 +157,7 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     }
     // Snapshot the season's leaders before the roster rolls over, so the
     // all-time records survive the transition.
-    await _saves.saveHistory('season-${state.seasonNumber}', _historySnapshot());
+    await _saves.saveHistory('$_saveId-season-${state.seasonNumber}', _historySnapshot());
     state = _engine.endSeason(state, academyLevel: academyLevel);
     await save();
   }
