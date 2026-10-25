@@ -65,20 +65,3 @@ class MatchEnvironment {
 
   double _calculateBounce() => 1.0 - pitchWear * 0.4;
 }
-
-void main() {
-  print('--- Match Starts: Dusty Pitch, Sunny ---');
-  final match = MatchEnvironment(pitchType: PitchType.dusty, weather: Weather.sunny);
-  for (var over = 1; over <= 50; over++) {
-    match.advanceOver();
-    if (over % 10 == 0) {
-      final mods = match.getDeliveryModifiers();
-      print('Over $over (Wear: ${(match.pitchWear * 100).toInt()}%):');
-      print('  Swing Mod: ${mods['swing']!.toStringAsFixed(2)}x');
-      print('  Spin Mod: ${mods['spin']!.toStringAsFixed(2)}x');
-      print('  Seam Mod: ${mods['seam']!.toStringAsFixed(2)}x');
-      print('  Bounce Consistency: ${mods['bounceConsistency']!.toStringAsFixed(2)}');
-      print('---------------------------------');
-    }
-  }
-}
