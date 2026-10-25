@@ -1,4 +1,5 @@
 import '../../squad/domain/global_player.dart';
+import '../../match/domain/format_config.dart';
 
 class WorkloadEvent {
   const WorkloadEvent({
