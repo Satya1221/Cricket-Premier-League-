@@ -169,6 +169,7 @@ class AuctionController extends Notifier<AuctionState> {
     stopLiveBidding();
     state = CampaignStore.loadActiveAuction() ?? createDemoAuction();
     unawaited(_syncPlayerModels(state));
+    unawaited(CampaignStore.saveAuction(state));
   }
 
   void reset() {
