@@ -75,15 +75,7 @@ class GlobalCalendarEngine {
   ];
 
   CalendarTick advanceMonth() {
-    final month = currentMonth;
-    final year = currentYear;
-    final started = tournaments
-        .where((tournament) => tournament.startMonth == month)
-        .toList(growable: false);
-    final active = tournaments
-        .where((tournament) => tournament.isActiveIn(month))
-        .toList(growable: false);
-
+    // Move the clock first, then emit events for the month now being entered.
     if (currentMonth == Month.dec) {
       currentMonth = Month.jan;
       currentYear++;
@@ -91,9 +83,16 @@ class GlobalCalendarEngine {
       currentMonth = Month.values[currentMonth.index + 1];
     }
 
+    final started = tournaments
+        .where((tournament) => tournament.startMonth == currentMonth)
+        .toList(growable: false);
+    final active = tournaments
+        .where((tournament) => tournament.isActiveIn(currentMonth))
+        .toList(growable: false);
+
     return CalendarTick(
-      year: year,
-      month: month,
+      year: currentYear,
+      month: currentMonth,
       started: started,
       active: active,
     );
