@@ -5,13 +5,13 @@ import '../services/squad_validator.dart';
 import '../src/features/auction/domain/player.dart';
 
 class FranchiseState {
-  const FranchiseState({this.purseCr=120,this.credits=1200,this.stadiumFunds=12000000,this.activeSquad=const [],this.playingXI=const []});
+  const FranchiseState({this.purseCr=120,this.stadiumFunds=12000000,this.activeSquad=const [],this.playingXI=const []});
   final double purseCr;
-  final int credits,stadiumFunds;
+  final int stadiumFunds;
   final List<String> activeSquad,playingXI;
-  FranchiseState copyWith({double? purseCr,int? credits,int? stadiumFunds,List<String>? activeSquad,List<String>? playingXI})=>FranchiseState(purseCr:purseCr??this.purseCr,credits:credits??this.credits,stadiumFunds:stadiumFunds??this.stadiumFunds,activeSquad:activeSquad??this.activeSquad,playingXI:playingXI??this.playingXI);
-  Map<String,Object?> toJson()=>{'purseCr':purseCr,'credits':credits,'stadiumFunds':stadiumFunds,'activeSquad':activeSquad,'playingXI':playingXI};
-  factory FranchiseState.fromJson(Map<String,Object?> j)=>FranchiseState(purseCr:(j['purseCr'] as num?)?.toDouble()??120,credits:(j['credits'] as num?)?.toInt()??1200,stadiumFunds:(j['stadiumFunds'] as num?)?.toInt()??12000000,activeSquad:(j['activeSquad'] as List?)?.whereType<String>().toList()??const [],playingXI:(j['playingXI'] as List?)?.whereType<String>().toList()??const []);
+  FranchiseState copyWith({double? purseCr,int? stadiumFunds,List<String>? activeSquad,List<String>? playingXI})=>FranchiseState(purseCr:purseCr??this.purseCr,stadiumFunds:stadiumFunds??this.stadiumFunds,activeSquad:activeSquad??this.activeSquad,playingXI:playingXI??this.playingXI);
+  Map<String,Object?> toJson()=>{'purseCr':purseCr,'stadiumFunds':stadiumFunds,'activeSquad':activeSquad,'playingXI':playingXI};
+  factory FranchiseState.fromJson(Map<String,Object?> j)=>FranchiseState(purseCr:(j['purseCr'] as num?)?.toDouble()??120,stadiumFunds:(j['stadiumFunds'] as num?)?.toInt()??12000000,activeSquad:(j['activeSquad'] as List?)?.whereType<String>().toList()??const [],playingXI:(j['playingXI'] as List?)?.whereType<String>().toList()??const []);
 }
 
 class FranchiseRosterNotifier extends StateNotifier<FranchiseState> {
