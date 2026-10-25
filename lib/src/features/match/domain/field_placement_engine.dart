@@ -28,8 +28,12 @@ class FieldPlacementEngine {
       if (nearBoundary && ((shot.contains('pull') && f.role == FieldPositionRole.deepSquare) ||
           (shot.contains('cut') && f.role == FieldPositionRole.thirdMan) ||
           (shot.contains('drive') && (f.role == FieldPositionRole.cover || f.role == FieldPositionRole.longOff)) ||
-          (shot.contains('sweep') && (f.role == FieldPositionRole.fineLeg || f.role == FieldPositionRole.deepSquare)))) containment += .12;
-      if (f.role == FieldPositionRole.closeCatcher || f.role == FieldPositionRole.legSlip || f.role == FieldPositionRole.deepCatcher) catching += .08;
+          (shot.contains('sweep') && (f.role == FieldPositionRole.fineLeg || f.role == FieldPositionRole.deepSquare)))) {
+        containment += .12;
+      }
+      if (f.role == FieldPositionRole.closeCatcher || f.role == FieldPositionRole.legSlip || f.role == FieldPositionRole.deepCatcher) {
+        catching += .08;
+      }
     }
     final weak = batterWeakToCurrentDelivery ? .08 : 0.0;
     return FieldingImpact(boundaryContainment: math.min(.6, containment), catchingSupport: math.min(.4, catching), wicketBonus: math.min(.24, catching * .5 + weak));
