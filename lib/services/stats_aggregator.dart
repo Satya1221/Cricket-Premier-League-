@@ -9,7 +9,9 @@ class StatsAggregator {
   final processed=Hive.box<dynamic>('history_records');
   if(processed.containsKey('stats-$matchId'))return;
   final runs=<String,int>{},balls=<String,int>{},wickets=<String,int>{};
+  final participants=<String>{};
   for(final d in deliveries){
+   participants..add(d.strikerId)..add(d.nonStrikerId)..add(d.bowlerId);
    runs[d.strikerId]=(runs[d.strikerId]??0)+d.runsScored;
    if(d.extraType!='Wide')balls[d.strikerId]=(balls[d.strikerId]??0)+1;
    // IPL does not credit a bowler for run-outs, retired-out, timed-out,
@@ -19,7 +21,7 @@ class StatsAggregator {
     wickets[d.bowlerId]=(wickets[d.bowlerId]??0)+1;
    }
   }
-  final involved=<String>{...runs.keys,...balls.keys,...wickets.keys}..remove('');
+  final involved=<String>{...participants,...runs.keys,...balls.keys,...wickets.keys}..remove('');
   for(final id in involved){
    final player=players.get(id);if(player==null)continue;
    final matchRuns=runs[id]??0;
