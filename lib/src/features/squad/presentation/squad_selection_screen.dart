@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/game_theme.dart';
-import '../../../state/franchise_roster_provider.dart';
+import '../../../../state/franchise_roster_provider.dart';
 import '../../auction/application/auction_controller.dart';
 import '../../auction/domain/player.dart';
 
