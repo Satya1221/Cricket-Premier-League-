@@ -28,6 +28,12 @@ class AuctionController extends Notifier<AuctionState> {
       aggression: 0.68,
       targetRoles: {PlayerRole.batter, PlayerRole.allRounder},
     ),
+    RivalProfile(teamId: 'gt', style: RivalStyle.roleSpecialist, aggression: 0.72, targetRoles: {PlayerRole.bowler}),
+    RivalProfile(teamId: 'rr', style: RivalStyle.youthFirst, aggression: 0.75),
+    RivalProfile(teamId: 'pbks', style: RivalStyle.aggressive, aggression: 0.78),
+    RivalProfile(teamId: 'srh', style: RivalStyle.aggressive, aggression: 0.80, targetRoles: {PlayerRole.batter, PlayerRole.wicketKeeper}),
+    RivalProfile(teamId: 'lsg', style: RivalStyle.budgetGuardian, aggression: 0.48),
+    RivalProfile(teamId: 'dc', style: RivalStyle.balanced, aggression: 0.60),
   ];
 
   @override
