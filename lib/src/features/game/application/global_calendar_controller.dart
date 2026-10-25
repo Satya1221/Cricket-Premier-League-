@@ -45,7 +45,7 @@ class GlobalCalendarController extends StateNotifier<GlobalCalendarState> {
     if (state.hasMustRespond) return;
 
     final nextDate = state.currentDate.add(const Duration(days: 1));
-    var messages = [...state.messages];
+    final messages = [...state.messages];
     var summary = 'Date advanced to ${_formatDate(nextDate)}.';
 
     if (nextDate.month != state.currentDate.month ||
