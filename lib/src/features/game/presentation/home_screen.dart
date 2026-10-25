@@ -11,6 +11,7 @@ import 'press_conference_dialog.dart';
 import 'stadium_screen.dart';
 import '../application/game_controller.dart';
 import '../application/global_calendar_controller.dart';
+import '../application/season_provider.dart';
 import 'inbox_screen.dart';
 import 'standings_screen.dart';
 import 'trophy_room_screen.dart';
@@ -298,19 +299,39 @@ class HomeScreen extends ConsumerWidget {
                 icon: Icons.check_circle_outline_rounded,
                 title: 'RECORD MATCH COMPLETED',
                 subtitle: 'Update the central season tracker.',
-                onTap: () => _runAction(context, game.recordMatchCompleted),
+                onTap: () => _recordMatchAndSimulateWeek(context, ref, game),
               ),
             const SizedBox(height: 14),
             const Text(
-              'Game phase and season tracking are coordinated through Riverpod. '
-              'Local database persistence and full-season fixture simulation '
-              'are not wired yet.',
+              'Season state, fixture schedule and results are stored locally. AI fixtures in the active week can be simulated from the league table.',
               style: TextStyle(color: Colors.white54, height: 1.4, fontSize: 12),
             ),
           ],
         ),
       ),
     );
+  }
+
+  static Future<void> _recordMatchAndSimulateWeek(
+    BuildContext context,
+    WidgetRef ref,
+    GameController game,
+  ) async {
+    try {
+      game.recordMatchCompleted();
+      await ref.read(seasonProvider.notifier).simulateMatchWeek();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Match recorded and remaining fixtures in this week simulated.')),
+        );
+      }
+    } on StateError catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message)),
+        );
+      }
+    }
   }
 
   static String _phaseLabel(GamePhase phase) => switch (phase) {
