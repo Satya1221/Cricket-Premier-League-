@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/game_controller.dart';
-import '../../../state/user_preferences_provider.dart';
+import '../../../../state/user_preferences_provider.dart';
 
 import '../../../theme/game_theme.dart';
 import 'startup_screen.dart';
