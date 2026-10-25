@@ -1,3 +1,5 @@
+import '../../match/domain/format_config.dart';
+
 /// A player can represent their country and hold contracts across multiple leagues.
 enum PlayerContractType { national, ipl, psl, hundred, otherLeague }
 
@@ -92,5 +94,3 @@ class GlobalPlayer {
       );
 }
 
-/// Used by the global player rating lookup; The Hundred shares the T20 skill base.
-enum CricketFormat { test, odi, t20, hundred }
