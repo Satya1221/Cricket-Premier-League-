@@ -192,7 +192,16 @@ class DeliveryResolutionEngine {
       case BowlerTactic.balanced:
         break;
     }
-    wicketChance = wicketChance.clamp(0.0, 30.0);
+    // Hard per-intent ceiling: environmental and tactical bonuses must never
+    // turn a defensive/rotating batter into a near-certain wicket. The old
+    // generic 30% ceiling allowed extreme modifiers to produce collapses.
+    final intentWicketCeiling = switch (intent) {
+      BatterIntent.defend => 1.8,
+      BatterIntent.rotate => 4.0,
+      BatterIntent.slog => 18.0,
+    };
+    wicketChance = wicketChance.clamp(0.0, intentWicketCeiling);
+
     dotChance = dotChance.clamp(wicketChance, 70.0);
     oneTwoChance = oneTwoChance.clamp(dotChance, 85.0);
     fourChance = fourChance.clamp(oneTwoChance, 99.0);
