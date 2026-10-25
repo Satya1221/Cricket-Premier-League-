@@ -98,8 +98,7 @@ class MatchDirector {
 
       final absoluteBall = startingBall + legalBalls;
       final lastBallOfOver = legalBalls == 6;
-      final lastBallOfInnings =
-          legalBalls >= ballsRemainingInInnings || absoluteBall >= 120;
+      final lastBallOfInnings = legalBalls >= ballsRemainingInInnings;
       final chaseTight = target > 0 &&
           lastBallOfInnings &&
           score < target &&
@@ -108,15 +107,15 @@ class MatchDirector {
       var highlightType = HighlightType.none;
       if (wicket) {
         highlightType = HighlightType.wicket;
-      } else if (batterRunsThisBall == 4 || batterRunsThisBall == 6) {
-        highlightType = HighlightType.boundary;
-      } else if (batterScore > 0 && batterScore % 50 < 7 &&
-          (batterRunsThisBall == 4 || batterRunsThisBall == 6)) {
-        highlightType = HighlightType.milestone;
       } else if (chaseTight && lastBallOfInnings) {
         highlightType = HighlightType.pressure;
       } else if (lastBallOfInnings && lastBallOfOver) {
         highlightType = HighlightType.lastBall;
+      } else if ((batterRunsThisBall == 4 || batterRunsThisBall == 6) &&
+          batterScore > 0 && batterScore % 50 < 7) {
+        highlightType = HighlightType.milestone;
+      } else if (batterRunsThisBall == 4 || batterRunsThisBall == 6) {
+        highlightType = HighlightType.boundary;
       }
 
       final finalText = chaseTight && batterRunsThisBall == 0
