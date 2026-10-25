@@ -25,6 +25,11 @@ Flutter/Dart cricket franchise management game with a polished dark navy, gold a
 - `lib/src/features/match/domain/delivery_resolution_engine.dart`: probabilistic delivery resolution with batting intent, bowler tactic, pitch/environment modifiers and optional tactical modifiers.
 - `lib/src/features/match/matchday_screen.dart`: matchday scoreboard and delivery controls; this is a sample match, not yet a full match/innings persistence system.
 - On 2026-10-25, explicit `break` statements were added to line/length/variation switch cases in `bowling_angle_engine.dart` to prevent unintended switch fall-through / compile errors.
+- `lib/src/features/match/matchday_screen.dart`: bowling plan is now state-backed and selectable from the UI: crease, arm, bowling style, batter stance, line, length, variation and field trap.
+- `lib/src/features/match/domain/delivery_resolution_engine.dart`: wickets now carry a dismissal subtype and matching commentary (bowled, caught, LBW, stumped). This remains a weighted approximation, not a ball-trajectory simulation; run out is reserved in the enum but is not yet generated.
+- Matchday completion and over advancement now use configured format limits rather than a hard-coded 120 balls / six-ball over.
+- `lib/src/features/auction/domain/season_finance_engine.dart`: advances contract years, releases players whose contracts expire, and calculates next-season payroll. This is a domain helper and is not yet called by the season controller.
+- `AuctionTeam.spentCr` now uses the recorded winning bid/current contract salary instead of incorrectly summing base prices.
 
 ### Previously added management systems (check source before extending)
 - Academy/player-growth domain and screen/provider.
@@ -47,13 +52,15 @@ Flutter/Dart cricket franchise management game with a polished dark navy, gold a
 
 ### P0 — correctness and integration
 - [ ] Run `flutter pub get`, `dart format .`, `flutter analyze`, and `flutter test` in a real Flutter SDK environment; fix all failures. This was intentionally not run by the previous assistant.
-- [ ] Make bowling tactics interactive in the matchday UI: crease, arm, style, batter stance, line, length, variation and field trap should come from state instead of a hard-coded preset.
-- [ ] Give wickets a dismissal subtype (bowled, caught, LBW, stumped, run out) and apply the matching tactical multiplier only to its corresponding dismissal. The current resolver uses generic wicket outcomes and cannot claim accurate dismissal-specific simulation.
-- [ ] Ensure match formats use their configured ball limits, including The Hundred, and add extras/no-balls/wides, strike rotation, over changes, bowler limits and innings/result handling.
+- [x] Make bowling tactics interactive in the matchday UI: crease, arm, style, batter stance, line, length, variation and field trap are state-backed.
+- [x] Give wickets a basic dismissal subtype (bowled, caught, LBW, stumped) and matching commentary. Still apply matching tactical multipliers to their corresponding dismissal probabilities; current subtypes are weighted approximations, not trajectory-based outcomes.
+- [x] Use configured format ball limits and balls-per-over for match completion and over advancement.
+- [ ] Add extras/no-balls/wides, strike rotation, bowler limits and complete innings/result handling.
 - [ ] Add tests for auction purse constraints, overseas limits, contracts, match outcome probability bounds and format-specific ball limits.
 
 ### P1 — season lifecycle and persistence
-- [ ] Add a season-advance orchestration flow: expire contracts, decrement years, release expired players, generate renewals/retirements, advance fixtures/calendar, update form/injuries and compute salary obligations.
+- [x] Add a domain helper for season contract advancement, expiry/release and payroll calculation (`season_finance_engine.dart`).
+- [ ] Wire season finance into a single season-advance orchestration flow; advance fixtures/calendar, update form/injuries and generate renewals/retirements.
 - [ ] Choose and implement real persistence for saves (Isar or another maintained local database). Include schema/generation, migration/versioning, repository interfaces, save/load and restart recovery.
 - [ ] Integrate auction, calendar, league simulation, academy, medical, field placement, press events and match results through a single season/game state or repositories rather than disconnected demo providers.
 - [ ] Ensure auction salaries and purse accounting are clearly separated in UI and season reports.
