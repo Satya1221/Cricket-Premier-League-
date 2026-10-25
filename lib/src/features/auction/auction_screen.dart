@@ -73,20 +73,22 @@ class AuctionScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
+                _ManagerDeck(
+                  state: state,
+                  onBid: () {
+                    try {
+                      actions.bidFor('cpl');
+                    } on StateError catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.message)),
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
                 Row(children: [
-                  Expanded(child: OutlinedButton.icon(
-                    onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding
-                        ? actions.runRivalRound
-                        : null,
-                    icon: const Icon(Icons.psychology_alt_rounded),
-                    label: const Text('RIVAL AI ROUND'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: GamePalette.emerald,
-                      side: const BorderSide(color: GamePalette.emerald),
-                      minimumSize: const Size(48, 52),
-                    ),
-                  )),
-                  const SizedBox(width: 8),
+                  const SizedBox.shrink(),
+                  const SizedBox(width: 0),
                   Expanded(child: OutlinedButton.icon(
                     onPressed: state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding ? () {
                       try { actions.closeLot(); } on StateError catch (e) {
@@ -304,6 +306,64 @@ class _TeamRow extends StatelessWidget {
       Icon(leading ? Icons.local_fire_department : Icons.add_circle_outline, color: leading ? GamePalette.gold : GamePalette.emerald),
     ])),
   );
+}
+
+class _ManagerDeck extends StatelessWidget {
+  const _ManagerDeck({required this.state, required this.onBid});
+  final AuctionState state;
+  final VoidCallback onBid;
+
+  @override
+  Widget build(BuildContext context) {
+    final team = state.teams.where((team) => team.id == 'cpl').firstOrNull;
+    final player = state.currentPlayer;
+    final nextBid = state.currentBidCr == 0
+        ? (player?.basePriceCr ?? 0)
+        : state.currentBidCr + const AuctionEngine().incrementFor(state.currentBidCr);
+    final active = state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding;
+    final canAfford = team != null && team.purseCr >= nextBid;
+    final alreadyLeading = state.leadingTeamId == 'cpl';
+    final canBid = active && player != null && canAfford && !alreadyLeading &&
+        team!.remainingSlots > 0 &&
+        (!player.isOverseas || team.overseasCount < team.maxOverseas);
+
+    return _Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const Text('MANAGER’S DECK', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: .8)),
+      const SizedBox(height: 12),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        const Text('Your franchise • CPL', style: TextStyle(color: GamePalette.muted, fontSize: 12)),
+        Text('₹${(team?.purseCr ?? 0).toStringAsFixed(2)} Cr',
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: GamePalette.gold)),
+      ]),
+      const SizedBox(height: 5),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        const Text('Next bid', style: TextStyle(color: GamePalette.muted, fontSize: 12)),
+        Text('₹${nextBid.toStringAsFixed(2)} Cr', style: const TextStyle(fontWeight: FontWeight.w800)),
+      ]),
+      const SizedBox(height: 14),
+      SizedBox(
+        width: double.infinity,
+        height: 60,
+        child: ElevatedButton.icon(
+          onPressed: canBid ? onBid : null,
+          icon: const Icon(Icons.gavel_rounded),
+          label: Text(
+            !active ? 'LOT CLOSED' :
+            alreadyLeading ? 'YOU HOLD THE BID' :
+            !canAfford ? 'INSUFFICIENT PURSE' :
+            team != null && team.remainingSlots <= 0 ? 'SQUAD FULL' :
+            player != null && player.isOverseas && team != null && team.overseasCount >= team.maxOverseas
+                ? 'OVERSEAS LIMIT REACHED'
+                : 'PLACE BID • ₹${nextBid.toStringAsFixed(2)} CR',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: .3),
+          ),
+        ),
+      ),
+      const SizedBox(height: 7),
+      const Text('Rival franchises are controlled by the auction AI. Simulate their responses above.',
+        style: TextStyle(fontSize: 10, color: GamePalette.muted)),
+    ]));
+  }
 }
 
 class _AuctionFeed extends StatelessWidget {
