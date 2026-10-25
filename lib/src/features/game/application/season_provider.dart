@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../state/season_schedule_repository.dart';
-import '../../../../services/fixture_generator_service.dart';
+import '../../../../models/fixture_model.dart';
 
 import '../data/career_save_repository.dart';
 import '../domain/career_simulation_engine.dart';
