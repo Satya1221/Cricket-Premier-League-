@@ -22,6 +22,36 @@ class GameSessionState {
         assert(completedMatches >= 0),
         assert(purseCr >= 0);
 
+  Map<String, Object?> toJson() => {
+        'phase': phase.name,
+        'seasonNumber': seasonNumber,
+        'completedMatches': completedMatches,
+        'lastAction': lastAction,
+        'campaignId': campaignId,
+        'league': league,
+        'franchiseName': franchiseName,
+        'purseCr': purseCr,
+        'difficulty': difficulty,
+      };
+
+  factory GameSessionState.fromJson(Map<String, Object?> json) {
+    final phaseName = json['phase'] as String?;
+    return GameSessionState(
+      phase: GamePhase.values.firstWhere(
+        (value) => value.name == phaseName,
+        orElse: () => GamePhase.preSeason,
+      ),
+      seasonNumber: (json['seasonNumber'] as num?)?.toInt() ?? 1,
+      completedMatches: (json['completedMatches'] as num?)?.toInt() ?? 0,
+      lastAction: json['lastAction'] as String? ?? 'Welcome to Cricket Premier League.',
+      campaignId: json['campaignId'] as String?,
+      league: json['league'] as String? ?? 'Indian Premier League',
+      franchiseName: json['franchiseName'] as String? ?? 'Coastal Premier Lions',
+      purseCr: (json['purseCr'] as num?)?.toDouble() ?? 120,
+      difficulty: json['difficulty'] as String? ?? 'Normal',
+    );
+  }
+
   final GamePhase phase;
   final int seasonNumber;
   final int completedMatches;
