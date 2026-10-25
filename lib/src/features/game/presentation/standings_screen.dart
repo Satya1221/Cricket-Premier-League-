@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../theme/game_theme.dart';
 import '../application/season_provider.dart';
+import '../application/game_controller.dart';
 import '../../../../state/league_standings_provider.dart';
 
 class StandingsScreen extends ConsumerWidget {
@@ -11,6 +12,8 @@ class StandingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final season = ref.watch(seasonProvider);
+    final session = ref.watch(gameControllerProvider);
+    final seasonActive = session.phase == GamePhase.season;
     final controller = ref.read(seasonProvider.notifier);
     final ranked = ref.watch(leagueStandingsProvider);
     final pendingFixtures = season.fixtures.where((f) => !f.played).toList();
@@ -34,8 +37,8 @@ class StandingsScreen extends ConsumerWidget {
               ],
               const SizedBox(height: 12),
               Wrap(spacing: 8, runSpacing: 8, children: [
-                FilledButton.icon(onPressed: nextFixture == null ? null : () => controller.simulateNextMatch(), icon: const Icon(Icons.play_arrow), label: const Text('SIMULATE NEXT')),
-                OutlinedButton.icon(onPressed: nextFixture == null ? null : () => controller.simulateRemainingRound(), icon: const Icon(Icons.fast_forward), label: const Text('SIMULATE ROUND')),
+                FilledButton.icon(onPressed: nextFixture == null || !seasonActive ? null : () => controller.simulateNextMatch(), icon: const Icon(Icons.play_arrow), label: const Text('SIMULATE NEXT')),
+                OutlinedButton.icon(onPressed: nextFixture == null || !seasonActive ? null : () => controller.simulateRemainingRound(), icon: const Icon(Icons.fast_forward), label: const Text('SIMULATE ROUND')),
                 OutlinedButton.icon(
                   onPressed: () async {
                     final ok = await controller.load();
@@ -49,7 +52,13 @@ class StandingsScreen extends ConsumerWidget {
                   label: const Text('LOAD SAVE'),
                 ),
                 OutlinedButton.icon(onPressed: controller.save, icon: const Icon(Icons.save), label: const Text('SAVE')),
-                if (pendingFixtures.isEmpty)
+                if (!seasonActive && season.seasonNumber > 1 && pendingFixtures.isNotEmpty)
+                  FilledButton.icon(
+                    onPressed: () => ref.read(gameControllerProvider.notifier).startSeason(),
+                    icon: const Icon(Icons.play_circle_fill_rounded),
+                    label: const Text('START SEASON'),
+                  ),
+                if (pendingFixtures.isEmpty && seasonActive)
                   FilledButton.icon(
                     onPressed: () async {
                       await controller.endSeason();
