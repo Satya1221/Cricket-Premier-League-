@@ -13,6 +13,7 @@ Future<void> main() async {
   await Hive.openBox<dynamic>('career_saves');
   await Hive.openBox<dynamic>('game_state');
   await Hive.openBox<dynamic>('season_schedule');
+  await Hive.openBox<dynamic>('franchise_roster');
   await Hive.openBox<dynamic>('history_records');
   await CampaignStore.initialize();
   GameFeel.init();
