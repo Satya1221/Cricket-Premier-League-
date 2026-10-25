@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/demo_auction.dart';
 import '../domain/auction_engine.dart';
 import '../domain/auction_state.dart';
+import '../domain/player.dart';
 
 final auctionControllerProvider =
     NotifierProvider<AuctionController, AuctionState>(AuctionController.new);
