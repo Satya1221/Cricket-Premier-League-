@@ -37,7 +37,7 @@ class TrophyRoomScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 _runRateBars(match),
                 const SizedBox(height: 6),
-                Text('Run-rate comparison (runs per over)', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+                const Text('Run-rate comparison (runs per over)', style: TextStyle(color: Colors.white54, fontSize: 11)),
               ]),
             )),
       ]),
