@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../core/game_feel.dart';
 
 import '../../theme/game_theme.dart';
 import 'application/auction_controller.dart';
@@ -219,6 +222,22 @@ class _PlayerLot extends StatelessWidget {
         _Price(label: 'CURRENT BID', value: currentBid == 0 ? '—' : '₹${currentBid.toStringAsFixed(2)} Cr', highlight: true),
         _Price(label: 'EST. VALUE', value: '₹${valuation.toStringAsFixed(2)} Cr'),
       ]),
+      if (phase == AuctionPhase.sold) ...[
+        const SizedBox(height: 12),
+        Center(
+          child: Text(
+            'SOLD TO\\n${state.teams.where((team) => team.id == state.leadingTeamId).firstOrNull?.name.toUpperCase() ?? 'FRANCHISE'}',
+            key: ValueKey('sold-${player.name}'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 30, height: 1.05, fontWeight: FontWeight.w900, color: GamePalette.gold),
+          )
+              .animate()
+              .scale(begin: const Offset(2.2, 2.2), end: const Offset(1, 1), curve: Curves.easeInQuint, duration: 250.ms)
+              .callback(callback: (_) => GameFeel.triggerGavelSlam())
+              .shake(hz: 8, curve: Curves.easeOut, duration: 400.ms)
+              .shimmer(delay: 200.ms, duration: 800.ms, color: Colors.white),
+        ),
+      ],
       const SizedBox(height: 12),
       Text(switch (phase) {
         AuctionPhase.ready => 'SCOUTING DOSSIER READY',
@@ -343,7 +362,7 @@ class _ManagerDeck extends StatelessWidget {
         width: double.infinity,
         height: 60,
         child: ElevatedButton.icon(
-          onPressed: canBid ? onBid : null,
+          onPressed: canBid ? () { GameFeel.triggerBidTick(); onBid(); } : null,
           icon: const Icon(Icons.gavel_rounded),
           label: Text(
             !active ? 'LOT CLOSED' :
