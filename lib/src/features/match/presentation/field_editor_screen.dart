@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/game_theme.dart';
-import '../application/field_placement_provider.dart';
+import '../../game/application/field_placement_provider.dart';
 import '../../match/domain/field_placement_engine.dart';
 class FieldEditorScreen extends ConsumerStatefulWidget { const FieldEditorScreen({super.key}); @override ConsumerState<FieldEditorScreen> createState() => _FieldEditorScreenState(); }
 class _FieldEditorScreenState extends ConsumerState<FieldEditorScreen> { String selected = 'F1';
