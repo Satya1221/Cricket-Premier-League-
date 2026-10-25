@@ -23,13 +23,17 @@ class PurseRules {
   double get maximumBidForNewSquadMemberCr => initialPurseCr;
 
   bool canAffordBid(AuctionTeam team, double bidCr, {bool preserveMinimumSquadReserve = true}) {
-    if (!bidCr.isFinite || bidCr <= 0 || team.purseCr < bidCr || team.remainingSlots <= 0) return false;
+    if (!bidCr.isFinite || bidCr <= 0 || team.purseCr < bidCr || team.remainingSlots <= 0) {
+      return false;
+    }
     final reserve = preserveMinimumSquadReserve ? minimumSquadReserveCr(team) : 0;
     return team.purseCr - bidCr >= reserve || team.squad.length + 1 >= minimumSquadSize;
   }
 
   void validateContract(AuctionTeam team, AuctionPlayer player, double bidCr, {bool preserveMinimumSquadReserve = true}) {
-    if (bidCr < player.basePriceCr) throw StateError('Bid cannot be below the player base price.');
+    if (bidCr < player.basePriceCr) {
+      throw StateError('Bid cannot be below the player base price.');
+    }
     if (!canAffordBid(team, bidCr, preserveMinimumSquadReserve: preserveMinimumSquadReserve)) {
       throw StateError('Bid rejected: insufficient purse or funds must be reserved to complete the minimum squad.');
     }
