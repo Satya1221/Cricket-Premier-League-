@@ -31,7 +31,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   state=state.copyWith(status:IplMatchStatus.completed,winnerTeamId:winnerTeamId,isTie:false,message:'$winnerTeamId win.');
   _saveCareerStats();
  }
- void _saveCareerStats(){if(_statsSaved)return;_statsSaved=true;unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));}
+ void _saveCareerStats(){if(_statsSaved)return;_statsSaved=true;unawaited(const StatsAggregator().aggregateMatch(matchId:_matchId,deliveries:state.deliveries));unawaited(_onHomeMatchEnd?.call()??Future<void>.value());}
  static const int maxLegalBalls=120;
  void setTeams({required String battingTeamId,required String defendingTeamId})=>state=state.copyWith(battingTeamId:battingTeamId,defendingTeamId:defendingTeamId);
  void selectOpeningBatters({required String strikerId,required String nonStrikerId}) {
@@ -58,18 +58,19 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   final legal=!isWide&&!isNoBall;
   final batterRuns=(isWide||isLegBye)?0:runs;
   final extraRuns=(isWide||isNoBall)?1:0;
-  final totalRuns=batterRuns+extraRuns+(isLegBye?runs:0);
+  // On wides, runs represents completed running wides/byes in addition to the mandatory wide.
+  final totalRuns=extraRuns+(isWide||isLegBye?runs:batterRuns);
   final extraName=isWide?'Wide':isNoBall?'NoBall':isLegBye?'LegBye':'None';
   final striker=state.strikerId!,nonStriker=state.nonStrikerId!;
-  final ball=DeliveryModel(ballNumber:state.legalBalls+1,runsScored:batterRuns,isWicket:isWicket,extraType:extraName,strikerId:striker,nonStrikerId:nonStriker,bowlerId:state.bowlerId!,totalRuns:totalRuns,legalDelivery:legal,dismissedPlayerId:dismissedPlayerId??(isWicket?striker:null));
+  final ball=DeliveryModel(ballNumber:state.deliveries.length+1,runsScored:batterRuns,isWicket:isWicket,extraType:extraName,strikerId:striker,nonStrikerId:nonStriker,bowlerId:state.bowlerId!,totalRuns:totalRuns,legalDelivery:legal,dismissedPlayerId:dismissedPlayerId??(isWicket?striker:null));
   final nextBalls=state.legalBalls+(legal?1:0);
   var next=state.copyWith(runs:state.runs+totalRuns,wickets:state.wickets+(isWicket?1:0),legalBalls:nextBalls,deliveries:[...state.deliveries,ball],message:isWicket?'Wicket!': '${totalRuns} run(s).');
-  // IPL strike rotates on odd completed runs, including running runs on extras.
+  // Record who was dismissed before applying end-of-delivery strike rotation.
+  final dismissed=ball.dismissedPlayerId;
   if(totalRuns.isOdd)next=next.copyWith(strikerId:next.nonStrikerId,nonStrikerId:next.strikerId);
   if(isWicket){
-   final dismissed=ball.dismissedPlayerId;
    if(dismissed==next.strikerId)next=next.copyWith(clearStriker:true,status:IplMatchStatus.needsIncomingBatter,message:'Wicket. Select the incoming batter.');
-   else if(dismissed==next.nonStrikerId)next=next.copyWith(clearNonStriker:true,status:IplMatchStatus.needsOpeningBatters,message:'Wicket. Select the incoming batter.');
+   else if(dismissed==next.nonStrikerId)next=next.copyWith(clearNonStriker:true,status:IplMatchStatus.needsIncomingBatter,message:'Wicket. Select the incoming batter.');
   }
   state=next;
   evaluateInningsState();
