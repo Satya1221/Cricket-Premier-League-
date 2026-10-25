@@ -58,15 +58,16 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     if (pending.isEmpty) return;
     final week = pending.first.round;
     while (true) {
-      final fixture = state.fixtures.where((f) => !f.played && f.round == week).firstOrNull;
-      if (fixture == null) break;
-      final home = state.teams.where((team) => team.id == fixture.homeTeamId).firstOrNull;
-      final away = state.teams.where((team) => team.id == fixture.awayTeamId).firstOrNull;
-      if (home == null || away == null) {
+      final pending = state.fixtures.where((f) => !f.played && f.round == week).toList();
+      if (pending.isEmpty) break;
+      final fixture = pending.first;
+      final homeMatches = state.teams.where((team) => team.id == fixture.homeTeamId).toList();
+      final awayMatches = state.teams.where((team) => team.id == fixture.awayTeamId).toList();
+      if (homeMatches.isEmpty || awayMatches.isEmpty) {
         state = _engine.simulateNextFixture(state);
         continue;
       }
-      final result = _fastSim.simulate(home, away);
+      final result = _fastSim.simulate(homeMatches.first, awayMatches.first);
       state = _engine.recordFixtureResult(state, fixture.id, result);
     }
     await save();
