@@ -7,6 +7,7 @@ import '../../squad/domain/regen_factory.dart';
 import '../../../theme/game_theme.dart';
 import 'home_screen.dart';
 import '../application/game_controller.dart';
+import '../data/campaign_store.dart';
 
 /// Cinematic boot sequence. The current project does not yet have a configured
 /// Isar schema/player collection, so this prepares the first 300-player pool in
@@ -53,13 +54,28 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
 
       await Future<void>.delayed(const Duration(milliseconds: 450));
       if (!mounted) return;
+      final campaignId = 'campaign-${DateTime.now().millisecondsSinceEpoch}';
       ref.read(gameControllerProvider.notifier).startCampaign(
-        campaignId: 'campaign-${DateTime.now().millisecondsSinceEpoch}',
+        campaignId: campaignId,
         league: 'Indian Premier League',
         franchiseName: 'Coastal Premier Lions',
         purseCr: 120,
         difficulty: 'Normal',
       );
+      // Persist a save slot so the campaign can be reloaded from the main menu.
+      try {
+        await CampaignStore.save(CampaignSave(
+          id: campaignId,
+          league: 'Indian Premier League',
+          franchiseName: 'Coastal Premier Lions',
+          purseCr: 120,
+          difficulty: 'Normal',
+          lastAction: 'New campaign created.',
+        ));
+      } catch (error) {
+        debugPrint('Could not write campaign slot: $error');
+      }
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder<void>(
           transitionDuration: const Duration(milliseconds: 800),
