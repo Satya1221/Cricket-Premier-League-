@@ -43,7 +43,9 @@ class StadiumPitch {
 
   /// Call after an innings in limited overs, or after each day in a Test.
   void degradePitch({int stages = 1}) {
-    if (stages <= 0) return;
+    if (stages <= 0) {
+      return;
+    }
     wearStages += stages;
     final wear = degradationRate * stages;
     spinAssistance = (spinAssistance + wear).clamp(0.5, 2.0).toDouble();
@@ -112,15 +114,23 @@ class StadiumEconomy {
   static const int maximumCapacity = 65000;
 
   static StadiumAsset expand(StadiumAsset stadium, {required int seats, required int availableFunds}) {
-    if (seats <= 0) throw ArgumentError.value(seats, 'seats', 'Must be positive.');
-    if (stadium.capacity + seats > maximumCapacity) throw StateError('Stadium capacity cannot exceed 65000.');
+    if (seats <= 0) {
+      throw ArgumentError.value(seats, 'seats', 'Must be positive.');
+    }
+    if (stadium.capacity + seats > maximumCapacity) {
+      throw StateError('Stadium capacity cannot exceed 65000.');
+    }
     final cost = seats * expansionCostPerSeat;
-    if (cost > availableFunds) throw StateError('Not enough franchise funds for this expansion.');
+    if (cost > availableFunds) {
+      throw StateError('Not enough franchise funds for this expansion.');
+    }
     return stadium.copyWith(capacity: stadium.capacity + seats);
   }
 
   static int ticketRevenue(StadiumAsset stadium, {double attendanceRate = 1.0}) {
-    if (attendanceRate < 0 || attendanceRate > 1) throw ArgumentError.value(attendanceRate, 'attendanceRate', 'Must be between 0 and 1.');
+    if (attendanceRate < 0 || attendanceRate > 1) {
+      throw ArgumentError.value(attendanceRate, 'attendanceRate', 'Must be between 0 and 1.');
+    }
     return (stadium.ticketRevenuePerSoldOutMatch * attendanceRate).round();
   }
 }
