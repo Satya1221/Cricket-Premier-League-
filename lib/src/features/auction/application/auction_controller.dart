@@ -33,7 +33,19 @@ class AuctionController extends Notifier<AuctionState> {
   @override
   AuctionState build() {
     ref.onDispose(() => _biddingTimer?.cancel());
-    return createDemoAuction();
+    final initial=createDemoAuction();
+    unawaited(_syncPlayerModels(initial));
+    return initial;
+  }
+
+  Future<void> _syncPlayerModels(AuctionState auction) async {
+    final box=Hive.box<PlayerModel>('players');
+    final all=<String,AuctionPlayer>{for(final p in auction.players)p.id:p};
+    for(final team in auction.teams){for(final p in team.squad){all[p.id]=p;}}
+    for(final p in all.values){
+      if(box.containsKey(p.id))continue;
+      await box.put(p.id,PlayerModel(id:p.id,name:p.name,age:p.age,role:switch(p.role){PlayerRole.batter=>'Batter',PlayerRole.bowler=>'Pace',PlayerRole.allRounder=>'AR',PlayerRole.wicketKeeper=>'WK'},batSkill:p.batting,bowlSkill:p.bowling,fielding:p.fielding,stamina:80,form:p.form,nation:p.nation,isOverseas:p.isOverseas));
+    }
   }
 
   /// Starts the two-second live rival bidding loop. Two quiet ticks close the lot.
@@ -82,6 +94,7 @@ class AuctionController extends Notifier<AuctionState> {
     final player = state.currentPlayer;
     final winnerId = state.leadingTeamId;
     state = _engine.closeLot(state);
+    unawaited(_syncPlayerModels(state));
     if (player != null && winnerId == 'cpl' && state.phase == AuctionPhase.sold) {
       final franchiseBox = Hive.box<FranchiseModel>('franchises');
       final franchise = franchiseBox.get('cpl') ?? const FranchiseModel(id: 'cpl');
