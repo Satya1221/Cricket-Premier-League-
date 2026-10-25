@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../application/game_controller.dart';
 
 import '../../../theme/game_theme.dart';
 import 'startup_screen.dart';
+import 'home_screen.dart';
 
 /// First entry point. Keep campaign setup separate from the active franchise
 /// dashboard so launching the app does not silently start a new career.
-class MainMenuScreen extends StatelessWidget {
+class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
 
   void _startNewGame(BuildContext context) {
@@ -24,7 +28,7 @@ class MainMenuScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xFF0B132B),
       body: SafeArea(
@@ -81,7 +85,18 @@ class MainMenuScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    onPressed: () => _showUnavailable(context, 'Load Game'),
+                    onPressed: () {
+                      final session = ref.read(gameControllerProvider);
+                      if (session.campaignId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No saved campaign found. Start a new campaign first.')),
+                        );
+                        return;
+                      }
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+                      );
+                    },
                     icon: const Icon(Icons.folder_open_rounded),
                     label: const Text('LOAD GAME'),
                     style: OutlinedButton.styleFrom(
