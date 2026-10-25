@@ -188,7 +188,9 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       completedMatches: played,
       phase: seasonActive ? GamePhase.season : GamePhase.preSeason,
       lastAction: lastAction,
-      purseCr: state.teams.where((team) => team.id == 'cpl').firstOrNull?.purseCr,
+      purseCr: state.teams.any((team) => team.id == 'cpl')
+          ? state.teams.firstWhere((team) => team.id == 'cpl').purseCr
+          : null,
     );
     await CampaignStore.saveSession(_gameController.state);
   }
