@@ -5,6 +5,8 @@ import '../../../theme/game_theme.dart';
 import '../../auction/auction_screen.dart';
 import '../../match/matchday_screen.dart';
 import '../application/game_controller.dart';
+import '../application/global_calendar_controller.dart';
+import 'inbox_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(gameControllerProvider);
     final game = ref.read(gameControllerProvider.notifier);
+    final calendar = ref.watch(globalCalendarProvider);
+    final calendarController = ref.read(globalCalendarProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -31,6 +35,38 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
+      actions: [
+        IconButton(
+          tooltip: 'Manager inbox',
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => const InboxScreen(),
+          )),
+          icon: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Icon(Icons.mail_outline_rounded),
+              if (calendar.unreadCount > 0)
+                Positioned(
+                  right: -7,
+                  top: -6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(minWidth: 17, minHeight: 17),
+                    decoration: const BoxDecoration(
+                      color: GamePalette.danger,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      calendar.unreadCount > 99 ? '99+' : '${calendar.unreadCount}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.w900),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(18),
@@ -95,6 +131,44 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: GamePalette.panel,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: GamePalette.line),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.public_rounded, color: GamePalette.gold),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'GLOBAL CALENDAR · ${calendar.month.name.toUpperCase()} ${calendar.year}',
+                          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(calendar.lastTickSummary,
+                      style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: calendarController.advanceMonth,
+                      icon: const Icon(Icons.fast_forward_rounded),
+                      label: const Text('ADVANCE CALENDAR ONE MONTH'),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 22),
             const Text('GAME OPERATIONS',
