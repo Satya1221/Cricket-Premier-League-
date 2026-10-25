@@ -67,7 +67,15 @@ class InboxScreen extends ConsumerWidget {
                             );
                             return;
                           }
-                          Navigator.of(context).pushNamed(message.actionRoute);
+                          // The app does not register named routes yet. Avoid
+                          // Navigator's runtime route-generation exception.
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'This action is not available yet: ${message.actionRoute}',
+                              ),
+                            ),
+                          );
                         },
                       ),
                     ),
