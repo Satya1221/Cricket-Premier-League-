@@ -178,6 +178,17 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
     _syncDashboard(lastAction: 'Season ${state.seasonNumber - 1} archived. Pre-season for Season ${state.seasonNumber}.', seasonActive: false);
   }
 
+
+  void _syncDashboard({required String lastAction, bool seasonActive = true}) {
+    final played = state.fixtures.where((fixture) => fixture.played).length;
+    _gameController.syncCareerProgress(
+      seasonNumber: state.seasonNumber,
+      completedMatches: played,
+      phase: seasonActive ? GamePhase.season : GamePhase.preSeason,
+      lastAction: lastAction,
+    );
+  }
+
   Map<String, Object?> _historySnapshot() {
     final players = state.teams.expand((team) => team.players).toList();
     final batters = [...players]..sort((a, b) => b.runs.compareTo(a.runs));
