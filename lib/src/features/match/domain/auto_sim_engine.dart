@@ -50,7 +50,7 @@ class AutoSimEngine {
       final batter = team.players[batterIndex]; final bowler = bowlingTeam.players[bowlerIndex % bowlingTeam.players.length];
       final bat = ResolutionBatter(name: batter.name, baseTiming: batter.technique.toDouble(), baseDefense: batter.batting.toDouble(), concentration: .85, attributes: BattingStats(bat: batter.batting, pow: batter.power, tec: batter.technique, vp: batter.technique, vs: batter.technique));
       final bowl = ResolutionBowler(name: bowler.name, baseAccuracy: bowler.bowling.toDouble(), baseMovement: bowler.pace.toDouble(), isSpinner: bowler.spin, attributes: BowlingStats(bowl: bowler.bowling, ctrl: bowler.bowling, dth: bowler.bowling, pace: bowler.pace, varStat: bowler.bowling));
-      final delivery = engine.resolve(environment: env, bowler: bowl, batter: bat, intent: BatterIntent.rotate, isDeathOver: balls >= config.legalBallsPerInnings - config.ballsPerOver * 5);
+      final delivery = engine.resolve(environment: env, bowler: bowl, batter: bat, intent: BatterIntent.rotate);
       balls++;
       final scored = switch (delivery.outcome) { DeliveryOutcomeType.wicket || DeliveryOutcomeType.dot => 0, DeliveryOutcomeType.one => 1, DeliveryOutcomeType.two => 2, DeliveryOutcomeType.four => 4, DeliveryOutcomeType.six => 6 };
       runs += scored; batterRuns.update(batter.id, (v) => v + scored, ifAbsent: () => scored);
