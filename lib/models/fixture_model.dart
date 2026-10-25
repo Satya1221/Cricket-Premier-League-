@@ -14,5 +14,5 @@ class FixtureModel {
   final MatchResultData? result;
   FixtureModel copyWith({bool? isCompleted,MatchResultData? result})=>FixtureModel(matchId:matchId,homeTeamId:homeTeamId,awayTeamId:awayTeamId,matchWeek:matchWeek,isCompleted:isCompleted??this.isCompleted,result:result??this.result);
   Map<String,Object?> toJson()=>{'matchId':matchId,'homeTeamId':homeTeamId,'awayTeamId':awayTeamId,'matchWeek':matchWeek,'isCompleted':isCompleted,'result':result?.toJson()};
-  factory FixtureModel.fromJson(Map<String,Object?> j)=>FixtureModel(matchId:j['matchId']! as String,homeTeamId:j['homeTeamId']! as String,awayTeamId:j['awayTeamId']! as String,matchWeek:(j['matchWeek'] as num?)?.toInt()??1,isCompleted:j['isCompleted'] as bool???false,result:j['result'] is Map?MatchResultData.fromJson(Map<String,Object?>.from(j['result']! as Map)):null);
+  factory FixtureModel.fromJson(Map<String,Object?> j)=>FixtureModel(matchId:j['matchId']! as String,homeTeamId:j['homeTeamId']! as String,awayTeamId:j['awayTeamId']! as String,matchWeek:(j['matchWeek'] as num?)?.toInt()??1,isCompleted:j['isCompleted'] as bool? ?? false,result:j['result'] is Map?MatchResultData.fromJson(Map<String,Object?>.from(j['result']! as Map)):null);
 }
