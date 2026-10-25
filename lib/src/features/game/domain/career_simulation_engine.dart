@@ -7,7 +7,7 @@ class CareerPlayer {
   final bool retired;
   CareerPlayer copyWith({int? age, int? runs, int? wickets, bool? retired}) => CareerPlayer(id:id,name:name,age:age??this.age,overall:overall,potential:potential,role:role,runs:runs??this.runs,wickets:wickets??this.wickets,retired:retired??this.retired);
   Map<String,Object?> toJson()=>{'id':id,'name':name,'age':age,'overall':overall,'potential':potential,'role':role,'runs':runs,'wickets':wickets,'retired':retired};
-  factory CareerPlayer.fromJson(Map<String,Object?> j)=>CareerPlayer(id:j['id']! as String,name:j['name']! as String,age:j['age']! as int,overall:j['overall']! as int,potential:j['potential']! as int,role:j['role']! as String,runs:j['runs'] as int???0,wickets:j['wickets'] as int???0,retired:j['retired'] as bool? ?? false);
+  factory CareerPlayer.fromJson(Map<String,Object?> j)=>CareerPlayer(id:j['id']! as String,name:j['name']! as String,age:j['age']! as int,overall:j['overall']! as int,potential:j['potential']! as int,role:j['role']! as String,runs:j['runs'] as int? ?? 0,wickets:j['wickets'] as int? ?? 0,retired:j['retired'] as bool? ?? false);
 }
 
 class CareerTeam {
