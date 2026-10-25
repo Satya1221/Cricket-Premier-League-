@@ -133,6 +133,48 @@ class AuctionEngine {
     );
   }
 
+  AuctionState runRivalRound({
+    required AuctionState state,
+    required List<RivalProfile> rivals,
+  }) {
+    final player = state.currentPlayer;
+    if (player == null ||
+        (state.phase != AuctionPhase.ready && state.phase != AuctionPhase.bidding)) {
+      return state;
+    }
+
+    var nextState = state;
+    for (final rival in rivals) {
+      if (rival.teamId == nextState.leadingTeamId) continue;
+      final teamIndex = nextState.teams.indexWhere((team) => team.id == rival.teamId);
+      final activePlayer = nextState.currentPlayer;
+      if (teamIndex < 0 || activePlayer == null) continue;
+
+      final decision = rivalDecision(
+        player: activePlayer,
+        team: nextState.teams[teamIndex],
+        rival: rival,
+        currentBidCr: nextState.currentBidCr,
+      );
+      if (!decision.shouldBid) {
+        nextState = nextState.copyWith(
+          bidHistory: [
+            ...nextState.bidHistory,
+            '${nextState.teams[teamIndex].shortName} passes • ${decision.reason}',
+          ],
+        );
+        continue;
+      }
+
+      nextState = placeBid(state: nextState, teamId: rival.teamId);
+    }
+
+    if (nextState.bidHistory.length == state.bidHistory.length) {
+      return nextState.copyWith(message: 'Rivals hold • current bid stands');
+    }
+    return nextState.copyWith(message: nextState.bidHistory.last);
+  }
+
   AuctionState closeLot(AuctionState state) {
     final player = state.currentPlayer;
     if (player == null) return state.copyWith(phase: AuctionPhase.completed);
