@@ -150,9 +150,7 @@ class MatchdayController extends StateNotifier<MatchdayState> {
       commentary: '${result.commentary} ${state.creasePosition.name}, ${state.bowlingArm.name} ${state.bowlingStyle.name}, ${state.bowlingLine.name} ${state.bowlingLength.name}, ${state.bowlingVariation.name}, ${state.fieldTrap.name}. Intent: ${state.intent.name.toUpperCase()}. Batter control ${result.batterControl.toStringAsFixed(0)} vs bowler threat ${result.bowlerThreat.toStringAsFixed(0)}.',
       complete: wickets >= 10 || balls >= state.config.legalBallsPerInnings || runs >= state.target);
     if (balls % state.config.ballsPerOver == 0) _environment.advanceOver();
-    if (!state.complete && (wickets >= 10 || balls >= state.config.legalBallsPerInnings || runs >= state.target)) {
-      _stadiumPitch.degradePitch();
-    }
+    if (state.complete) _stadiumPitch.degradePitch();
   }
   void resetMatch() {
     _environment.pitchWear = 0; _environment.ballAgeOvers = 0;
