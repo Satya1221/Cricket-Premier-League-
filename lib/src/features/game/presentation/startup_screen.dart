@@ -6,6 +6,7 @@ import '../../squad/application/initial_player_pool_provider.dart';
 import '../../squad/domain/regen_factory.dart';
 import '../../../theme/game_theme.dart';
 import 'home_screen.dart';
+import '../application/game_controller.dart';
 
 /// Cinematic boot sequence. The current project does not yet have a configured
 /// Isar schema/player collection, so this prepares the first 300-player pool in
@@ -52,6 +53,13 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
 
       await Future<void>.delayed(const Duration(milliseconds: 450));
       if (!mounted) return;
+      ref.read(gameControllerProvider.notifier).startCampaign(
+        campaignId: 'campaign-${DateTime.now().millisecondsSinceEpoch}',
+        league: 'Indian Premier League',
+        franchiseName: 'Coastal Premier Lions',
+        purseCr: 120,
+        difficulty: 'Normal',
+      );
       Navigator.of(context).pushReplacement(
         PageRouteBuilder<void>(
           transitionDuration: const Duration(milliseconds: 800),
