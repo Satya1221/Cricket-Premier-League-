@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:math';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../models/franchise_model.dart';
+import '../../../../models/player_model.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +17,8 @@ final auctionControllerProvider =
 
 class AuctionController extends Notifier<AuctionState> {
   final AuctionEngine _engine = const AuctionEngine();
+  Timer? _biddingTimer;
+  int _quietTicks = 0;
 
   static const List<RivalProfile> _rivals = [
     RivalProfile(teamId: 'roy', style: RivalStyle.aggressive, aggression: 0.82),
@@ -26,7 +32,38 @@ class AuctionController extends Notifier<AuctionState> {
   ];
 
   @override
-  AuctionState build() => createDemoAuction();
+  AuctionState build() {
+    ref.onDispose(() => _biddingTimer?.cancel());
+    return createDemoAuction();
+  }
+
+  /// Starts the two-second live rival bidding loop. Two quiet ticks close the lot.
+  void startLiveBidding() {
+    _biddingTimer?.cancel();
+    _quietTicks = 0;
+    _biddingTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (state.currentPlayer == null || state.phase == AuctionPhase.completed || state.phase == AuctionPhase.sold || state.phase == AuctionPhase.unsold) {
+        timer.cancel(); return;
+      }
+      final before = state.currentBidCr;
+      final previousLeader = state.leadingTeamId;
+      state = _engine.runRivalRound(state: state, rivals: _rivals);
+      if (state.currentBidCr > before || state.leadingTeamId != previousLeader) {
+        _quietTicks = 0;
+      } else {
+        _quietTicks++;
+      }
+      if (_quietTicks >= 2) {
+        timer.cancel();
+        hammerDown();
+      }
+    });
+  }
+
+  void stopLiveBidding() { _biddingTimer?.cancel(); _biddingTimer = null; }
+
+  void hammerDown() { stopLiveBidding(); closeLot(); }
+
 
   /// Places a bid. When the human franchise bids, the rival AI immediately
   /// evaluates and counter-bids, so the auction never stalls waiting for a
@@ -43,7 +80,28 @@ class AuctionController extends Notifier<AuctionState> {
   /// Closing a lot changes purse and squad, so the save slot is refreshed
   /// immediately to keep the Load Game cards accurate.
   void closeLot() {
+    final player = state.currentPlayer;
+    final winnerId = state.leadingTeamId;
     state = _engine.closeLot(state);
+    if (player != null && winnerId == 'cpl' && state.phase == AuctionPhase.sold) {
+      final franchiseBox = Hive.box<FranchiseModel>('franchises');
+      final franchise = franchiseBox.get('cpl') ?? const FranchiseModel(id: 'cpl');
+      final updated = franchise.copyWith(
+        purseCrores: state.teams.firstWhere((team) => team.id == 'cpl').purseCr,
+        squadIds: [...franchise.squadIds, if (!franchise.squadIds.contains(player.id)) player.id],
+      );
+      unawaited(franchiseBox.put('cpl', updated));
+      final playersBox = Hive.box<PlayerModel>('players');
+      final playerModel = PlayerModel(
+        id: player.id, name: player.name, age: player.age, role: switch(player.role) {
+          PlayerRole.batter => 'Batter', PlayerRole.bowler => 'Pace',
+          PlayerRole.allRounder => 'AR', PlayerRole.wicketKeeper => 'WK',
+        },
+        batSkill: player.batting, bowlSkill: player.bowling, fielding: player.fielding,
+        stamina: 80, form: player.form, nation: player.nation, isOverseas: player.isOverseas,
+      );
+      unawaited(playersBox.put(player.id, playerModel));
+    }
     unawaited(CampaignStore.saveAuction(state));
   }
   void nextLot() => state = _engine.nextLot(state);
