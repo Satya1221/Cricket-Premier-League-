@@ -25,7 +25,7 @@ final matchNotifierProvider=StateNotifierProvider<MatchNotifier,IplMatchState>((
 class MatchNotifier extends StateNotifier<IplMatchState>{
  MatchNotifier({Future<void> Function()? onHomeMatchEnd}):_onHomeMatchEnd=onHomeMatchEnd,super(const IplMatchState());
  final Future<void> Function()? _onHomeMatchEnd;
- final String _matchId='ipl-match-${DateTime.now().microsecondsSinceEpoch}';
+ String _matchId='ipl-match-${DateTime.now().microsecondsSinceEpoch}';
  bool _statsSaved=false;
  void endMatch({required String winnerTeamId}) {
   if(state.status==IplMatchStatus.completed)return;
@@ -118,5 +118,5 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   endMatch(winnerTeamId:state.defendingTeamId);
  }
  void endSuperOver({required String winnerTeamId}){if(state.status!=IplMatchStatus.superOverRequired)throw StateError('A Super Over is not pending.');endMatch(winnerTeamId:winnerTeamId);}
- void reset()=>state=const IplMatchState();
+ void reset(){state=const IplMatchState();_matchId='ipl-match-${DateTime.now().microsecondsSinceEpoch}';_statsSaved=false;}
 }
