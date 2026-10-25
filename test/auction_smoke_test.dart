@@ -8,8 +8,6 @@ void main() {
     expect(find.text('CRICKET PREMIER LEAGUE'), findsOneWidget);
     expect(find.text('LIVE AUCTION'), findsOneWidget);
     expect(find.text('Aarav Sen'), findsOneWidget);
-    await tester.ensureVisible(find.text('FRANCHISE WAR ROOM'));
-    await tester.pumpAndSettle();
-    expect(find.text('FRANCHISE WAR ROOM'), findsOneWidget);
+    expect(find.text('Build a dynasty.'), findsOneWidget);
   });
 }
