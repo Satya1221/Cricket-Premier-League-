@@ -33,7 +33,9 @@ class AutoSimEngine {
   AutoSimEngine({Random? random}) : _random = random ?? Random();
   final Random _random;
   MatchResultSummary simulateInstantMatch({required String matchId, required SimTeam home, required SimTeam away, required CricketFormat format}) {
-    if (home.players.length < 2 || away.players.length < 2) throw ArgumentError('Each team needs at least two players.');
+    if (home.players.length < 2 || away.players.length < 2) {
+      throw ArgumentError('Each team needs at least two players.');
+    }
     final first = _simulateInnings(team: home, bowlingTeam: away, format: format, target: null);
     final second = _simulateInnings(team: away, bowlingTeam: home, format: format, target: first.runs + 1);
     final winner = first.runs == second.runs ? '' : first.runs > second.runs ? home.id : away.id;
