@@ -1,0 +1,43 @@
+name: Flutter checks
+
+on:
+  push:
+    branches: [main, 'modernization/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: flutter-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Generate Android platform project
+        run: flutter create --platforms=android --project-name cricket_premier_league --org com.satya1221 .
+      - name: Remove generated sample test if present
+        run: |
+          if [ -f test/widget_test.dart ] && grep -q "MyApp" test/widget_test.dart; then
+            rm -f test/widget_test.dart
+          fi
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Format Dart
+        run: dart format lib test
+      - name: Static analysis
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Unit and widget tests
+        run: flutter test
+      - name: Build debug APK
+        run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cricket-premier-league-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error

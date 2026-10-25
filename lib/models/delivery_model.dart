@@ -1,0 +1,20 @@
+enum DeliveryExtra { none, wide, noBall, legBye }
+
+/// One ball event. runsScored is batter runs; totalRuns includes extras.
+class DeliveryModel {
+ const DeliveryModel({required this.innings,required this.ballNumber,required this.runsScored,required this.isWicket,required this.extraType,required this.strikerId,required this.nonStrikerId,required this.bowlerId,required this.totalRuns,required this.legalDelivery,this.dismissedPlayerId,this.dismissalType});
+ final int innings;
+ final int ballNumber;
+ final int runsScored;
+ final bool isWicket;
+ final String extraType;
+ final String strikerId;
+ final String nonStrikerId;
+ final String bowlerId;
+ final int totalRuns;
+ final bool legalDelivery;
+ final String? dismissedPlayerId;
+ final String? dismissalType;
+ Map<String,Object?> toJson()=>{'innings':innings,'ballNumber':ballNumber,'runsScored':runsScored,'isWicket':isWicket,'extraType':extraType,'strikerId':strikerId,'nonStrikerId':nonStrikerId,'bowlerId':bowlerId,'totalRuns':totalRuns,'legalDelivery':legalDelivery,'dismissedPlayerId':dismissedPlayerId,'dismissalType':dismissalType};
+ factory DeliveryModel.fromJson(Map<String,Object?> j)=>DeliveryModel(innings:j['innings'] as int? ?? 1,ballNumber:j['ballNumber'] as int? ?? 0,runsScored:j['runsScored'] as int? ?? 0,isWicket:j['isWicket'] as bool? ?? false,extraType:j['extraType'] as String? ?? 'None',strikerId:j['strikerId'] as String? ?? '',nonStrikerId:j['nonStrikerId'] as String? ?? '',bowlerId:j['bowlerId'] as String? ?? '',totalRuns:j['totalRuns'] as int? ?? 0,legalDelivery:j['legalDelivery'] as bool? ?? true,dismissedPlayerId:j['dismissedPlayerId'] as String?,dismissalType:j['dismissalType'] as String?);
+}
