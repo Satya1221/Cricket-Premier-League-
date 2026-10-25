@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/core/game_feel.dart';
-import 'src/features/game/presentation/startup_screen.dart';
+import 'src/features/game/presentation/main_menu_screen.dart';
 import 'src/theme/game_theme.dart';
 
 void main() {
@@ -19,6 +19,6 @@ class CricketPremierLeagueApp extends StatelessWidget {
         title: 'Cricket Premier League',
         debugShowCheckedModeBanner: false,
         theme: GameTheme.dark,
-        home: const StartupScreen(),
+        home: const MainMenuScreen(),
       );
 }
