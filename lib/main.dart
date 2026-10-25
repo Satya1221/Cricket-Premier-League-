@@ -10,6 +10,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox<dynamic>('career_saves');
+  await Hive.openBox<dynamic>('game_state');
   GameFeel.init();
   runApp(const ProviderScope(child: CricketPremierLeagueApp()));
 }
