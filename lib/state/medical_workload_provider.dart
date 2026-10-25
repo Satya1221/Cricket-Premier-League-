@@ -27,8 +27,9 @@ class MedicalWorkloadNotifier extends StateNotifier<Map<String,PlayerWorkloadSta
   Future<void> settleMatch({required String playerId,required WorkloadRole role,int oversBowled=0,int runsScored=0,int physioLevel=0,Random? random})async{
     final player=state[playerId]??PlayerWorkloadState(playerId:playerId);
     final service=const MedicalWorkloadService();
-    final fatigued=service.settle(player:player,role:role,oversBowled:oversBowled,runsScored:runsScored,physioLevel:physioLevel);
-    state={...state,playerId:service.rollPreMatchInjury(fatigued,random:random)};
+    final preMatch=service.rollPreMatchInjury(player,random:random);
+    final fatigued=service.settle(player:preMatch,role:role,oversBowled:oversBowled,runsScored:runsScored,physioLevel:physioLevel);
+    state={...state,playerId:fatigued};
     await _save();
   }
   Future<void> advanceWeek({int physioLevel=0})async{
