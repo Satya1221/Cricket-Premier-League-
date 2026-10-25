@@ -5,6 +5,7 @@ import 'granular_player_profile.dart';
 import 'bowling_angle_engine.dart';
 
 enum DeliveryOutcomeType { wicket, dot, one, two, four, six }
+enum DismissalType { bowled, caught, lbw, stumped, runOut }
 enum BatterIntent { defend, rotate, slog }
 enum BowlerTactic { attack, contain, balanced }
 
@@ -72,6 +73,7 @@ class DeliveryResolution {
     required this.intent,
     required this.tactic,
     required this.thresholds,
+    this.dismissal,
   });
 
   final DeliveryOutcomeType outcome;
@@ -84,6 +86,7 @@ class DeliveryResolution {
   final BatterIntent intent;
   final BowlerTactic tactic;
   final Map<String, double> thresholds;
+  final DismissalType? dismissal;
 }
 
 /// Resolves a delivery using environment-adjusted bowler threat versus
@@ -193,8 +196,33 @@ class DeliveryResolutionEngine {
                 : roll <= fourChance
                     ? DeliveryOutcomeType.four
                     : DeliveryOutcomeType.six;
+    DismissalType? dismissal;
+    if (outcome == DeliveryOutcomeType.wicket) {
+      // The current match engine does not model a full ball trajectory. Select a
+      // plausible dismissal subtype using the tactical profile as a weighted cue.
+      final lbwWeight = (tacticalModifiers['lbwMultiplier'] ?? 1.0).clamp(0.1, 2.2);
+      final edgeWeight = (tacticalModifiers['edgeProbability'] ?? 1.0).clamp(0.1, 2.2);
+      final stumpWeight = (tacticalModifiers['stumpingMultiplier'] ?? 1.0).clamp(0.1, 2.2);
+      final total = lbwWeight + edgeWeight + stumpWeight + 1.0;
+      final dismissalRoll = _random.nextDouble() * total;
+      if (dismissalRoll < lbwWeight) {
+        dismissal = DismissalType.lbw;
+      } else if (dismissalRoll < lbwWeight + edgeWeight) {
+        dismissal = DismissalType.caught;
+      } else if (dismissalRoll < lbwWeight + edgeWeight + stumpWeight) {
+        dismissal = DismissalType.stumped;
+      } else {
+        dismissal = DismissalType.bowled;
+      }
+    }
     final commentary = switch (outcome) {
-      DeliveryOutcomeType.wicket => 'WICKET! Edged and taken.',
+      DeliveryOutcomeType.wicket => switch (dismissal!) {
+        DismissalType.bowled => 'WICKET! Bowled through the gate.',
+        DismissalType.caught => 'WICKET! Outside edge and taken by the keeper/slip.',
+        DismissalType.lbw => 'WICKET! Trapped in front — LBW.',
+        DismissalType.stumped => 'WICKET! Beaten in flight and stumped.',
+        DismissalType.runOut => 'WICKET! Run out attempting a quick single.',
+      },
       DeliveryOutcomeType.dot => 'Dot ball. Beaten by the movement.',
       DeliveryOutcomeType.one => '1 run. Worked into the gaps.',
       DeliveryOutcomeType.two => '2 runs. Excellent running.',
@@ -218,6 +246,7 @@ class DeliveryResolutionEngine {
       intent: intent,
       tactic: tactic,
       thresholds: Map.unmodifiable(thresholds),
+      dismissal: dismissal,
     );
   }
 }
