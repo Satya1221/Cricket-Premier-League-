@@ -236,7 +236,7 @@ class _RecentBalls extends StatelessWidget {
       Padding(padding: const EdgeInsets.only(left: 5), child: Container(width: 32, height: 32, alignment: Alignment.center,
         decoration: BoxDecoration(shape: BoxShape.circle, color: balls[i] == 'W' ? Colors.redAccent : (balls[i] == '4' || balls[i] == '6' ? Colors.green : Colors.white12)),
         child: Text(balls[i], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)))
-        .animate(key: ValueKey('${i}-${balls[i]}')).scale(curve: Curves.elasticOut, duration: 350.ms)),
+        .animate(key: ValueKey('$i-${balls[i]}')).scale(curve: Curves.elasticOut, duration: 350.ms)),
   ]);
 }
 
@@ -291,7 +291,7 @@ class _TacticalDesk extends StatelessWidget {
 
   Widget _choice<T extends Enum>(String label, T value, List<T> values, ValueChanged<T> changed) =>
     DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       dropdownColor: const Color(0xFF1C2541),
       style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -300,7 +300,7 @@ class _TacticalDesk extends StatelessWidget {
         labelStyle: const TextStyle(color: Colors.white60, fontSize: 11),
         filled: true, fillColor: Colors.white.withValues(alpha: .04),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.white12)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white12)),
       ),
       items: values.map((v) => DropdownMenuItem<T>(value: v, child: Text(v.name.replaceAllMapped(RegExp(r'[A-Z]'), (m) => ' ${m[0]}').trim().toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
       onChanged: (v) { if (v != null) changed(v); },
