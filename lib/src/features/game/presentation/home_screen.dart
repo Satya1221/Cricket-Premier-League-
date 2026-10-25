@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/game_theme.dart';
 import '../../auction/auction_screen.dart';
 import '../../match/matchday_screen.dart';
+import '../../match/presentation/field_editor_screen.dart';
+import '../../squad/presentation/medical_screen.dart';
+import 'academy_screen.dart';
+import 'press_conference_dialog.dart';
 import '../application/game_controller.dart';
 import '../application/global_calendar_controller.dart';
 import 'inbox_screen.dart';
@@ -204,6 +208,34 @@ class HomeScreen extends ConsumerWidget {
                   builder: (_) => const MatchdayScreen(),
                 ));
               },
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.health_and_safety_rounded,
+              title: 'MEDICAL CENTER',
+              subtitle: 'Review workload risk, injuries and recovery.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const MedicalCenterScreen())),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.account_balance_rounded,
+              title: 'ACADEMY & COACHING',
+              subtitle: 'Upgrade training facilities and hire specialist coaches.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AcademyScreen())),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.sports_cricket_rounded,
+              title: 'FIELD PLACEMENT',
+              subtitle: 'Arrange fielders on the oval and set tactical roles.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const FieldEditorScreen())),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.mic_none_rounded,
+              title: 'PRESS CONFERENCE',
+              subtitle: 'Respond to the media and influence morale.',
+              onTap: () => showPressConference(context),
             ),
             const SizedBox(height: 10),
             if (session.phase == GamePhase.season)
