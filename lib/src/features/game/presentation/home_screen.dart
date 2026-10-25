@@ -13,6 +13,9 @@ import '../application/game_controller.dart';
 import '../application/global_calendar_controller.dart';
 import 'inbox_screen.dart';
 import 'standings_screen.dart';
+import 'trophy_room_screen.dart';
+import 'first_match_tutorial_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -77,6 +80,19 @@ class HomeScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(18),
           children: [
+            FutureBuilder<dynamic>(
+              future: Future<dynamic>.value(Hive.box<dynamic>('career_saves').get('ftue-complete')),
+              builder: (context, snapshot) {
+                if (snapshot.data == true) return const SizedBox.shrink();
+                return _ActionTile(
+                  icon: Icons.school_rounded,
+                  title: 'FIRST-TIME TUTORIAL',
+                  subtitle: 'Learn batting intent, field traps and pitch effects before managing your franchise.',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const FirstMatchTutorialScreen())),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
@@ -204,6 +220,13 @@ class HomeScreen extends ConsumerWidget {
               onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
                 builder: (_) => const StandingsScreen(),
               )),
+            ),
+            const SizedBox(height: 10),
+            _ActionTile(
+              icon: Icons.emoji_events_rounded,
+              title: 'TROPHY ROOM & CAREER RECORDS',
+              subtitle: 'All-time run scorers, wicket takers and match run-rate analytics.',
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const TrophyRoomScreen())),
             ),
             const SizedBox(height: 10),
             _ActionTile(
