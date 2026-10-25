@@ -28,7 +28,7 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
   final String _saveId;
   final CareerSimulationEngine _engine = const CareerSimulationEngine();
   final FastSimEngine _fastSim = const FastSimEngine();
-  final SeasonScheduleRepository _schedule = SeasonScheduleRepository();
+  late final SeasonScheduleRepository _schedule = SeasonScheduleRepository(saveId: _saveId);
 
   Future<void> _persistSchedule() => _schedule.save(state.fixtures.map((f) => FixtureModel(
     matchId: f.id, homeTeamId: f.homeTeamId, awayTeamId: f.awayTeamId,
