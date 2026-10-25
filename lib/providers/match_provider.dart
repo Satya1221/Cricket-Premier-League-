@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/delivery_model.dart';
 
-enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsNewBowler, superOverRequired, completed }
+enum IplMatchStatus { inningsOne, inningsTwo, needsOpeningBatters, needsIncomingBatter, needsNewBowler, superOverRequired, completed }
 
 class IplMatchState {
  const IplMatchState({this.innings=1,this.runs=0,this.wickets=0,this.legalBalls=0,this.targetScore=0,this.strikerId,this.nonStrikerId,this.bowlerId,this.battingTeamId='cpl',this.defendingTeamId='opponent',this.status=IplMatchStatus.inningsOne,this.deliveries=const [],this.winnerTeamId,this.isTie=false,this.message='Select the opening batters to begin.',this.pendingBowlerChange=false});
@@ -35,7 +35,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
  void swapBatters(){state=state.copyWith(strikerId:state.nonStrikerId,nonStrikerId:state.strikerId);}
  void resolveDelivery(int runs,bool isWicket,String extra,{String? dismissedPlayerId}) {
   if(runs<0)throw ArgumentError.value(runs,'runs','Runs cannot be negative.');
-  if(state.status==IplMatchStatus.completed||state.status==IplMatchStatus.superOverRequired||state.status==IplMatchStatus.needsOpeningBatters)throw StateError('The innings is not ready for a delivery.');
+  if(state.status==IplMatchStatus.completed||state.status==IplMatchStatus.superOverRequired||(state.status==IplMatchStatus.needsOpeningBatters||state.status==IplMatchStatus.needsIncomingBatter))throw StateError('The innings is not ready for a delivery.');
   if(state.strikerId==null||state.nonStrikerId==null||state.bowlerId==null)throw StateError('Select two batters and a bowler before the next delivery.');
   if(state.pendingBowlerChange)throw StateError('Select a new bowler before continuing.');
   final normalized=extra.trim().toLowerCase();
@@ -56,11 +56,12 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   if(totalRuns.isOdd)next=next.copyWith(strikerId:next.nonStrikerId,nonStrikerId:next.strikerId);
   if(isWicket){
    final dismissed=ball.dismissedPlayerId;
-   if(dismissed==next.strikerId)next=next.copyWith(clearStriker:true,status:IplMatchStatus.needsOpeningBatters,message:'Wicket. Select the incoming batter.');
+   if(dismissed==next.strikerId)next=next.copyWith(clearStriker:true,status:IplMatchStatus.needsIncomingBatter,message:'Wicket. Select the incoming batter.');
    else if(dismissed==next.nonStrikerId)next=next.copyWith(clearNonStriker:true,status:IplMatchStatus.needsOpeningBatters,message:'Wicket. Select the incoming batter.');
   }
   state=next;
   evaluateInningsState();
+  if(state.status!=IplMatchStatus.completed&&state.status!=IplMatchStatus.superOverRequired&&state.status!=IplMatchStatus.needsOpeningBatters&&state.status!=IplMatchStatus.needsIncomingBatter&&legal&&state.legalBalls>0&&state.legalBalls%6==0){endOfOver();}
  }
  void endOfOver(){
   if(state.legalBalls==0||state.legalBalls%6!=0)throw StateError('An over ends after six legal deliveries.');
@@ -73,7 +74,7 @@ class MatchNotifier extends StateNotifier<IplMatchState>{
   final inningsOver=state.wickets>=10||state.legalBalls>=maxLegalBalls;
   if(!inningsOver)return;
   if(state.innings==1){
-   state=state.copyWith(innings:2,targetScore:state.runs+1,runs:0,wickets:0,legalBalls:0,deliveries:const [],clearStriker:true,clearNonStriker:true,clearBowler:true,status:IplMatchStatus.needsOpeningBatters,battingTeamId:state.defendingTeamId,defendingTeamId:state.battingTeamId,pendingBowlerChange:true,message:'First innings complete. Target: ${state.runs+1}. Select opening batters.');
+   state=state.copyWith(innings:2,targetScore:state.runs+1,runs:0,wickets:0,legalBalls:0,deliveries:state.deliveries,clearStriker:true,clearNonStriker:true,clearBowler:true,status:IplMatchStatus.needsOpeningBatters,battingTeamId:state.defendingTeamId,defendingTeamId:state.battingTeamId,pendingBowlerChange:true,message:'First innings complete. Target: ${state.runs+1}. Select opening batters.');
    return;
   }
   if(state.runs==state.targetScore-1){state=state.copyWith(status:IplMatchStatus.superOverRequired,isTie:true,message:'Match tied. IPL rules require a Super Over.');return;}
