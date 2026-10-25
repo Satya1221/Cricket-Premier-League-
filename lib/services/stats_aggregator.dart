@@ -22,6 +22,8 @@ class StatsAggregator {
    final player=players.get(id);if(player==null)continue;
    final matchRuns=runs[id]??0;
    await players.put(id,player.copyWith(
+    runs:player.runs+matchRuns,
+    wickets:player.wickets+(wickets[id]??0),
     careerRuns:player.careerRuns+matchRuns,
     careerWickets:player.careerWickets+(wickets[id]??0),
     matchesPlayed:player.matchesPlayed+1,
