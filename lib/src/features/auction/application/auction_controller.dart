@@ -33,7 +33,7 @@ class AuctionController extends Notifier<AuctionState> {
   @override
   AuctionState build() {
     ref.onDispose(() => _biddingTimer?.cancel());
-    final initial=createDemoAuction();
+    final initial = CampaignStore.loadActiveAuction() ?? createDemoAuction();
     unawaited(_syncPlayerModels(initial));
     return initial;
   }
@@ -59,6 +59,7 @@ class AuctionController extends Notifier<AuctionState> {
       final before = state.currentBidCr;
       final previousLeader = state.leadingTeamId;
       state = _engine.runRivalRound(state: state, rivals: _rivals);
+      unawaited(CampaignStore.saveAuction(state));
       if (state.currentBidCr > before || state.leadingTeamId != previousLeader) {
         _quietTicks = 0;
       } else {
@@ -84,9 +85,13 @@ class AuctionController extends Notifier<AuctionState> {
     if (teamId == 'cpl') {
       state = _engine.runRivalRound(state: state, rivals: _rivals);
     }
+    unawaited(CampaignStore.saveAuction(state));
   }
 
-  void runRivalRound() => state = _engine.runRivalRound(state: state, rivals: _rivals);
+  void runRivalRound() {
+    state = _engine.runRivalRound(state: state, rivals: _rivals);
+    unawaited(CampaignStore.saveAuction(state));
+  }
 
   /// Closing a lot changes purse and squad, so the save slot is refreshed
   /// immediately to keep the Load Game cards accurate.
@@ -107,6 +112,13 @@ class AuctionController extends Notifier<AuctionState> {
     }
     unawaited(CampaignStore.saveAuction(state));
   }
-  void nextLot() => state = _engine.nextLot(state);
-  void reset() => state = createDemoAuction();
+  void nextLot() {
+    state = _engine.nextLot(state);
+    unawaited(CampaignStore.saveAuction(state));
+  }
+
+  void reset() {
+    state = createDemoAuction();
+    unawaited(CampaignStore.saveAuction(state));
+  }
 }
