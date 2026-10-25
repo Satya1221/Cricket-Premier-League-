@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'living_pitch.dart';
 import '../../squad/domain/granular_player_profile.dart';
-import 'bowling_angle_engine.dart';
 
 enum DeliveryOutcomeType { wicket, dot, one, two, four, six }
 enum DismissalType { bowled, caught, lbw, stumped, runOut }
@@ -255,31 +254,5 @@ class DeliveryResolutionEngine {
       thresholds: Map.unmodifiable(thresholds),
       dismissal: dismissal,
     );
-  }
-}
-
-void main() {
-  final environment = MatchEnvironment(pitchType: PitchType.dusty, weather: Weather.sunny);
-  final bowler = ResolutionBowler(
-    name: 'Demo Spinner',
-    baseAccuracy: 90,
-    baseMovement: 95,
-    isSpinner: true,
-  );
-  final batter = ResolutionBatter(name: 'Rookie Batter', baseTiming: 60, baseDefense: 70);
-  final engine = DeliveryResolutionEngine();
-
-  print('--- Over Starts ---');
-  for (var ball = 1; ball <= 6; ball++) {
-    final result = engine.resolve(
-      environment: environment,
-      bowler: bowler,
-      batter: batter,
-    );
-    print('Ball $ball: ${result.commentary}');
-    print('  [Debug] Threat: ${result.bowlerThreat.toStringAsFixed(1)}'
-        ' | Control: ${result.batterControl.toStringAsFixed(1)}'
-        ' | Focus: ${(batter.concentration * 100).toInt()}%'
-        ' | Stamina: ${(bowler.stamina * 100).toInt()}%');
   }
 }
