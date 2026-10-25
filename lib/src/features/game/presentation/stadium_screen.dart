@@ -24,13 +24,13 @@ class StadiumScreen extends ConsumerWidget {
             Text(stadium.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
             Text(stadium.city, style: const TextStyle(color: Colors.white60)),
             const SizedBox(height: 14),
-            Text('Pitch: ' + _pitchLabel(stadium.pitchType), style: const TextStyle(color: GamePalette.emerald, fontWeight: FontWeight.w800)),
+            Text('Pitch: ${_pitchLabel(stadium.pitchType)}', style: const TextStyle(color: GamePalette.emerald, fontWeight: FontWeight.w800)),
             const SizedBox(height: 12),
             Wrap(spacing: 8, runSpacing: 8, children: [
-              _stat('CAPACITY', stadium.capacity.toString() + ' seats'),
-              _stat('TICKET', '₹' + stadium.ticketPrice.toString()),
-              _stat('HOME MORALE', '+' + stadium.homeMoraleBonus.toString()),
-              _stat('CHEMISTRY', '+' + stadium.homeChemistryBonus.toString()),
+              _stat('CAPACITY', '${stadium.capacity} seats'),
+              _stat('TICKET', '₹${stadium.ticketPrice}'),
+              _stat('HOME MORALE', '+${stadium.homeMoraleBonus}'),
+              _stat('CHEMISTRY', '+${stadium.homeChemistryBonus}'),
             ]),
           ]),
         ),
@@ -42,7 +42,7 @@ class StadiumScreen extends ConsumerWidget {
           child: ListTile(
             leading: Icon(_pitchIcon(option.pitchType), color: GamePalette.gold),
             title: Text(option.name, style: const TextStyle(fontWeight: FontWeight.w800)),
-            subtitle: Text(option.city + ' · ' + _pitchLabel(option.pitchType) + ' · ' + option.capacity.toString() + ' seats'),
+            subtitle: Text('${option.city} · ${_pitchLabel(option.pitchType)} · ${option.capacity} seats'),
             trailing: option.id == stadium.id ? const Icon(Icons.check_circle, color: GamePalette.emerald) : const Icon(Icons.chevron_right),
             onTap: () => actions.selectStadium(option.id))),
         const SizedBox(height: 16),
@@ -56,9 +56,9 @@ class StadiumScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: GamePalette.panel, borderRadius: BorderRadius.circular(16), border: Border.all(color: GamePalette.line)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('FRANCHISE FUNDS  ₹' + state.franchiseFunds.toString(), style: const TextStyle(fontWeight: FontWeight.w900, color: GamePalette.gold)),
+            Text('FRANCHISE FUNDS  ₹${state.franchiseFunds}', style: const TextStyle(fontWeight: FontWeight.w900, color: GamePalette.gold)),
             const SizedBox(height: 6),
-            Text('Last home-match revenue: ₹' + state.lastMatchRevenue.toString(), style: const TextStyle(color: Colors.white70)),
+            Text('Last home-match revenue: ₹${state.lastMatchRevenue}', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 10),
             const Text('Expand capacity by 5,000 seats for ₹600,000. Capacity is capped at 65,000.', style: TextStyle(color: Colors.white60, height: 1.35)),
             const SizedBox(height: 10),
@@ -87,7 +87,7 @@ class StadiumScreen extends ConsumerWidget {
       const SizedBox(height: 3), Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12))]));
   static Widget _meter(String label, double value, String description) => Padding(padding: const EdgeInsets.symmetric(vertical: 7),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800))), Text(value.toStringAsFixed(2) + '×', style: const TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900))]),
+      Row(children: [Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800))), Text('${value.toStringAsFixed(2)}×', style: const TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900))]),
       const SizedBox(height: 4), LinearProgressIndicator(value: (value / 2).clamp(0, 1), minHeight: 5, backgroundColor: Colors.white12, color: GamePalette.emerald),
       const SizedBox(height: 3), Text(description, style: const TextStyle(color: Colors.white54, fontSize: 11))]));
   static String _pitchLabel(StadiumPitchType type) => switch (type) {
