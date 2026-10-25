@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/game_theme.dart';
 import '../../match/domain/stadium_pitch_engine.dart';
 import '../application/stadium_provider.dart';
+import 'income_statement_screen.dart';
 
 class StadiumScreen extends ConsumerWidget {
   const StadiumScreen({super.key});
@@ -63,14 +64,16 @@ class StadiumScreen extends ConsumerWidget {
             const Text('Expand capacity by 5,000 seats for ₹600,000. Capacity is capped at 65,000.', style: TextStyle(color: Colors.white60, height: 1.35)),
             const SizedBox(height: 10),
             SizedBox(width: double.infinity, child: ElevatedButton.icon(
-              onPressed: stadium.capacity >= StadiumEconomy.maximumCapacity || state.franchiseFunds < 600000 ? null : () {
-                try { actions.expandBy(5000); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Stadium expansion completed.'))); }
-                on StateError catch (error) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message))); }
+              onPressed: stadium.capacity >= StadiumEconomy.maximumCapacity || state.franchiseFunds < 6000000 ? null : () async {
+                try { await actions.expandBy(5000); if(context.mounted)ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Stadium expansion completed.'))); }
+                on StateError catch (error) { if(context.mounted)ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message))); }
               },
               icon: const Icon(Icons.stadium_rounded), label: const Text('UPGRADE STADIUM'))),
             const SizedBox(height: 6),
             SizedBox(width: double.infinity, child: OutlinedButton.icon(
               onPressed: () => actions.recordHomeMatch(), icon: const Icon(Icons.payments_rounded), label: const Text('RECORD HOME MATCH REVENUE'))),
+            const SizedBox(height: 8),
+            SizedBox(width:double.infinity,child:OutlinedButton.icon(onPressed:()=>Navigator.of(context).push(MaterialPageRoute<void>(builder:(_)=>const IncomeStatementScreen())),icon:const Icon(Icons.receipt_long_rounded),label:const Text('VIEW INCOME STATEMENT'))),
             const SizedBox(height: 8),
             Text(state.lastAction, style: const TextStyle(color: Colors.white54, fontSize: 12)),
           ])),
