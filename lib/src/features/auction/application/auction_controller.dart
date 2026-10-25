@@ -186,15 +186,16 @@ class AuctionController extends Notifier<AuctionState> {
             donorIndex = candidateIndex;
           }
         }
-        if (transfer == null || donorIndex < 0) break;
+        final selectedPlayer = transfer;
+        if (selectedPlayer == null || donorIndex < 0) break;
         final donor = teams[donorIndex];
         teams[donorIndex] = donor.copyWith(
           purseCr: donor.purseCr + transferCost,
-          squad: donor.squad.where((player) => player.id != transfer!.id).toList(),
+          squad: donor.squad.where((player) => player.id != selectedPlayer.id).toList(),
         );
         teams[recipientIndex] = recipient.copyWith(
           purseCr: recipient.purseCr - transferCost,
-          squad: [...recipient.squad, transfer],
+          squad: [...recipient.squad, selectedPlayer],
         );
       }
     }
