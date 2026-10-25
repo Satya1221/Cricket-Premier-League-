@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../data/local_storage_service.dart';
 
 /// High-level lifecycle of a franchise save.
 enum GamePhase { preSeason, auction, season, postSeason }
@@ -55,7 +59,19 @@ class GameSessionState {
 /// Coordinates campaign lifecycle. The save repository listens to these
 /// state transitions and writes snapshots to local storage.
 class GameController extends StateNotifier<GameSessionState> {
-  GameController() : super(const GameSessionState());
+  GameController({LocalStorageService? storage})
+      : _storage = storage ?? LocalStorageService(),
+        super(const GameSessionState()) {
+    final saved = _storage.loadSession();
+    if (saved != null) {
+      state = GameSessionState.fromJson(saved);
+    }
+    addListener((snapshot) {
+      unawaited(_storage.saveSession(snapshot.toJson()));
+    });
+  }
+
+  final LocalStorageService _storage;
 
   void startCampaign({
     required String campaignId,
