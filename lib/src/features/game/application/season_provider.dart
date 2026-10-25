@@ -9,7 +9,10 @@ final careerSaveRepositoryProvider = Provider<CareerSaveRepository>((ref) => Car
 final seasonProvider = StateNotifierProvider<SeasonNotifier, SeasonData>((ref) => SeasonNotifier(ref.read(careerSaveRepositoryProvider)));
 
 class SeasonNotifier extends StateNotifier<SeasonData> {
-  SeasonNotifier(this._saves) : super(_newSeason()) { _persistSchedule(); }
+  SeasonNotifier(this._saves) : super(_loadInitial(_saves)) { _persistSchedule(); }
+
+  static SeasonData _loadInitial(CareerSaveRepository saves) =>
+      saves.loadSeason(defaultSaveId) ?? _newSeason();
   final CareerSaveRepository _saves;
   final CareerSimulationEngine _engine = const CareerSimulationEngine();
   final SeasonScheduleRepository _schedule = SeasonScheduleRepository();
