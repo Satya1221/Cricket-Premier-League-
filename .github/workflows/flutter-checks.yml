@@ -45,7 +45,7 @@ jobs:
           grep -q 'assets/sounds/gavel_slam.wav.b64' pubspec.yaml
       - name: Prevent page-local colour literals
         run: |
-          if grep -R -n --include='*.dart' -E 'Color\\(0x[0-9A-Fa-f]{6,8}\\)' lib/src/features; then
+          if grep -R -n --include='*.dart' -E 'Color\(0x[0-9A-Fa-f]{6,8}\)' lib/src/features; then
             echo "Use shared design tokens instead of page-local colour literals."
             exit 1
           fi
