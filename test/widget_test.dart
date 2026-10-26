@@ -4,12 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cricket_premier_league/src/features/auction/auction_screen.dart';
 import 'package:cricket_premier_league/src/features/auction/application/auction_controller.dart';
-import 'package:cricket_premier_league/src/features/auction/data/demo_auction.dart';
+import 'package:cricket_premier_league/src/features/auction/data/initial_auction.dart';
 import 'package:cricket_premier_league/src/features/auction/domain/auction_state.dart';
 
 class _TestAuctionController extends AuctionController {
   @override
-  AuctionState build() => createDemoAuction();
+  AuctionState build() => createInitialAuction();
 }
 
 void main() {
