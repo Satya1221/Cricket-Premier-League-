@@ -42,6 +42,15 @@ abstract final class DisplayLabels {
     'legbye': 'Leg bye',
     'runout': 'Run out',
     'hitwicket': 'Hit wicket',
+    'pacebowler': 'Fast bowler',
+    'spinbowler': 'Spin bowler',
+    'generalfatigue': 'General fatigue',
+    'slowerball': 'Slower ball',
+    'runrate': 'Run rate',
+    'overs': 'Overs',
+    'played': 'Played',
+    'won': 'Won',
+    'lost': 'Lost',
   };
 
   static const Map<String, String> _hints = {
@@ -75,7 +84,7 @@ abstract final class DisplayLabels {
         .split(RegExp(r'\s+'))
         .map((word) => word.isEmpty
             ? word
-            : '${word[0].toUpperCase()}${word.substring(1)}')
+            : '${word.toLowerCase()[0].toUpperCase()}${word.toLowerCase().substring(1)}')
         .join(' ');
   }
 
