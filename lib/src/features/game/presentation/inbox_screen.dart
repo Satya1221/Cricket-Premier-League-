@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/game_theme.dart';
 import '../application/global_calendar_controller.dart';
 import '../domain/inbox_message.dart';
+import '../../../widgets/ui/empty_state.dart';
+import 'calendar_screen.dart';
 
 class InboxScreen extends ConsumerWidget {
   const InboxScreen({super.key});
@@ -38,15 +40,10 @@ class InboxScreen extends ConsumerWidget {
             _CalendarHeader(date: inbox.currentDate),
             Expanded(
               child: inbox.messages.isEmpty
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(28),
-                        child: Text(
-                          'No new messages.\n\nYour staff will report here when competitions start and decisions need your attention.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white54, height: 1.6),
-                        ),
-                      ),
+                  ? const EmptyState(
+                      icon: Icons.mark_email_read_outlined,
+                      title: "You're all caught up",
+                      message: 'Your staff will report here when competitions start and decisions need your attention.',
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
@@ -60,20 +57,16 @@ class InboxScreen extends ConsumerWidget {
                           final message = inbox.messages[index];
                           controller.markRead(message.id);
                           if (message.actionRoute == '/calendar') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Competition details are available from the global calendar.'),
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const CompetitionCalendarScreen(),
                               ),
                             );
                             return;
                           }
-                          // The app does not register named routes yet. Avoid
-                          // Navigator's runtime route-generation exception.
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'This action is not available yet: ${message.actionRoute}',
-                              ),
+                            const SnackBar(
+                              content: Text('Message acknowledged. No additional action is required.'),
                             ),
                           );
                         },
