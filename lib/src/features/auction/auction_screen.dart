@@ -242,7 +242,7 @@ class _PlayerLot extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentBid = state.currentBidCr;
     final phase = state.phase;
-    final valuation = const AuctionEngine().valuationCr(player);
+    final valuation = AuctionEngine().valuationCr(player);
     return _Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('PLAYER ON THE BLOCK', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: GamePalette.muted, fontWeight: FontWeight.w800)),
