@@ -32,7 +32,7 @@ class _SquadSelectionScreenState extends ConsumerState<SquadSelectionScreen> {
       });
     }
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: GamePalette.ink,
       appBar: AppBar(title: const Text('SQUAD & PLAYING XI')),
       body: ListView(padding: const EdgeInsets.all(16),children:[
         Container(padding: const EdgeInsets.all(14),decoration:BoxDecoration(color:GamePalette.panel,borderRadius:BorderRadius.circular(14),border:Border.all(color:GamePalette.line)),
