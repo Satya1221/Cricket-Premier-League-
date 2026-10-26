@@ -6,7 +6,7 @@ void main() {
     final original = CampaignSave(
       id: 'career-test',
       league: 'Premier T20 League',
-      franchiseName: 'Mumbai Indians',
+      franchiseName: 'Coastal Premier Lions',
       purseCr: 42.5,
       difficulty: 'Hard',
       seasonNumber: 3,
