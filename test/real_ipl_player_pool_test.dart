@@ -8,6 +8,9 @@ import 'package:cricket_premier_league/src/features/game/domain/career_simulatio
 void main() {
   test('real-player pool covers all ten fictional franchises with unique IDs', () {
     expect(leagueFranchises, hasLength(10));
+    expect(leagueFranchises.map((f) => f.name).toSet(), hasLength(10));
+    expect(leagueFranchises.any((f) => f.name == 'Mumbai Indians'), isFalse);
+    expect(leagueFranchises.any((f) => f.name == 'Chennai Super Kings'), isFalse);
     expect(realIpl2026PlayerPool.length, greaterThanOrEqualTo(180));
     expect(realIpl2026PlayerPool.map((p) => p.id).toSet(),
         hasLength(realIpl2026PlayerPool.length));
