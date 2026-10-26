@@ -383,7 +383,7 @@ class _ManagerDeck extends StatelessWidget {
     final player = state.currentPlayer;
     final nextBid = state.currentBidCr == 0
         ? (player?.basePriceCr ?? 0)
-        : state.currentBidCr + const AuctionEngine().incrementFor(state.currentBidCr);
+        : state.currentBidCr + AuctionEngine().incrementFor(state.currentBidCr);
     final active = state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding;
     final canAfford = team != null && team.purseCr >= nextBid;
     final alreadyLeading = state.leadingTeamId == 'cpl';
