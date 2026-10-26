@@ -178,11 +178,11 @@ class _HeroBanner extends StatelessWidget {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(22),
       gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-        colors: [Color(0xFF243A3B), Color(0xFF13242C), Color(0xFF111821)]),
+        colors: [GamePalette.panelRaised, GamePalette.panel, GamePalette.ink]),
       border: Border.all(color: GamePalette.gold.withValues(alpha: .32)),
     ),
     child: Stack(children: [
-      const Positioned(right: 0, top: -8, child: Icon(Icons.stadium_rounded, size: 98, color: Color(0x223DDEAA))),
+      const Positioned(right: 0, top: -8, child: Icon(Icons.stadium_rounded, size: 98, color: GamePalette.emerald.withValues(alpha: 0.13))),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('THE NEXT GENERATION OF FRANCHISE CRICKET', style: TextStyle(color: GamePalette.emerald, fontSize: 10, letterSpacing: 1.1, fontWeight: FontWeight.w900)),
         const SizedBox(height: 12),
