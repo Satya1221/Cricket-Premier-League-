@@ -107,7 +107,7 @@ class HomeScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF243047), Color(0xFF111827)],
+                  colors: [GamePalette.panelRaised, GamePalette.ink],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
