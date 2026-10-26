@@ -10,7 +10,7 @@ void main() {
       expect(DisplayLabels.display('allRounder'), 'All-rounder');
       expect(DisplayLabels.display('wicketKeeper'), 'Wicketkeeper');
       expect(DisplayLabels.display('noBall'), 'No-ball');
-      expect(DisplayLabels.display('run_rate'), 'Run Rate');
+      expect(DisplayLabels.display('run_rate'), 'Run rate');
     });
 
     test('provides useful hints only where extra explanation exists', () {
