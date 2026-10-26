@@ -19,7 +19,7 @@ class StadiumScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('STADIUM & PITCH')),
       body: ListView(padding: const EdgeInsets.all(18), children: [
         Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF243047), Color(0xFF111827)]),
+          gradient: const LinearGradient(colors: [GamePalette.panelRaised, GamePalette.ink]),
           borderRadius: BorderRadius.circular(20), border: Border.all(color: GamePalette.line)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('HOME GROUND', style: TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
@@ -41,7 +41,7 @@ class StadiumScreen extends ConsumerWidget {
         const Text('CHOOSE A STADIUM', style: TextStyle(color: GamePalette.gold, fontWeight: FontWeight.w900, letterSpacing: 1.1)),
         const SizedBox(height: 8),
         for (final option in state.stadiums) Card(
-          color: option.id == stadium.id ? const Color(0xFF26352F) : GamePalette.panel,
+          color: option.id == stadium.id ? GamePalette.panelRaised : GamePalette.panel,
           child: ListTile(
             leading: Icon(_pitchIcon(option.pitchType), color: GamePalette.gold),
             title: Text(option.name, style: const TextStyle(fontWeight: FontWeight.w800)),
