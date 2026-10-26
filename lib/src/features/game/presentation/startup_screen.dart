@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../squad/application/initial_player_pool_provider.dart';
-import '../../squad/domain/regen_factory.dart';
 import '../../../theme/game_theme.dart';
 import 'home_screen.dart';
 import '../application/game_controller.dart';
@@ -45,14 +43,10 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
   Future<void> _bootGame() async {
     try {
       await _setStage('Initializing world state...', 0.12);
-      await _setStage('Scouting global player pool...', 0.35);
-
-      // Deterministic name uniqueness is enforced by RegenFactory.
-      final initialPool = RegenFactory().generateDraftClass(300);
-      ref.read(initialPlayerPoolProvider.notifier).state = initialPool;
-      await _setStage('Generated ${initialPool.length} prospects...', 0.62);
-      await _setStage('Preparing auction systems...', 0.82);
-      await _setStage('Preparing franchise headquarters...', 1);
+      await _setStage('Loading player database...', 0.35);
+      await _setStage('Preparing auction systems...', 0.62);
+      await _setStage('Preparing franchise headquarters...', 0.82);
+      await _setStage('Opening franchise headquarters...', 1);
 
       await Future<void>.delayed(const Duration(milliseconds: 450));
       if (!mounted) return;
