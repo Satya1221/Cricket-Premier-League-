@@ -6,6 +6,7 @@ import '../../../widgets/ui/empty_state.dart';
 import '../../../widgets/ui/game_page_scaffold.dart';
 import '../application/season_provider.dart';
 import '../application/game_controller.dart';
+import '../domain/career_simulation_engine.dart';
 import '../../../../state/league_standings_provider.dart';
 
 class StandingsScreen extends ConsumerWidget {
