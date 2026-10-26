@@ -1,30 +1,155 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../theme/game_theme.dart';
+
+import '../../../core/cricket_currency.dart';
+import '../../../core/display_labels.dart';
+import '../../../theme/tokens.dart';
+import '../../../widgets/ui/empty_state.dart';
+import '../../../widgets/ui/game_page_scaffold.dart';
 import '../../../../services/treasury_service.dart';
-import '../../../../models/transaction_model.dart';
 
-final treasuryRefreshProvider=StateProvider<int>((ref)=>0);
+final treasuryRefreshProvider = StateProvider<int>((ref) => 0);
 
-class IncomeStatementScreen extends ConsumerWidget{
- const IncomeStatementScreen({super.key});
- @override Widget build(BuildContext context,WidgetRef ref){
-  ref.watch(treasuryRefreshProvider);
-  final treasury=const TreasuryService();
-  final rows=treasury.transactions;
-  final income=rows.where((e)=>e.isIncome).fold<double>(0,(s,e)=>s+e.amount);
-  final expense=rows.where((e)=>!e.isIncome).fold<double>(0,(s,e)=>s+e.amount);
-  return Scaffold(appBar:AppBar(title:const Text('FRANCHISE INCOME STATEMENT')),body:ListView(padding:const EdgeInsets.all(16),children:[
-   Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(color:GamePalette.panel,borderRadius:BorderRadius.circular(18),border:Border.all(color:GamePalette.line)),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-    const Text('OPERATING TREASURY',style:TextStyle(color:GamePalette.gold,fontWeight:FontWeight.w900,letterSpacing:1.1)),
-    const SizedBox(height:8),Text('₹${treasury.balanceRupees.toStringAsFixed(0)}',style:const TextStyle(fontSize:30,fontWeight:FontWeight.w900)),
-    const SizedBox(height:14),Row(children:[Expanded(child:_metric('TOTAL INCOME',income,true)),const SizedBox(width:8),Expanded(child:_metric('TOTAL EXPENSES',expense,false))]),
-    const SizedBox(height:8),const Text('IPL player-auction purse remains a separate league-capped budget; operating income cannot increase the salary cap.',style:TextStyle(color:Colors.white60,fontSize:11,height:1.4)),
-   ])),
-   const SizedBox(height:18),const Text('TRANSACTION LEDGER',style:TextStyle(color:GamePalette.gold,fontWeight:FontWeight.w900,letterSpacing:1.1)),
-   if(rows.isEmpty)const Padding(padding:EdgeInsets.all(24),child:Text('No transactions yet. Home-match revenue and facility upgrades will appear here.')),
-   for(final t in rows)Card(color:GamePalette.panel,child:ListTile(leading:Icon(t.isIncome?Icons.south_west_rounded:Icons.north_east_rounded,color:t.isIncome?GamePalette.emerald:GamePalette.danger),title:Text(t.description),subtitle:Text('${t.category} · ${t.date.toLocal()}'),trailing:Text('${t.isIncome?'+':'−'}₹${t.amount.toStringAsFixed(0)}',style:TextStyle(fontWeight:FontWeight.w800,color:t.isIncome?GamePalette.emerald:GamePalette.danger)))),
-  ]));
- }
- static Widget _metric(String label,double value,bool positive)=>Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(label,style:const TextStyle(color:Colors.white54,fontSize:10,fontWeight:FontWeight.w800)),const SizedBox(height:4),Text('₹${value.toStringAsFixed(0)}',style:TextStyle(fontWeight:FontWeight.w900,color:positive?GamePalette.emerald:GamePalette.danger))]);
+class IncomeStatementScreen extends ConsumerWidget {
+  const IncomeStatementScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(treasuryRefreshProvider);
+    final treasury = const TreasuryService();
+    final rows = treasury.transactions;
+    final income = rows.where((row) => row.isIncome)
+        .fold<double>(0, (sum, row) => sum + row.amount);
+    final expense = rows.where((row) => !row.isIncome)
+        .fold<double>(0, (sum, row) => sum + row.amount);
+
+    return GamePageScaffold(
+      title: 'INCOME STATEMENT',
+      bodyPadding: EdgeInsets.zero,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpace.lg, AppSpace.lg, AppSpace.lg, AppSpace.huge,
+        ),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpace.xl),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'OPERATING TREASURY',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: AppSpace.sm),
+                Text(
+                  CricketCurrency.formatRupees(treasury.balanceRupees),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: AppSpace.lg),
+                Row(
+                  children: [
+                    Expanded(child: _metric('Income', income, AppColors.positive)),
+                    const SizedBox(width: AppSpace.sm),
+                    Expanded(child: _metric('Expenses', expense, AppColors.negative)),
+                  ],
+                ),
+                const SizedBox(height: AppSpace.md),
+                const Text(
+                  'The auction purse is a separate capped budget. Operating revenue does not increase the player salary cap.',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    height: 1.45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpace.xl),
+          Text(
+            'TRANSACTION LEDGER',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: AppColors.action,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          if (rows.isEmpty)
+            const EmptyState(
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'No transactions yet',
+              message: 'Match revenue, facility upgrades and other operating activity will appear here when you play.',
+              compact: true,
+            )
+          else
+            for (final transaction in rows)
+              Card(
+                child: ListTile(
+                  leading: Icon(
+                    transaction.isIncome
+                        ? Icons.south_west_rounded
+                        : Icons.north_east_rounded,
+                    color: transaction.isIncome
+                        ? AppColors.positive
+                        : AppColors.negative,
+                  ),
+                  title: Text(transaction.description),
+                  subtitle: Text(
+                    '${DisplayLabels.display(transaction.category)} · ${_dateLabel(transaction.date)}',
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                  trailing: Text(
+                    '${transaction.isIncome ? '+' : '−'}${CricketCurrency.formatRupees(transaction.amount)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: transaction.isIncome
+                          ? AppColors.positive
+                          : AppColors.negative,
+                    ),
+                  ),
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _metric(String label, double value, Color color) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            CricketCurrency.formatRupees(value),
+            style: TextStyle(color: color, fontWeight: FontWeight.w900),
+          ),
+        ],
+      );
+
+  static String _dateLabel(DateTime date) {
+    final local = date.toLocal();
+    final day = local.day.toString().padLeft(2, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    return '$day/$month/${local.year}';
+  }
 }
