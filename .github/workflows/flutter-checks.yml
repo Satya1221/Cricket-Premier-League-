@@ -2,7 +2,7 @@ name: Flutter checks
 
 on:
   push:
-    branches: [main, 'modernization/**']
+    branches: [main, 'modernization/**', 'feature/**']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -30,14 +30,49 @@ jobs:
         run: flutter pub get
       - name: Format Dart
         run: dart format lib test
+      - name: Block demo-only UI copy
+        run: |
+          if grep -R -n --include='*.dart' -E 'DEMO:|This action is not available yet' lib/src; then
+            echo "Demo-only or unfinished UI copy must be removed before shipping."
+            exit 1
+          fi
+      - name: Verify shared design token files and sound asset
+        run: |
+          test -f lib/src/theme/tokens.dart
+          test -f lib/src/core/display_labels.dart
+          test -f lib/src/widgets/ui/empty_state.dart
+          test -f assets/sounds/gavel_slam.wav.b64
+          grep -q 'assets/sounds/gavel_slam.wav.b64' pubspec.yaml
       - name: Static analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Unit and widget tests
         run: flutter test
       - name: Build debug APK
         run: flutter build apk --debug
-      - uses: actions/upload-artifact@v4
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
         with:
           name: cricket-premier-league-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+      - name: Build obfuscated split-per-ABI release APKs
+        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols
+      - name: Enforce release APK size budget
+        run: |
+          for apk in build/app/outputs/flutter-apk/*-release.apk; do
+            size=$(stat -c%s "$apk")
+            echo "$apk: $((size / 1024 / 1024)) MiB"
+            test "$size" -le 52428800
+          done
+      - name: Upload release APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: cricket-premier-league-release-apks
+          path: build/app/outputs/flutter-apk/*-release.apk
+          if-no-files-found: error
+      - name: Archive Dart obfuscation symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: cricket-premier-league-obfuscation-symbols
+          path: build/symbols/**
           if-no-files-found: error
