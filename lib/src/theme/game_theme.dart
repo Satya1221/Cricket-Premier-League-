@@ -8,6 +8,7 @@ abstract final class GamePalette {
   static const panel = AppColors.surface;
   static const panelRaised = AppColors.surfaceRaised;
   static const gold = AppColors.action;
+  static const money = AppColors.textPrimary;
   static const emerald = AppColors.positive;
   static const muted = AppColors.textSecondary;
   static const danger = AppColors.negative;
