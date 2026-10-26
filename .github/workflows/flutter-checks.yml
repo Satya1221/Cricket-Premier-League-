@@ -2,7 +2,7 @@ name: Flutter checks
 
 on:
   push:
-    branches: [main, 'modernization/**', 'feature/**']
+    branches: [main, 'modernization/**']
   pull_request:
     branches: [main]
   workflow_dispatch:
