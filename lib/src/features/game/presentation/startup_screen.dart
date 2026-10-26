@@ -100,7 +100,7 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: GamePalette.ink,
       body: SafeArea(
         child: Center(
           child: Padding(
