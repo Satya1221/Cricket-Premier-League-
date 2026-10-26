@@ -1,22 +1,27 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 
-/// Small, optional sound-and-haptics layer for auction feedback.
+/// Sound and haptics for match and auction feedback.
 class GameFeel {
   GameFeel._();
 
   static final AudioPlayer _sfxPlayer = AudioPlayer();
-  static bool _gavelAssetAvailable = false;
+  static Uint8List? _gavelBytes;
 
-  /// Call once during startup. Add assets/sounds/gavel_slam.mp3 to enable audio.
+  /// Loads the small original WAV from the bundled base64 text asset.
   static Future<void> init() async {
     try {
-      await _sfxPlayer.setSource(AssetSource('sounds/gavel_slam.mp3'));
+      final encoded = await rootBundle.loadString('assets/sounds/gavel_slam.wav.b64');
+      final decoded = Uint8List.fromList(base64Decode(encoded.trim()));
+      _gavelBytes = decoded;
+      await _sfxPlayer.setSource(BytesSource(decoded, mimeType: 'audio/wav'));
       await _sfxPlayer.setVolume(1);
-      _gavelAssetAvailable = true;
     } catch (_) {
-      // Haptics still work when the optional sound asset has not been added.
-      _gavelAssetAvailable = false;
+      // Sound remains optional on devices without an audio output/plugin.
+      _gavelBytes = null;
     }
   }
 
@@ -26,15 +31,16 @@ class GameFeel {
 
   static Future<void> triggerGavelSlam() async {
     HapticFeedback.heavyImpact();
-    if (!_gavelAssetAvailable) return;
+    final sound = _gavelBytes;
+    if (sound == null) return;
     try {
       await _sfxPlayer.stop();
       await _sfxPlayer.play(
-        AssetSource('sounds/gavel_slam.mp3'),
+        BytesSource(sound, mimeType: 'audio/wav'),
         mode: PlayerMode.lowLatency,
       );
     } catch (_) {
-      // Audio failure should never interrupt auction gameplay.
+      // Audio failure should never interrupt gameplay.
     }
   }
 

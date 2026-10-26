@@ -35,7 +35,7 @@ class MainMenuScreen extends ConsumerWidget {
     final chosen = await showDialog<CampaignSave>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1C2541),
+        backgroundColor: GamePalette.panel,
         title: const Text(
           'LOAD CAMPAIGN',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
@@ -104,7 +104,7 @@ class MainMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: GamePalette.ink,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -122,7 +122,7 @@ class MainMenuScreen extends ConsumerWidget {
                       gradient: const LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Color(0xFF1C4A42), Color(0xFF111827)],
+                        colors: [GamePalette.emerald, GamePalette.ink],
                       ),
                       border: Border.all(color: GamePalette.gold.withValues(alpha: .4)),
                     ),
@@ -152,7 +152,7 @@ class MainMenuScreen extends ConsumerWidget {
                     label: const Text('NEW CAMPAIGN'),
                     style: FilledButton.styleFrom(
                       backgroundColor: GamePalette.gold,
-                      foregroundColor: const Color(0xFF101820),
+                      foregroundColor: GamePalette.ink,
                       minimumSize: const Size.fromHeight(58),
                       textStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: .8),
                     ),

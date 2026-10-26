@@ -178,11 +178,11 @@ class _HeroBanner extends StatelessWidget {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(22),
       gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-        colors: [Color(0xFF243A3B), Color(0xFF13242C), Color(0xFF111821)]),
+        colors: [GamePalette.panelRaised, GamePalette.panel, GamePalette.ink]),
       border: Border.all(color: GamePalette.gold.withValues(alpha: .32)),
     ),
     child: Stack(children: [
-      const Positioned(right: 0, top: -8, child: Icon(Icons.stadium_rounded, size: 98, color: Color(0x223DDEAA))),
+      Positioned(right: 0, top: -8, child: Icon(Icons.stadium_rounded, size: 98, color: GamePalette.emerald.withValues(alpha: 0.13))),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('THE NEXT GENERATION OF FRANCHISE CRICKET', style: TextStyle(color: GamePalette.emerald, fontSize: 10, letterSpacing: 1.1, fontWeight: FontWeight.w900)),
         const SizedBox(height: 12),
@@ -242,7 +242,7 @@ class _PlayerLot extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentBid = state.currentBidCr;
     final phase = state.phase;
-    final valuation = const AuctionEngine().valuationCr(player);
+    final valuation = AuctionEngine().valuationCr(player);
     return _Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('PLAYER ON THE BLOCK', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: GamePalette.muted, fontWeight: FontWeight.w800)),
@@ -257,8 +257,8 @@ class _PlayerLot extends StatelessWidget {
           Text('${player.nation} • Age ${player.age}${player.isOverseas ? ' • OVERSEAS' : ''}', style: const TextStyle(color: GamePalette.muted, fontSize: 11)),
           const SizedBox(height: 10),
           Wrap(spacing: 6, runSpacing: 6, children: [
-            _Rating(label: 'OVR', value: player.overall),
-            _Rating(label: 'POT', value: player.potential),
+            _Rating(label: 'OVERALL', value: player.overall),
+            _Rating(label: 'POTENTIAL', value: player.potential),
             _Rating(label: 'FORM', value: player.form),
           ]),
         ])),
@@ -317,7 +317,7 @@ class _Price extends StatelessWidget {
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     Text(label, style: const TextStyle(fontSize: 9, color: GamePalette.muted, letterSpacing: .3, fontWeight: FontWeight.w800)),
     const SizedBox(height: 4),
-    Text(value, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: highlight ? GamePalette.gold : Colors.white)),
+    Text(value, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: GamePalette.money)),
   ]);
 }
 
@@ -383,7 +383,7 @@ class _ManagerDeck extends StatelessWidget {
     final player = state.currentPlayer;
     final nextBid = state.currentBidCr == 0
         ? (player?.basePriceCr ?? 0)
-        : state.currentBidCr + const AuctionEngine().incrementFor(state.currentBidCr);
+        : state.currentBidCr + AuctionEngine().incrementFor(state.currentBidCr);
     final active = state.phase == AuctionPhase.ready || state.phase == AuctionPhase.bidding;
     final canAfford = team != null && team.purseCr >= nextBid;
     final alreadyLeading = state.leadingTeamId == 'cpl';

@@ -167,7 +167,7 @@ class MatchdayScreen extends ConsumerWidget {
     final s = ref.watch(matchProvider);
     final actions = ref.read(matchProvider.notifier);
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: GamePalette.ink,
       appBar: AppBar(backgroundColor: Colors.transparent, centerTitle: true,
         title: Text('${s.format.name.toUpperCase()} MATCH', style: const TextStyle(letterSpacing: 2, color: Colors.white70, fontSize: 14)),
         actions: [IconButton(tooltip:'IPL innings & scorecard controller',onPressed:()=>Navigator.of(context).push(MaterialPageRoute<void>(builder:(_)=>const IplMatchControllerScreen())),icon:const Icon(Icons.scoreboard_rounded)), PopupMenuButton<CricketFormat>(tooltip: 'Match format', onSelected: actions.setFormat, itemBuilder: (_) => CricketFormat.values.map((format) => PopupMenuItem(value: format, child: Text(format.name.toUpperCase()))).toList()), IconButton(onPressed: actions.resetMatch, icon: const Icon(Icons.restart_alt), tooltip: 'Reset match')]),
@@ -208,7 +208,7 @@ class _Scoreboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.fromLTRB(16, 8, 16, 12), padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(color: const Color(0xFF1C2541), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white10),
+    decoration: BoxDecoration(color: GamePalette.panel, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white10),
       boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 5))]),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -294,7 +294,7 @@ class _TacticalDesk extends StatelessWidget {
     DropdownButtonFormField<T>(
       initialValue: value,
       isExpanded: true,
-      dropdownColor: const Color(0xFF1C2541),
+      dropdownColor: GamePalette.panel,
       style: const TextStyle(color: Colors.white, fontSize: 12),
       decoration: InputDecoration(
         labelText: label,
@@ -308,7 +308,7 @@ class _TacticalDesk extends StatelessWidget {
     );
   @override
   Widget build(BuildContext context) => Container(padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-    decoration: const BoxDecoration(color: Color(0xFF1C2541), borderRadius: BorderRadius.vertical(top: Radius.circular(26))),
+    decoration: const BoxDecoration(color: GamePalette.panel, borderRadius: BorderRadius.vertical(top: Radius.circular(26))),
     child: Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('TACTICAL INTENT', style: TextStyle(color: Colors.white60, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: .8)),

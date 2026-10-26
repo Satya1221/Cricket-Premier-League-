@@ -1,24 +1,24 @@
 import '../domain/player.dart';
 
-/// Real player identities and 2026 IPL franchise affiliations are compiled from
-/// the published 2026 squad lists. Ability, potential, form and reserve prices
-/// are game-balancing estimates, not official BCCI ratings or auction prices.
-class IplFranchise {
-  const IplFranchise(this.id, this.name, this.shortName);
+/// Real player identities are organised into an original fictional league. The
+/// source-club prefixes are internal roster-group identifiers only. Ability,
+/// potential, form and reserve prices are gameplay estimates, not official ratings.
+class LeagueFranchise {
+  const LeagueFranchise(this.id, this.name, this.shortName);
   final String id, name, shortName;
 }
 
-const currentIplFranchises = <IplFranchise>[
-  IplFranchise('cpl', 'Mumbai Indians', 'MI'),
-  IplFranchise('roy', 'Royal Challengers Bengaluru', 'RCB'),
-  IplFranchise('tit', 'Chennai Super Kings', 'CSK'),
-  IplFranchise('fal', 'Kolkata Knight Riders', 'KKR'),
-  IplFranchise('gt', 'Gujarat Titans', 'GT'),
-  IplFranchise('rr', 'Rajasthan Royals', 'RR'),
-  IplFranchise('pbks', 'Punjab Kings', 'PBKS'),
-  IplFranchise('srh', 'Sunrisers Hyderabad', 'SRH'),
-  IplFranchise('lsg', 'Lucknow Super Giants', 'LSG'),
-  IplFranchise('dc', 'Delhi Capitals', 'DC'),
+const leagueFranchises = <LeagueFranchise>[
+  LeagueFranchise('cpl', 'Coastal Premier Lions', 'CPL'),
+  LeagueFranchise('roy', 'Royal Strikers', 'ROY'),
+  LeagueFranchise('tit', 'Capital Titans', 'TIT'),
+  LeagueFranchise('fal', 'Frontier Falcons', 'FAL'),
+  LeagueFranchise('gt', 'Desert Comets', 'DSC'),
+  LeagueFranchise('rr', 'Highland Hawks', 'HHK'),
+  LeagueFranchise('pbks', 'Prairie Kings', 'PRK'),
+  LeagueFranchise('srh', 'Eastern Arrows', 'EAR'),
+  LeagueFranchise('lsg', 'Lakefront Giants', 'LFG'),
+  LeagueFranchise('dc', 'Metro Mariners', 'MTM'),
 
 
 ];

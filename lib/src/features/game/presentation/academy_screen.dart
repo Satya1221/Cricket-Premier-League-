@@ -20,7 +20,7 @@ class AcademyScreen extends ConsumerWidget {
     final academyNextLevel = s.facilities.youthAcademyLevel + 1;
     final academyCost = s.facilities.youthAcademyLevel >= 5 ? 0 : (academyNextLevel >= 5 ? 5000000 : 2500000 + (academyNextLevel - 2) * 1000000);
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: GamePalette.ink,
       appBar: AppBar(title: const Text('ACADEMY & STAFF')),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -28,7 +28,7 @@ class AcademyScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xFF1C2541),
+              color: GamePalette.panel,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -86,7 +86,7 @@ class AcademyScreen extends ConsumerWidget {
           ),
           for (final specialty in CoachSpecialty.values)
             Card(
-              color: const Color(0xFF1C2541),
+              color: GamePalette.panel,
               child: ListTile(
                 leading: const Icon(Icons.sports, color: GamePalette.gold),
                 title: Text(
@@ -139,7 +139,7 @@ Widget _facility(
     Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2541),
+        color: GamePalette.panel,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: GamePalette.line),
       ),

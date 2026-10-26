@@ -9,7 +9,7 @@ void main() {
       completedMatches: 12,
       lastAction: 'Match 12 completed.',
       campaignId: 'campaign-test',
-      league: 'Indian Premier League',
+      league: 'Premier T20 League',
       franchiseName: 'Coastal Premier Lions',
       purseCr: 37.25,
       difficulty: 'Hard',
@@ -22,7 +22,7 @@ void main() {
     expect(restored.completedMatches, 12);
     expect(restored.lastAction, 'Match 12 completed.');
     expect(restored.campaignId, 'campaign-test');
-    expect(restored.league, 'Indian Premier League');
+    expect(restored.league, 'Premier T20 League');
     expect(restored.franchiseName, 'Coastal Premier Lions');
     expect(restored.purseCr, 37.25);
     expect(restored.difficulty, 'Hard');

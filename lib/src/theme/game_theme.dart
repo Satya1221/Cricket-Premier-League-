@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'tokens.dart';
+
 abstract final class GamePalette {
-  static const ink = Color(0xFF0F172A);
-  static const panel = Color(0xFF1E293B);
-  static const panelRaised = Color(0xFF263449);
-  static const gold = Color(0xFFF59E0B);
-  static const emerald = Color(0xFF10B981);
-  static const muted = Color(0xFF94A3B8);
-  static const danger = Color(0xFFEF4444);
-  static const line = Color(0xFF334155);
+  static const ink = AppColors.background;
+  static const panel = AppColors.surface;
+  static const panelRaised = AppColors.surfaceRaised;
+  static const gold = AppColors.action;
+  static const money = AppColors.textPrimary;
+  static const emerald = AppColors.positive;
+  static const muted = AppColors.textSecondary;
+  static const danger = AppColors.negative;
+  static const line = AppColors.border;
 }
 
 abstract final class GameTheme {
@@ -28,7 +31,7 @@ abstract final class GameTheme {
 
     final textTheme = GoogleFonts.montserratTextTheme(base.textTheme).copyWith(
       displayLarge: GoogleFonts.oswald(
-        fontSize: 52,
+        fontSize: AppType.display.fontSize,
         fontWeight: FontWeight.w700,
         letterSpacing: -1.4,
         color: Colors.white,
@@ -45,7 +48,7 @@ abstract final class GameTheme {
         color: Colors.white,
       ),
       headlineMedium: GoogleFonts.oswald(
-        fontSize: 24,
+        fontSize: AppType.title.fontSize,
         fontWeight: FontWeight.w700,
         color: Colors.white,
       ),

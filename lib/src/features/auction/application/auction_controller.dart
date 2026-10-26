@@ -6,7 +6,7 @@ import '../../../../models/player_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../game/data/campaign_store.dart';
-import '../data/demo_auction.dart';
+import '../data/initial_auction.dart';
 import '../domain/auction_engine.dart';
 import '../domain/auction_state.dart';
 import '../domain/player.dart';
@@ -39,7 +39,7 @@ class AuctionController extends Notifier<AuctionState> {
   @override
   AuctionState build() {
     ref.onDispose(() => _biddingTimer?.cancel());
-    final initial = CampaignStore.loadActiveAuction() ?? createDemoAuction();
+    final initial = CampaignStore.loadActiveAuction() ?? createInitialAuction();
     unawaited(_syncPlayerModels(initial));
     return initial;
   }
@@ -206,13 +206,13 @@ class AuctionController extends Notifier<AuctionState> {
 
   void loadActiveCampaign() {
     stopLiveBidding();
-    state = CampaignStore.loadActiveAuction() ?? createDemoAuction();
+    state = CampaignStore.loadActiveAuction() ?? createInitialAuction();
     unawaited(_syncPlayerModels(state));
     unawaited(CampaignStore.saveAuction(state));
   }
 
   void reset() {
-    state = createDemoAuction();
+    state = createInitialAuction();
     unawaited(CampaignStore.saveAuction(state));
   }
 }

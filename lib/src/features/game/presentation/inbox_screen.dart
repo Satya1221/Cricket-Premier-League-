@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/game_theme.dart';
 import '../application/global_calendar_controller.dart';
 import '../domain/inbox_message.dart';
+import '../../../widgets/ui/empty_state.dart';
+import 'calendar_screen.dart';
 
 class InboxScreen extends ConsumerWidget {
   const InboxScreen({super.key});
@@ -15,7 +17,7 @@ class InboxScreen extends ConsumerWidget {
     final controller = ref.read(globalCalendarProvider.notifier);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: GamePalette.ink,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -38,15 +40,10 @@ class InboxScreen extends ConsumerWidget {
             _CalendarHeader(date: inbox.currentDate),
             Expanded(
               child: inbox.messages.isEmpty
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(28),
-                        child: Text(
-                          'No new messages.\n\nYour staff will report here when competitions start and decisions need your attention.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white54, height: 1.6),
-                        ),
-                      ),
+                  ? const EmptyState(
+                      icon: Icons.mark_email_read_outlined,
+                      title: "You're all caught up",
+                      message: 'Your staff will report here when competitions start and decisions need your attention.',
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
@@ -60,20 +57,16 @@ class InboxScreen extends ConsumerWidget {
                           final message = inbox.messages[index];
                           controller.markRead(message.id);
                           if (message.actionRoute == '/calendar') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Competition details are available from the global calendar.'),
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const CompetitionCalendarScreen(),
                               ),
                             );
                             return;
                           }
-                          // The app does not register named routes yet. Avoid
-                          // Navigator's runtime route-generation exception.
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'This action is not available yet: ${message.actionRoute}',
-                              ),
+                            const SnackBar(
+                              content: Text('Message acknowledged. No additional action is required.'),
                             ),
                           );
                         },
@@ -114,7 +107,7 @@ class _CalendarHeader extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: GamePalette.panel,
         border: Border(
           bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -162,7 +155,7 @@ class _MessageCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: GamePalette.panel,
         borderRadius: BorderRadius.circular(14),
         border: Border(
           left: BorderSide(
@@ -278,7 +271,7 @@ class _ContinueBar extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: GamePalette.ink,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),

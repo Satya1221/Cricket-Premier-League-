@@ -107,7 +107,7 @@ class HomeScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF243047), Color(0xFF111827)],
+                  colors: [GamePalette.panelRaised, GamePalette.ink],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -391,15 +391,6 @@ class HomeScreen extends ConsumerWidget {
         GamePhase.postSeason => 'OFF-SEASON',
       };
 
-  static void _runAction(BuildContext context, VoidCallback action) {
-    try {
-      action();
-    } on StateError catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
-    }
-  }
 }
 
 class _StatTile extends StatelessWidget {

@@ -53,7 +53,7 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       'gt': 'gt-', 'rr': 'rr-', 'pbks': 'pbks-', 'srh': 'srh-',
       'lsg': 'lsg-', 'dc': 'dc-',
     };
-    final teams = currentIplFranchises.map((franchise) {
+    final teams = leagueFranchises.map((franchise) {
       final prefix = prefixByTeam[franchise.id]!;
       final players = realIpl2026PlayerPool
           .where((player) => player.id.startsWith(prefix))

@@ -60,7 +60,7 @@ class CampaignSave {
 
   factory CampaignSave.fromJson(Map<String, dynamic> json) => CampaignSave(
         id: json['id'] as String,
-        league: json['league'] as String? ?? 'Indian Premier League',
+        league: json['league'] as String? ?? 'Premier T20 League',
         franchiseName: json['franchiseName'] as String? ?? 'My Franchise',
         purseCr: (json['purseCr'] as num?)?.toDouble() ?? 120,
         difficulty: json['difficulty'] as String? ?? 'Normal',

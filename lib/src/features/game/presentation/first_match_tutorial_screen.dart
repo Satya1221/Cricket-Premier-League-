@@ -21,7 +21,7 @@ class _FirstMatchTutorialScreenState extends ConsumerState<FirstMatchTutorialScr
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFF0B132B),
+    backgroundColor: GamePalette.ink,
     appBar: AppBar(title: const Text('YOUR FIRST OVER')),
     body: ListView(padding: const EdgeInsets.all(20), children: [
       const Icon(Icons.school_rounded, color: GamePalette.gold, size: 56),

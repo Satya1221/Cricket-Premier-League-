@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cricket_premier_league/src/features/auction/data/demo_auction.dart';
+import 'package:cricket_premier_league/src/features/auction/data/initial_auction.dart';
 import 'package:cricket_premier_league/src/features/auction/domain/auction_engine.dart';
 import 'package:cricket_premier_league/src/features/auction/domain/auction_state.dart';
 
@@ -8,7 +8,7 @@ void main() {
 
   group('Auction engine', () {
     test('valuation is not below base price', () {
-      final player = createDemoAuction().players.first;
+      final player = createInitialAuction().players.first;
       expect(engine.valuationCr(player), greaterThanOrEqualTo(player.basePriceCr));
     });
 
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('first bid starts at base price and sale updates purse exactly once', () {
-      final initial = createDemoAuction();
+      final initial = createInitialAuction();
       final bid = engine.placeBid(state: initial, teamId: 'cpl');
       expect(bid.currentBidCr, 2);
       expect(bid.leadingTeamId, 'cpl');
@@ -32,7 +32,7 @@ void main() {
     });
 
     test('auction state survives JSON save and restore', () {
-      final initial = createDemoAuction();
+      final initial = createInitialAuction();
       final bid = engine.placeBid(state: initial, teamId: 'cpl');
       final sold = engine.closeLot(bid);
       final restored = AuctionState.fromJson(
@@ -49,12 +49,12 @@ void main() {
     });
 
     test('cannot bid after a lot has closed', () {
-      final sold = engine.closeLot(engine.placeBid(state: createDemoAuction(), teamId: 'cpl'));
+      final sold = engine.closeLot(engine.placeBid(state: createInitialAuction(), teamId: 'cpl'));
       expect(() => engine.placeBid(state: sold, teamId: 'roy'), throwsStateError);
     });
 
     test('full squad is prevented from bidding', () {
-      final state = createDemoAuction();
+      final state = createInitialAuction();
       final original = state.teams.first;
       final full = original.copyWith(squad: List.filled(25, state.players.first));
       final updated = state.copyWith(teams: [full, ...state.teams.skip(1)]);
@@ -62,13 +62,13 @@ void main() {
     });
 
     test('unsold player advances to next lot', () {
-      final closed = engine.closeLot(createDemoAuction());
+      final closed = engine.closeLot(createInitialAuction());
       expect(closed.phase, AuctionPhase.unsold);
       expect(engine.nextLot(closed).currentPlayerIndex, 1);
     });
 
     test('a franchise cannot bid against itself', () {
-      final firstBid = engine.placeBid(state: createDemoAuction(), teamId: 'cpl');
+      final firstBid = engine.placeBid(state: createInitialAuction(), teamId: 'cpl');
       expect(
         () => engine.placeBid(state: firstBid, teamId: 'cpl'),
         throwsStateError,
@@ -76,7 +76,7 @@ void main() {
     });
 
     test('higher rival aggression increases its valuation ceiling', () {
-      final state = createDemoAuction();
+      final state = createInitialAuction();
       final player = state.players.first;
       final team = state.teams[1];
       final cautious = engine.rivalDecision(
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('rival round records decisions and raises a competing bid', () {
-      final state = createDemoAuction();
+      final state = createInitialAuction();
       final result = engine.runRivalRound(
         state: state,
         rivals: const [
@@ -111,7 +111,7 @@ void main() {
     });
 
     test('rival bid depends on its style and has a reason', () {
-      final state = createDemoAuction();
+      final state = createInitialAuction();
       final player = state.players.first;
       final team = state.teams[1];
       final decision = engine.rivalDecision(

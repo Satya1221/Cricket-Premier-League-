@@ -20,7 +20,7 @@ class _FieldEditorScreenState extends ConsumerState<FieldEditorScreen> {
     final field = ref.watch(fieldPlacementProvider);
     final controller = ref.read(fieldPlacementProvider.notifier);
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: GamePalette.ink,
       appBar: AppBar(title: const Text('FIELD PLACEMENT')),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -108,7 +108,7 @@ class _OvalPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(size.width * .06, size.height * .05, size.width * .88, size.height * .90);
-    final grass = Paint()..color = const Color(0xFF174D3A);
+    final grass = Paint()..color = GamePalette.emerald;
     final line = Paint()
       ..color = Colors.white70
       ..style = PaintingStyle.stroke

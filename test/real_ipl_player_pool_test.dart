@@ -6,8 +6,11 @@ import 'package:cricket_premier_league/src/features/auction/domain/player.dart';
 import 'package:cricket_premier_league/src/features/game/domain/career_simulation_engine.dart';
 
 void main() {
-  test('real IPL data covers all ten franchises and has unique player IDs', () {
-    expect(currentIplFranchises, hasLength(10));
+  test('real-player pool covers all ten fictional franchises with unique IDs', () {
+    expect(leagueFranchises, hasLength(10));
+    expect(leagueFranchises.map((f) => f.name).toSet(), hasLength(10));
+    expect(leagueFranchises.any((f) => f.name == 'Mumbai Indians'), isFalse);
+    expect(leagueFranchises.any((f) => f.name == 'Chennai Super Kings'), isFalse);
     expect(realIpl2026PlayerPool.length, greaterThanOrEqualTo(180));
     expect(realIpl2026PlayerPool.map((p) => p.id).toSet(),
         hasLength(realIpl2026PlayerPool.length));
@@ -24,9 +27,9 @@ void main() {
         isNotEmpty);
   });
 
-  test('ten-team career runs a full double round robin and advances season', () {
+  test('ten-franchise career runs a full double round robin and advances season', () {
     final teams = [
-      for (final franchise in currentIplFranchises)
+      for (final franchise in leagueFranchises)
         CareerTeam(
           id: franchise.id,
           name: franchise.name,

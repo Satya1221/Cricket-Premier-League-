@@ -2,11 +2,11 @@ import '../domain/auction_state.dart';
 import '../domain/player.dart';
 import 'real_ipl_2026_player_pool.dart';
 
-/// Builds a fresh auction from the published 2026 IPL player pool.
-/// All ten franchises participate; the human-managed franchise is Mumbai Indians.
-AuctionState createDemoAuction() => AuctionState(
+/// Builds a fresh auction from the published player-data pool.
+/// All ten franchises participate; the human-managed franchise is Coastal Premier Lions.
+AuctionState createInitialAuction() => AuctionState(
   teams: [
-    for (final franchise in currentIplFranchises)
+    for (final franchise in leagueFranchises)
       AuctionTeam(
         id: franchise.id,
         name: franchise.name,
@@ -20,5 +20,5 @@ AuctionState createDemoAuction() => AuctionState(
   currentBidCr: 0,
   leadingTeamId: null,
   bidHistory: const [],
-  message: '2026 IPL player pool loaded • 10 franchises ready',
+  message: 'Player pool loaded • 10 original franchises ready',
 );
