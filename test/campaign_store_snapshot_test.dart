@@ -5,7 +5,7 @@ void main() {
   test('campaign save round-trips auction, roster and calendar snapshots', () {
     final original = CampaignSave(
       id: 'career-test',
-      league: 'Indian Premier League',
+      league: 'Premier T20 League',
       franchiseName: 'Mumbai Indians',
       purseCr: 42.5,
       difficulty: 'Hard',
