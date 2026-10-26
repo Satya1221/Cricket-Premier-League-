@@ -8,7 +8,7 @@ void main() {
 
   group('Auction engine', () {
     test('valuation is not below base price', () {
-      final player = createDemoAuction().players.first;
+      final player = createInitialAuction().players.first;
       expect(engine.valuationCr(player), greaterThanOrEqualTo(player.basePriceCr));
     });
 
