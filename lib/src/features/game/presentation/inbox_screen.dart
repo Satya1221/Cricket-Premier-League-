@@ -15,7 +15,7 @@ class InboxScreen extends ConsumerWidget {
     final controller = ref.read(globalCalendarProvider.notifier);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: GamePalette.ink,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -114,7 +114,7 @@ class _CalendarHeader extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: GamePalette.panel,
         border: Border(
           bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -162,7 +162,7 @@ class _MessageCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: GamePalette.panel,
         borderRadius: BorderRadius.circular(14),
         border: Border(
           left: BorderSide(
@@ -278,7 +278,7 @@ class _ContinueBar extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: GamePalette.ink,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
