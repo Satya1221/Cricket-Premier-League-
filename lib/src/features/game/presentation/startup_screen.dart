@@ -59,7 +59,7 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
       final campaignId = 'campaign-${DateTime.now().millisecondsSinceEpoch}';
       ref.read(gameControllerProvider.notifier).startCampaign(
         campaignId: campaignId,
-        league: 'Indian Premier League',
+        league: 'Premier T20 League',
         franchiseName: 'Mumbai Indians',
         purseCr: 120,
         difficulty: 'Normal',
@@ -68,7 +68,7 @@ class _StartupScreenState extends ConsumerState<StartupScreen> {
       try {
         await CampaignStore.save(CampaignSave(
           id: campaignId,
-          league: 'Indian Premier League',
+          league: 'Premier T20 League',
           franchiseName: 'Coastal Premier Lions',
           purseCr: 120,
           difficulty: 'Normal',
