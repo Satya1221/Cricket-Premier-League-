@@ -257,8 +257,8 @@ class _PlayerLot extends StatelessWidget {
           Text('${player.nation} • Age ${player.age}${player.isOverseas ? ' • OVERSEAS' : ''}', style: const TextStyle(color: GamePalette.muted, fontSize: 11)),
           const SizedBox(height: 10),
           Wrap(spacing: 6, runSpacing: 6, children: [
-            _Rating(label: 'OVR', value: player.overall),
-            _Rating(label: 'POT', value: player.potential),
+            _Rating(label: 'OVERALL', value: player.overall),
+            _Rating(label: 'POTENTIAL', value: player.potential),
             _Rating(label: 'FORM', value: player.form),
           ]),
         ])),
@@ -317,7 +317,7 @@ class _Price extends StatelessWidget {
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     Text(label, style: const TextStyle(fontSize: 9, color: GamePalette.muted, letterSpacing: .3, fontWeight: FontWeight.w800)),
     const SizedBox(height: 4),
-    Text(value, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: highlight ? GamePalette.gold : Colors.white)),
+    Text(value, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: GamePalette.money)),
   ]);
 }
 
