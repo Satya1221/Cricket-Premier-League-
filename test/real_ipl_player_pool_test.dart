@@ -29,7 +29,7 @@ void main() {
 
   test('ten-franchise career runs a full double round robin and advances season', () {
     final teams = [
-      for (final franchise in currentIplFranchises)
+      for (final franchise in leagueFranchises)
         CareerTeam(
           id: franchise.id,
           name: franchise.name,
