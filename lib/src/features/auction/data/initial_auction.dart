@@ -6,7 +6,7 @@ import 'real_ipl_2026_player_pool.dart';
 /// All ten franchises participate; the human-managed franchise is Mumbai Indians.
 AuctionState createInitialAuction() => AuctionState(
   teams: [
-    for (final franchise in currentIplFranchises)
+    for (final franchise in leagueFranchises)
       AuctionTeam(
         id: franchise.id,
         name: franchise.name,
