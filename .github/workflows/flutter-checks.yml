@@ -43,6 +43,12 @@ jobs:
           test -f lib/src/widgets/ui/empty_state.dart
           test -f assets/sounds/gavel_slam.wav.b64
           grep -q 'assets/sounds/gavel_slam.wav.b64' pubspec.yaml
+      - name: Prevent page-local colour literals
+        run: |
+          if grep -R -n --include='*.dart' -E 'Color\\(0x[0-9A-Fa-f]{6,8}\\)' lib/src/features; then
+            echo "Use shared design tokens instead of page-local colour literals."
+            exit 1
+          fi
       - name: Static analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Unit and widget tests
