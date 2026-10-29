@@ -168,13 +168,13 @@ class AuctionController extends Notifier<AuctionState> {
   void _balanceMinimumSquads() {
     final teams = [...state.teams];
     for (var recipientIndex = 0; recipientIndex < teams.length; recipientIndex++) {
-      while (teams[recipientIndex].squad.length < 11) {
+      while (teams[recipientIndex].squad.length < teams[recipientIndex].minSquadSize) {
         final recipient = teams[recipientIndex];
         var donorIndex = -1;
         AuctionPlayer? transfer;
         var transferCost = double.infinity;
         for (var candidateIndex = 0; candidateIndex < teams.length; candidateIndex++) {
-          if (candidateIndex == recipientIndex || teams[candidateIndex].squad.length <= 11) continue;
+          if (candidateIndex == recipientIndex || teams[candidateIndex].squad.length <= teams[candidateIndex].minSquadSize) continue;
           final donor = teams[candidateIndex];
           for (final player in donor.squad) {
             final cost = player.contract?.currentSalaryCrores ?? player.basePriceCr;
