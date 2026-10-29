@@ -120,6 +120,9 @@ class AuctionController extends Notifier<AuctionState> {
   }
   void nextLot() {
     state = _engine.nextLot(state);
+    if (state.phase == AuctionPhase.completed) {
+      _balanceMinimumSquads();
+    }
     unawaited(CampaignStore.saveAuction(state));
   }
 
