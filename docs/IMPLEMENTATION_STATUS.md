@@ -20,3 +20,12 @@
 - No 3D renderer or model assets are integrated yet. The renderer must be selected and profiled on the target Android device before calling this complete.
 - APK build, analyzer and test results must be read from GitHub Actions; never infer success from commits alone.
 - Competition rules (squad size, overseas limits, purse and retention rules) should be versioned per competition instead of remaining global constants.
+
+
+## Integration branch: playable-core
+
+- Auction squad balancing now targets each franchise's configured `minSquadSize` (18 by default), rather than the previous hard-coded 11-player threshold.
+- Starting a season validates each auction squad against that same configured minimum and reports the affected franchise and required size.
+- The legacy folders have **not** been deleted yet: active imports still depend on legacy fixture/schedule and storage adapters. Migrate those consumers before removing the old folders.
+- Persistence currently uses Hive JSON snapshots, not Isar. Keep Hive as the existing storage backend during this integration pass; changing database technology is a separate migration and is not required to make campaign state authoritative.
+- Local Flutter validation is unavailable in the current editing environment. CI must be used to verify analyzer, tests, and APK build before merge.
