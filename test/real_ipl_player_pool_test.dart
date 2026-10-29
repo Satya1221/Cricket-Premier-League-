@@ -6,6 +6,19 @@ import 'package:cricket_premier_league/src/features/auction/domain/player.dart';
 import 'package:cricket_premier_league/src/features/game/domain/career_simulation_engine.dart';
 
 void main() {
+  test('franchise roster rules default to an 18-player minimum', () {
+    for (final franchise in leagueFranchises) {
+      final team = AuctionTeam(
+        id: franchise.id,
+        name: franchise.name,
+        shortName: franchise.shortName,
+        purseCr: 120,
+      );
+      expect(team.minSquadSize, 18, reason: franchise.name);
+      expect(team.maxSquadSize, greaterThanOrEqualTo(team.minSquadSize));
+    }
+  });
+
   test('real-player pool covers all ten fictional franchises with unique IDs', () {
     expect(leagueFranchises, hasLength(10));
     expect(leagueFranchises.map((f) => f.name).toSet(), hasLength(10));

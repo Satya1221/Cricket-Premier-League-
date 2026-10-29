@@ -87,9 +87,9 @@ class SeasonNotifier extends StateNotifier<SeasonData> {
       throw StateError('Finish the auction before starting the season.');
     }
     final teams = auction.teams.map((team) {
-      if (team.squad.length < 11) {
+      if (team.squad.length < team.minSquadSize) {
         throw StateError(
-          '${team.name} has only ${team.squad.length} players. Complete the auction until every franchise has at least 11.',
+          '${team.name} has only ${team.squad.length} players. The minimum squad size is ${team.minSquadSize}; complete squad balancing before starting the season.',
         );
       }
       return CareerTeam(
